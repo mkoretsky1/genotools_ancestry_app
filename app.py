@@ -57,15 +57,15 @@ st.set_page_config(
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-local_css(f'streamlit/style.css')
+local_css(f'data/style.css')
 ####################### HEAD ##############################################
 
 head_1, head_2, title, head_3 = st.columns([0.3, 0.3, 1, 0.3])
 
-gp2 = Image.open(f'streamlit/gp2_2.jpg')
+gp2 = Image.open(f'data/gp2_2.jpg')
 head_1.image(gp2, width=120)
 
-card = Image.open(f'streamlit/card.jpeg')
+card = Image.open(f'data/card.jpeg')
 head_2.image(card, width=120)
 
 with title:
