@@ -135,3 +135,4 @@ if (selected_metrics_1 == 'Reference PCA') | (selected_metrics_1 == 'Both'):
 if (selected_metrics_1 == 'Projected PCA') | (selected_metrics_1 == 'Both'):
     plot_3d(total_pca, 'label')
 
+plot_3d(total_pca, 'label')
