@@ -18,7 +18,7 @@ st.set_page_config(
 
 st.markdown('### **Reference Panel Ancestry**')
 
-pie1, pie2 = st.columns(2)
+pie1, pie2 = st.columns([2, 1])
 
 out_path = f'data/GP2_QC_round3_MDGAP-QSBB'
 ref_pca_path = f'{out_path}_labeled_ref_pca.txt'
@@ -47,7 +47,7 @@ pie1.plotly_chart(pie_chart)
 
 st.markdown('### **Predicted Ancestry**')
 
-pie3, pie4 = st.columns(2)
+pie3, pie4 = st.columns([2, 1])
 
 df_new_counts = st.session_state.combined['Predicted Ancestry'].value_counts(normalize = True).rename_axis('Ancestry Category').reset_index(name='Proportion')
 new_counts = st.session_state.combined['Predicted Ancestry'].value_counts().rename_axis('Ancestry Category').reset_index(name='Counts')
@@ -71,7 +71,7 @@ pie3.plotly_chart(pie_chart)
 
 st.markdown('### **Reference Panel vs. Predicted Ancestry Counts**')
 
-bar1, bar2 = st.columns(2)
+bar1, bar2 = st.columns([2, 1])
 
 bar_compare = go.Figure(
             data=[
