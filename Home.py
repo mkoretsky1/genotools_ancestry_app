@@ -14,7 +14,7 @@ import datetime
 import sys
  
 # adding GenoTools/QC to the system path
-sys.path.insert(0, '/home/kuznetsovn2/Desktop/GenoTools/QC')
+# sys.path.insert(0, '/home/kuznetsovn2/Desktop/GenoTools/QC')
  
 # importing QC utils
 from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos

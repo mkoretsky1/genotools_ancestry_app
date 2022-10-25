@@ -71,7 +71,7 @@ pie3.plotly_chart(pie_chart)
 
 st.markdown('### **Reference Panel vs. Predicted Ancestry Counts**')
 
-bar1, bar2 = st.columns([2,1])
+bar1, bar2 = st.columns(2)
 
 bar_compare = go.Figure(
             data=[

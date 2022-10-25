@@ -96,7 +96,8 @@ def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, p
                         fit_columns_on_grid_load=False,
                         theme='streamlit', #Add theme color to the table
                         enable_enterprise_modules=True, 
-                        width='100%'
+                        width='100%',
+                        height = 300
                     )
             
             data = grid_response['data']
