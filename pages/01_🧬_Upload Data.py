@@ -11,7 +11,7 @@ import seaborn as sns
 from PIL import Image
 import datetime
 from streamlit.components.v1 import html
-from Home import blob_to_csv
+from hold_data import blob_to_csv
 from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
 from utils.dependencies import check_plink, check_plink2, check_admixture
 
@@ -19,41 +19,41 @@ plink_exec = check_plink()
 plink2_exec = check_plink2()
 admix_exec = check_admixture()
 
-# head_1, head_2, title, head_3 = st.columns([0.3, 0.3, 1, 0.3])
+head_1, head_2, title, head_3 = st.columns([0.3, 0.3, 1, 0.3])
 
-# gp2 = st.session_state.bucket.get_blob('gp2_2.jpg')
-# gp2 = gp2.download_as_bytes()
-# head_1.image(st.session_state.gp2, width=120)
+gp2 = st.session_state.bucket.get_blob('gp2_2.jpg')
+gp2 = gp2.download_as_bytes()
+head_1.image(gp2, width=120)
 
-# card = st.session_state.bucket.get_blob('card.jpeg')
-# card = card.download_as_bytes()
-# head_2.image(st.session_state.card, width=120)
+card = st.session_state.bucket.get_blob('card.jpeg')
+card = card.download_as_bytes()
+head_2.image(card, width=120)
 
-# with title:
-#     st.markdown("""
-#     <style>
-#     .big-font {
-#         font-family:Helvetica; color:#0f557a; font-size:34px !important;
-#     }
-#     </style>
-#     """, unsafe_allow_html=True)
-#     st.markdown('<p class="big-font">GenoTools Ancestry Prediction</p>', unsafe_allow_html=True)
+with title:
+    st.markdown("""
+    <style>
+    .big-font {
+        font-family:Helvetica; color:#0f557a; font-size:34px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    st.markdown('<p class="big-font">GenoTools Ancestry Prediction</p>', unsafe_allow_html=True)
     
-# with head_3:
-#     def modification_date(filename):
-#         t = os.path.getmtime(filename)
-#         return datetime.datetime.fromtimestamp(t)
-#     st.markdown("""
-#     <style>
-#     .small-font {
-#         font-family:Helvetica; color:#0f557a; font-size:16px !important;
-#     }
-#     </style>
-#     """, unsafe_allow_html=True)
+with head_3:
+    def modification_date(filename):
+        t = os.path.getmtime(filename)
+        return datetime.datetime.fromtimestamp(t)
+    st.markdown("""
+    <style>
+    .small-font {
+        font-family:Helvetica; color:#0f557a; font-size:16px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-#     pkl = st.session_state.bucket.get_blob('GP2_QC_round2_callrate_sex_ancestry_umap_linearsvc_ancestry_model.pkl')
-#     st.markdown('<p class="small-font">MODEL TRAINED</p>', unsafe_allow_html=True)  
-#     st.markdown(f'<p class="small-font">{str(pkl.updated).split(".")[0]}</p>', unsafe_allow_html=True)
+    pkl = st.session_state.bucket.get_blob('GP2_QC_round2_callrate_sex_ancestry_umap_linearsvc_ancestry_model.pkl')
+    st.markdown('<p class="small-font">MODEL TRAINED</p>', unsafe_allow_html=True)  
+    st.markdown(f'<p class="small-font">{str(pkl.updated).split(".")[0]}</p>', unsafe_allow_html=True)
 
 #########################  SIDE BAR #########################################
 

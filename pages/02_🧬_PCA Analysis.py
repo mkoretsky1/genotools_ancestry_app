@@ -11,7 +11,7 @@ import seaborn as sns
 from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 import datetime
-from Home import blob_to_csv
+from hold_data import blob_to_csv
 
 
 def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, predShow = True, symbol=None, x='PC1', y='PC2', z='PC3', title=None, x_range=None, y_range=None, z_range=None):
@@ -138,11 +138,6 @@ def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, p
             figSelected.update_traces(marker={'size': 3})
 
             st.plotly_chart(figSelected)
-
-    
-st.set_page_config(
-    layout = 'wide'
-)
 
 
 geno_path = f'GP2_QC_round3_MDGAP-QSBB'

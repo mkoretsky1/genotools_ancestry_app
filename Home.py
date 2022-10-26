@@ -11,50 +11,48 @@ import plotly.io as pio
 import seaborn as sns
 from PIL import Image
 import datetime
+import hold_data
 from io import StringIO
 from google.cloud import storage
 from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
 from utils.dependencies import check_plink, check_plink2, check_admixture
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'genotools-02f64a1e10be.json'
+st.set_page_config(page_title = "Home", layout = 'wide')
 
-plink_exec = check_plink()
-plink2_exec = check_plink2()
-admix_exec = check_admixture()
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'genotools-02f64a1e10be.json'
 
-def blob_to_csv(bucket, path, header='infer'):
-    blob = bucket.get_blob(path)
-    blob = blob.download_as_bytes()
-    blob = str(blob, 'utf-8')
-    blob = StringIO(blob)
-    df = pd.read_csv(blob, sep='\s+', header=header)
-    return df
+# plink_exec = check_plink()
+# plink2_exec = check_plink2()
+# admix_exec = check_admixture()
 
-storage_client = storage.Client(project='genotools')
+# def blob_to_csv(bucket, path, header='infer'):
+#     blob = bucket.get_blob(path)
+#     blob = blob.download_as_bytes()
+#     blob = str(blob, 'utf-8')
+#     blob = StringIO(blob)
+#     df = pd.read_csv(blob, sep='\s+', header=header)
+#     return df
 
-bucket_name = 'frontend_app_data'
-bucket = storage_client.get_bucket(bucket_name)
-st.session_state['bucket'] = bucket
+# storage_client = storage.Client(project='genotools')
+# bucket_name = 'frontend_app_data'
+# bucket = storage_client.get_bucket(bucket_name)
+# st.session_state['bucket'] = bucket
 
-st.set_page_config(
-    layout = 'wide'
-)
+# out_path = f'GP2_QC_round3_MDGAP-QSBB'
+# new_pca_path = f'{out_path}_projected_new_pca.txt'
+# # new_pca = pd.read_csv(new_pca_path, sep='\s+')
+# # new_labels = pd.read_csv(f'{out_path}_umap_linearsvc_predicted_labels.txt', delimiter = "\t")
+# new_pca = blob_to_csv(bucket, new_pca_path)
+# new_labels = blob_to_csv(bucket, f'{out_path}_umap_linearsvc_predicted_labels.txt')
 
-out_path = f'GP2_QC_round3_MDGAP-QSBB'
-new_pca_path = f'{out_path}_projected_new_pca.txt'
-# new_pca = pd.read_csv(new_pca_path, sep='\s+')
-# new_labels = pd.read_csv(f'{out_path}_umap_linearsvc_predicted_labels.txt', delimiter = "\t")
-new_pca = blob_to_csv(bucket, new_pca_path)
-new_labels = blob_to_csv(bucket, f'{out_path}_umap_linearsvc_predicted_labels.txt')
+# combined = pd.merge(new_pca, new_labels, on='IID')
+# combined.rename(columns = {'IID': 'Sample ID', 'label_y': 'Predicted Ancestry'}, inplace = True)
 
-combined = pd.merge(new_pca, new_labels, on='IID')
-combined.rename(columns = {'IID': 'Sample ID', 'label_y': 'Predicted Ancestry'}, inplace = True)
-
-if 'combined' not in st.session_state:
-    st.session_state['combined'] = combined
+# if 'combined' not in st.session_state:
+#     st.session_state['combined'] = combined
 
 # Background color
-css = bucket.get_blob('style.css')
+css = st.session_state.bucket.get_blob('style.css')
 css = css.download_as_string()
 st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
@@ -62,14 +60,12 @@ st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 head_1, head_2, title, head_3 = st.columns([0.3, 0.3, 1, 0.3])
 
-gp2 = bucket.get_blob('gp2_2.jpg')
+gp2 = st.session_state.bucket.get_blob('gp2_2.jpg')
 gp2 = gp2.download_as_bytes()
-# st.session_state['gp2'] = gp2
 head_1.image(gp2, width=120)
 
-card = bucket.get_blob('card.jpeg')
+card = st.session_state.bucket.get_blob('card.jpeg')
 card = card.download_as_bytes()
-# st.session_state['card'] = card
 head_2.image(card, width=120)
 
 with title:
@@ -94,6 +90,6 @@ with head_3:
     </style>
     """, unsafe_allow_html=True)
 
-    pkl = bucket.get_blob('GP2_QC_round2_callrate_sex_ancestry_umap_linearsvc_ancestry_model.pkl')
+    pkl = st.session_state.bucket.get_blob('GP2_QC_round2_callrate_sex_ancestry_umap_linearsvc_ancestry_model.pkl')
     st.markdown('<p class="small-font">MODEL TRAINED</p>', unsafe_allow_html=True)  
     st.markdown(f'<p class="small-font">{str(pkl.updated).split(".")[0]}</p>', unsafe_allow_html=True)

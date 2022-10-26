@@ -11,7 +11,7 @@ import plotly.io as pio
 import seaborn as sns
 from PIL import Image
 import datetime
-from Home import blob_to_csv
+from hold_data import blob_to_csv
 
 st.markdown('### **Reference Panel Admixture Populations**')
 
