@@ -1,5 +1,8 @@
-pandas
+numpy==1.21.6
+pandas==1.3.5
 streamlit
 plotly
 matplotlib
 seaborn
+google-cloud-storage
+streamlit-aggrid
