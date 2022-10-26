@@ -11,6 +11,7 @@ import seaborn as sns
 from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 import datetime
+from Home import blob_to_csv
 
 
 def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, predShow = True, symbol=None, x='PC1', y='PC2', z='PC3', title=None, x_range=None, y_range=None, z_range=None):
@@ -96,7 +97,7 @@ def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, p
                         fit_columns_on_grid_load=False,
                         theme='streamlit', #Add theme color to the table
                         enable_enterprise_modules=True, 
-                        width='100%',
+                        width = '100%' ,
                         height = 300
                     )
             
@@ -144,9 +145,9 @@ st.set_page_config(
 )
 
 
-geno_path = f'data/GP2_QC_round3_MDGAP-QSBB'
-ref_labels = f'data/ref_panel_ancestry.txt'
-out_path = f'data/GP2_QC_round3_MDGAP-QSBB'
+geno_path = f'GP2_QC_round3_MDGAP-QSBB'
+ref_labels = f'ref_panel_ancestry.txt'
+out_path = f'GP2_QC_round3_MDGAP-QSBB'
 
 print(os.getcwd())
 outdir = os.path.dirname(out_path)
@@ -160,10 +161,15 @@ st.markdown(f'## **Cohort: {out_path.split("/")[-1].split("_")[-1]}**')
 # metric_cols1, metric_cols2, metric_cols3 = st.columns(3)
 # metric_col1, metric_col2, metric_col3 = st.columns(3)
 
-ref_common_snps = pd.read_csv(f'data/ref_common_snps.common_snps', sep='\s+', header=None)
-geno_common_snps = pd.read_csv(f'{out_path}_common_snps.common_snps', sep='\s+', header=None)
-geno_fam = pd.read_csv(f'{geno_path}.fam', sep='\s+', header=None)
-ref_fam = pd.read_csv(f'data/ref_common_snps.fam', sep='\s+', header=None)
+ref_common_snps = blob_to_csv(st.session_state.bucket, 'ref_common_snps.common_snps', header=None)
+ref_fam = blob_to_csv(st.session_state.bucket, 'ref_common_snps.fam', header=None)
+geno_common_snps = blob_to_csv(st.session_state.bucket, f'{out_path}_common_snps.common_snps', header=None)
+geno_fam = blob_to_csv(st.session_state.bucket, f'{geno_path}.fam', header=None)
+
+# ref_common_snps = pd.read_csv(f'ref_common_snps.common_snps', sep='\s+', header=None)
+# geno_common_snps = pd.read_csv(f'{out_path}_common_snps.common_snps', sep='\s+', header=None)
+# geno_fam = pd.read_csv(f'{geno_path}.fam', sep='\s+', header=None)
+# ref_fam = pd.read_csv(f'ref_common_snps.fam', sep='\s+', header=None)
 
 
 # if (selected_metrics == 'SNPs') | (selected_metrics == 'Both'):
@@ -203,13 +209,17 @@ with tab3:
 # st.markdown('**PCA Selection**')
 selected_metrics_1 = st.selectbox(label = 'PCA Selection', label_visibility = 'collapsed', options=['Click to select PCA Plot...', 'Reference PCA', 'Projected PCA', 'Both'])
 
-ref_pca_path = f'{out_path}_labeled_ref_pca.txt'
-ref_pca = pd.read_csv(ref_pca_path, sep='\s+')
-new_pca_path = f'{out_path}_projected_new_pca.txt'
-new_pca = pd.read_csv(new_pca_path, sep='\s+')
+ref_pca = blob_to_csv(st.session_state.bucket, f'{out_path}_labeled_ref_pca.txt')
+new_pca = blob_to_csv(st.session_state.bucket, f'{out_path}_projected_new_pca.txt')
+
+# ref_pca_path = f'{out_path}_labeled_ref_pca.txt'
+# ref_pca = pd.read_csv(ref_pca_path, sep='\s+')
+# new_pca_path = f'{out_path}_projected_new_pca.txt'
+# new_pca = pd.read_csv(new_pca_path, sep='\s+')
 total_pca = pd.concat([ref_pca, new_pca], axis=0)
 total_pca_copy = total_pca.replace({'new' : 'Predicted'})
-new_labels = pd.read_csv(f'{out_path}_umap_linearsvc_predicted_labels.txt', delimiter = "\t")
+new_labels = blob_to_csv(st.session_state.bucket, f'{out_path}_umap_linearsvc_predicted_labels.txt')
+# new_labels = pd.read_csv(f'{out_path}_umap_linearsvc_predicted_labels.txt', delimiter = "\t")
 
 
 if (selected_metrics_1 == 'Reference PCA') | (selected_metrics_1 == 'Both'):

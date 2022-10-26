@@ -11,11 +11,7 @@ import seaborn as sns
 from PIL import Image
 import datetime
 from streamlit.components.v1 import html
- 
-# adding GenoTools/QC to the system path
-sys.path.insert(0, '/home/kuznetsovn2/Desktop/GenoTools/QC')
- 
-# importing QC utils
+from Home import blob_to_csv
 from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
 from utils.dependencies import check_plink, check_plink2, check_admixture
 
@@ -23,70 +19,43 @@ plink_exec = check_plink()
 plink2_exec = check_plink2()
 admix_exec = check_admixture()
 
-# create navigation
-def nav_page(page_name, timeout_secs=3):
-    nav_script = """
-        <script type="text/javascript">
-            function attempt_nav_page(page_name, start_time, timeout_secs) {
-                var links = window.parent.document.getElementsByTagName("a");
-                for (var i = 0; i < links.length; i++) {
-                    if (links[i].href.toLowerCase().endsWith("/" + page_name.toLowerCase())) {
-                        links[i].click();
-                        return;
-                    }
-                }
-                var elasped = new Date() - start_time;
-                if (elasped < timeout_secs * 1000) {
-                    setTimeout(attempt_nav_page, 100, page_name, start_time, timeout_secs);
-                } else {
-                    alert("Unable to navigate to page '" + page_name + "' after " + timeout_secs + " second(s).");
-                }
-            }
-            window.addEventListener("load", function() {
-                attempt_nav_page("%s", new Date(), %d);
-            });
-        </script>
-    """ % (page_name, timeout_secs)
-    html(nav_script)
+# head_1, head_2, title, head_3 = st.columns([0.3, 0.3, 1, 0.3])
 
+# gp2 = st.session_state.bucket.get_blob('gp2_2.jpg')
+# gp2 = gp2.download_as_bytes()
+# head_1.image(st.session_state.gp2, width=120)
 
-####################### HEAD ##############################################
+# card = st.session_state.bucket.get_blob('card.jpeg')
+# card = card.download_as_bytes()
+# head_2.image(st.session_state.card, width=120)
 
-head_1, head_2, title, head_3 = st.columns([0.3, 0.3, 1, 0.3])
-
-gp2 = Image.open(f'data/gp2_2.jpg')
-head_1.image(gp2, width=120)
-
-card = Image.open(f'data/card.jpeg')
-head_2.image(card, width=120)
-
-with title:
-    st.markdown("""
-    <style>
-    .big-font {
-        font-family:Helvetica; color:#0f557a; font-size:34px !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    st.markdown('<p class="big-font">GenoTools Ancestry Prediction</p>', unsafe_allow_html=True)
+# with title:
+#     st.markdown("""
+#     <style>
+#     .big-font {
+#         font-family:Helvetica; color:#0f557a; font-size:34px !important;
+#     }
+#     </style>
+#     """, unsafe_allow_html=True)
+#     st.markdown('<p class="big-font">GenoTools Ancestry Prediction</p>', unsafe_allow_html=True)
     
-with head_3:
-    def modification_date(filename):
-        t = os.path.getmtime(filename)
-        return datetime.datetime.fromtimestamp(t)
-    st.markdown("""
-    <style>
-    .small-font {
-        font-family:Helvetica; color:#0f557a; font-size:16px !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# with head_3:
+#     def modification_date(filename):
+#         t = os.path.getmtime(filename)
+#         return datetime.datetime.fromtimestamp(t)
+#     st.markdown("""
+#     <style>
+#     .small-font {
+#         font-family:Helvetica; color:#0f557a; font-size:16px !important;
+#     }
+#     </style>
+#     """, unsafe_allow_html=True)
 
-    date = modification_date(f'data/GP2_QC_round2_callrate_sex_ancestry_umap_linearsvc_ancestry_model.pkl')
-    st.markdown('<p class="small-font">MODEL TRAINED</p>', unsafe_allow_html=True)  
-    st.markdown(f'<p class="small-font">{date}</p>', unsafe_allow_html=True)
+#     pkl = st.session_state.bucket.get_blob('GP2_QC_round2_callrate_sex_ancestry_umap_linearsvc_ancestry_model.pkl')
+#     st.markdown('<p class="small-font">MODEL TRAINED</p>', unsafe_allow_html=True)  
+#     st.markdown(f'<p class="small-font">{str(pkl.updated).split(".")[0]}</p>', unsafe_allow_html=True)
 
-# ########################  SIDE BAR #########################################
+#########################  SIDE BAR #########################################
 
 st.sidebar.markdown('**Upload your own data!**', unsafe_allow_html=True)
 uploaded_data = st.sidebar.file_uploader('Accepts PLINK file formats', accept_multiple_files=True, type=['bed', 'bim', 'fam'])
@@ -136,8 +105,11 @@ elif uploaded_data:
         file_summary.markdown(f'### **File Prefix**')
         file_summary.text(*file_prefixes)
 
-        fam_df = pd.read_csv(fam_file)
-        bim_df = pd.read_csv(bim_file)
+        # fam_df = pd.read_csv(fam_file)
+        # bim_df = pd.read_csv(bim_file)
+
+        fam_df = blob_to_csv(st.session_state.bucket, fam_file)
+        bim_df = blob_to_csv(st.session_state.bucket, bim_file)
 
         # sample_summary.text(f"Number of Samples in Dataset: {len(fam_df.index)}")
         # sample_summary.text(f"Number of SNPs in Dataset: {len(bim_df.index)}")

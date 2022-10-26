@@ -17,6 +17,7 @@ from geneview.algorithm._cluster import hierarchical_cluster
 from itertools import cycle
 from matplotlib.colors import to_rgba
 from matplotlib.cm import ScalarMappable
+from Home import blob_to_csv
 
 st.set_page_config(page_title = "Hidden Page", layout = 'wide')
 
@@ -136,7 +137,8 @@ st.set_page_config(page_title = "Hidden Page", layout = 'wide')
 
 #     return ax
 
-ref_admix = pd.read_csv('data/ref_panel_admixture.txt', sep='\s+')
+# ref_admix = pd.read_csv('data/ref_panel_admixture.txt', sep='\s+')
+ref_admix = blob_to_csv(bucket, 'data/ref_panel_admixture.txt', sep='\s+')
 
 st.dataframe(ref_admix.head())
 
