@@ -31,6 +31,8 @@ card = bucket.get_blob('card.jpeg')
 card = card.download_as_bytes()
 head_2.image(card, width=120)
 
+update = 'check_rules'
+
 with title:
     st.markdown("""
     <style>
