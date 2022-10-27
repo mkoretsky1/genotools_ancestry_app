@@ -11,7 +11,6 @@ import plotly.io as pio
 import seaborn as sns
 from PIL import Image
 import datetime
-
 from hold_data import blob_as_csv, get_gcloud_bucket
 
 st.set_page_config(page_title = "Ancestry Breakdown", layout = 'wide')
@@ -19,13 +18,19 @@ st.set_page_config(page_title = "Ancestry Breakdown", layout = 'wide')
 bucket_name = 'frontend_app_data'
 bucket = get_gcloud_bucket(bucket_name)
 
+out_path = f'GP2_QC_round3_MDGAP-QSBB'
+new_pca = blob_as_csv(bucket, f'{out_path}_projected_new_pca.txt')
+new_labels = blob_as_csv(bucket, f'{out_path}_umap_linearsvc_predicted_labels.txt')
+
+combined = pd.merge(new_pca, new_labels, on='IID')
+combined.rename(columns = {'IID': 'Sample ID', 'label_y': 'Predicted Ancestry'}, inplace = True)
+
 st.markdown('### **Reference Panel Ancestry**')
 
 pie1, pie2 = st.columns([2, 1])
 
 out_path = f'GP2_QC_round3_MDGAP-QSBB'
 ref_pca_path = f'{out_path}_labeled_ref_pca.txt'
-# ref_pca = pd.read_csv(ref_pca_path, sep='\s+')
 ref_pca = blob_as_csv(bucket, ref_pca_path)
 
 df_ancestry_counts = ref_pca['label'].value_counts(normalize = True).rename_axis('Ancestry Category').reset_index(name='Proportion')
@@ -53,8 +58,8 @@ st.markdown('### **Predicted Ancestry**')
 
 pie3, pie4 = st.columns([2, 1])
 
-df_new_counts = st.session_state.combined['Predicted Ancestry'].value_counts(normalize = True).rename_axis('Ancestry Category').reset_index(name='Proportion')
-new_counts = st.session_state.combined['Predicted Ancestry'].value_counts().rename_axis('Ancestry Category').reset_index(name='Counts')
+df_new_counts = combined['Predicted Ancestry'].value_counts(normalize = True).rename_axis('Ancestry Category').reset_index(name='Proportion')
+new_counts = combined['Predicted Ancestry'].value_counts().rename_axis('Ancestry Category').reset_index(name='Counts')
 new_combo = pd.merge(df_new_counts, new_counts, on='Ancestry Category')
 
 pie4.dataframe(new_combo)

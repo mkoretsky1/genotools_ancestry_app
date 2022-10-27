@@ -34,16 +34,3 @@ def get_gcloud_bucket(bucket_name):
 
 bucket_name = 'frontend_app_data'
 bucket = get_gcloud_bucket(bucket_name)
-
-out_path = f'GP2_QC_round3_MDGAP-QSBB'
-new_pca_path = f'{out_path}_projected_new_pca.txt'
-# new_pca = pd.read_csv(new_pca_path, sep='\s+')
-# new_labels = pd.read_csv(f'{out_path}_umap_linearsvc_predicted_labels.txt', delimiter = "\t")
-new_pca = blob_as_csv(bucket, new_pca_path)
-new_labels = blob_as_csv(bucket, f'{out_path}_umap_linearsvc_predicted_labels.txt')
-
-combined = pd.merge(new_pca, new_labels, on='IID')
-combined.rename(columns = {'IID': 'Sample ID', 'label_y': 'Predicted Ancestry'}, inplace = True)
-
-if 'combined' not in st.session_state:
-    st.session_state['combined'] = combined
