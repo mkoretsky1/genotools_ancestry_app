@@ -16,18 +16,19 @@ from io import StringIO
 from google.cloud import storage
 
 from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
-from utils.dependencies import check_plink, check_plink2, check_admixture
 
 from hold_data import get_gcloud_bucket
 
 st.set_page_config(page_title = "Home", layout = 'wide')
 
+frontend_bucket_name = 'frontend_app_materials'
+frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
 
-bucket_name = 'frontend_app_data'
-bucket = get_gcloud_bucket(bucket_name)
+ref_panel_bucket_name = 'ref_panel'
+ref_panel_bucket = get_gcloud_bucket(ref_panel_bucket_name)
 
 # Background color
-css = bucket.get_blob('style.css')
+css = frontend_bucket.get_blob('style.css')
 css = css.download_as_string()
 st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
@@ -35,11 +36,11 @@ st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 head_1, head_2, title, head_3 = st.columns([0.3, 0.3, 1, 0.3])
 
-gp2 = bucket.get_blob('gp2_2.jpg')
+gp2 = frontend_bucket.get_blob('gp2_2.jpg')
 gp2 = gp2.download_as_bytes()
 head_1.image(gp2, width=120)
 
-card = bucket.get_blob('card.jpeg')
+card = frontend_bucket.get_blob('card.jpeg')
 card = card.download_as_bytes()
 head_2.image(card, width=120)
 
@@ -65,6 +66,6 @@ with head_3:
     </style>
     """, unsafe_allow_html=True)
 
-    pkl = bucket.get_blob('GP2_QC_round2_callrate_sex_ancestry_umap_linearsvc_ancestry_model.pkl')
+    pkl = ref_panel_bucket.get_blob('GP2_QC_round2_callrate_sex_ancestry_umap_linearsvc_ancestry_model.pkl')
     st.markdown('<p class="small-font">MODEL TRAINED</p>', unsafe_allow_html=True)  
     st.markdown(f'<p class="small-font">{str(pkl.updated).split(".")[0]}</p>', unsafe_allow_html=True)
