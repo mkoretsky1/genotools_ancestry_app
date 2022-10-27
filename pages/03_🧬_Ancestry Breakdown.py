@@ -11,11 +11,13 @@ import plotly.io as pio
 import seaborn as sns
 from PIL import Image
 import datetime
-from hold_data import blob_to_csv
 
-st.set_page_config(
-    layout = 'wide'
-)
+from hold_data import blob_as_csv, get_gcloud_bucket
+
+st.set_page_config(page_title = "Ancestry Breakdown", layout = 'wide')
+
+bucket_name = 'frontend_app_data'
+bucket = get_gcloud_bucket(bucket_name)
 
 st.markdown('### **Reference Panel Ancestry**')
 
@@ -24,7 +26,7 @@ pie1, pie2 = st.columns([2, 1])
 out_path = f'GP2_QC_round3_MDGAP-QSBB'
 ref_pca_path = f'{out_path}_labeled_ref_pca.txt'
 # ref_pca = pd.read_csv(ref_pca_path, sep='\s+')
-ref_pca = blob_to_csv(st.session_state.bucket, ref_pca_path)
+ref_pca = blob_as_csv(bucket, ref_pca_path)
 
 df_ancestry_counts = ref_pca['label'].value_counts(normalize = True).rename_axis('Ancestry Category').reset_index(name='Proportion')
 ref_counts = ref_pca['label'].value_counts().rename_axis('Ancestry Category').reset_index(name='Counts')

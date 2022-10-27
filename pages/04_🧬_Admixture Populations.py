@@ -11,12 +11,18 @@ import plotly.io as pio
 import seaborn as sns
 from PIL import Image
 import datetime
-from hold_data import blob_to_csv
+
+from hold_data import blob_as_csv, get_gcloud_bucket
+
+st.set_page_config(page_title = "Admixture Populations", layout = 'wide')
+
+bucket_name = 'frontend_app_data'
+bucket = get_gcloud_bucket(bucket_name)
 
 st.markdown('### **Reference Panel Admixture Populations**')
 
 # ref_admix = pd.read_csv('data/ref_panel_admixture.txt', sep='\s+')
-ref_admix = blob_to_csv(st.session_state.bucket, 'ref_panel_admixture.txt')
+ref_admix = blob_as_csv(bucket, 'ref_panel_admixture.txt')
 
 st.dataframe(ref_admix)
 
@@ -31,6 +37,6 @@ admixture_output = ref_admix[['pop1', 'pop2', 'pop3', 'pop4', 'pop5', 'pop6', 'p
 
 # st.image('data/refpanel_admix.png', caption='Reference Panel Admixture Plot')
 
-admix_plot = st.session_state.bucket.get_blob('refpanel_admix.png')
+admix_plot = bucket.get_blob('refpanel_admix.png')
 admix_plot = admix_plot.download_as_bytes()
 st.image(admix_plot)

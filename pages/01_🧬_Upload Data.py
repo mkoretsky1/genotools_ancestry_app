@@ -11,21 +11,23 @@ import seaborn as sns
 from PIL import Image
 import datetime
 from streamlit.components.v1 import html
-from hold_data import blob_to_csv
-from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
-from utils.dependencies import check_plink, check_plink2, check_admixture
 
-plink_exec = check_plink()
-plink2_exec = check_plink2()
-admix_exec = check_admixture()
+from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
+
+from hold_data import blob_as_csv, get_gcloud_bucket
+
+st.set_page_config(page_title = "Upload Data", layout = 'wide')
+
+bucket_name = 'frontend_app_data'
+bucket = get_gcloud_bucket(bucket_name)
 
 head_1, head_2, title, head_3 = st.columns([0.3, 0.3, 1, 0.3])
 
-gp2 = st.session_state.bucket.get_blob('gp2_2.jpg')
+gp2 = bucket.get_blob('gp2_2.jpg')
 gp2 = gp2.download_as_bytes()
 head_1.image(gp2, width=120)
 
-card = st.session_state.bucket.get_blob('card.jpeg')
+card = bucket.get_blob('card.jpeg')
 card = card.download_as_bytes()
 head_2.image(card, width=120)
 
@@ -51,7 +53,7 @@ with head_3:
     </style>
     """, unsafe_allow_html=True)
 
-    pkl = st.session_state.bucket.get_blob('GP2_QC_round2_callrate_sex_ancestry_umap_linearsvc_ancestry_model.pkl')
+    pkl = bucket.get_blob('GP2_QC_round2_callrate_sex_ancestry_umap_linearsvc_ancestry_model.pkl')
     st.markdown('<p class="small-font">MODEL TRAINED</p>', unsafe_allow_html=True)  
     st.markdown(f'<p class="small-font">{str(pkl.updated).split(".")[0]}</p>', unsafe_allow_html=True)
 
@@ -108,8 +110,8 @@ elif uploaded_data:
         # fam_df = pd.read_csv(fam_file)
         # bim_df = pd.read_csv(bim_file)
 
-        fam_df = blob_to_csv(st.session_state.bucket, fam_file)
-        bim_df = blob_to_csv(st.session_state.bucket, bim_file)
+        fam_df = blob_as_csv(st.session_state.bucket, fam_file)
+        bim_df = blob_as_csv(st.session_state.bucket, bim_file)
 
         # sample_summary.text(f"Number of Samples in Dataset: {len(fam_df.index)}")
         # sample_summary.text(f"Number of SNPs in Dataset: {len(bim_df.index)}")
