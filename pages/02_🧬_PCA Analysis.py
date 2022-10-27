@@ -124,10 +124,6 @@ geno_path = f'GP2_QC_round3_MDGAP-QSBB'
 ref_labels = f'ref_panel_ancestry.txt'
 out_path = f'GP2_QC_round3_MDGAP-QSBB'
 
-print(os.getcwd())
-outdir = os.path.dirname(out_path)
-plot_dir = f'{outdir}/plot_ancestry'  # Should we make it a choice if they want to export plot?
-
 st.markdown(f'## **Cohort: {out_path.split("/")[-1].split("_")[-1]}**')
 
 ref_common_snps = blob_as_csv(bucket, 'ref_common_snps.common_snps', header=None)
