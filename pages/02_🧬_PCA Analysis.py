@@ -11,10 +11,10 @@ import seaborn as sns
 from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 import datetime
-
 from hold_data import blob_as_csv, get_gcloud_bucket
 
-def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, predShow = True, symbol=None, x='PC1', y='PC2', z='PC3', title=None, x_range=None, y_range=None, z_range=None):
+
+def plot_3d(labeled_df, color, symbol=None, x='PC1', y='PC2', z='PC3', title=None, x_range=None, y_range=None, z_range=None):
     '''
     Parameters: 
     labeled_df (Pandas dataframe): labeled ancestry dataframe
@@ -53,21 +53,18 @@ def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, p
 
     st.plotly_chart(fig)
 
+def pca_details(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, predShow = True):
     col1, col2, col3 = st.columns([2, 2, 2])
 
     if predShow:
         full_df = st.session_state.combined
-        combined = full_df[['Sample ID', 'Predicted Ancestry']]
+        combined = st.session_state.combined[['Sample ID', 'Predicted Ancestry']]
         holdValues = combined['Predicted Ancestry'].value_counts().rename_axis('Predicted Ancestry Labels').reset_index(name='Counts')
 
-        # st.plotly_chart(fig)
-
         with col1:
-            # st.dataframe(combined)
             gb = GridOptionsBuilder.from_dataframe(combined)
-            gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
-            gb.configure_side_bar() #Add a sidebar
-            # gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
+            gb.configure_pagination(paginationAutoPageSize=True)
+            gb.configure_side_bar()
             gridOptions = gb.build()
 
             grid_response = AgGrid(
@@ -76,7 +73,7 @@ def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, p
                         data_return_mode='AS_INPUT', 
                         update_mode='MODEL_CHANGED', 
                         fit_columns_on_grid_load=False,
-                        theme='streamlit', #Add theme color to the table
+                        theme='streamlit',
                         enable_enterprise_modules=True, 
                         width='100%',
                         height = 300
@@ -84,8 +81,6 @@ def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, p
 
         with col2:
             gb = GridOptionsBuilder.from_dataframe(holdValues)
-            # gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
-            # gb.configure_side_bar() #Add a sidebar
             gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
             gridOptions = gb.build()
 
@@ -95,7 +90,7 @@ def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, p
                         data_return_mode='AS_INPUT', 
                         update_mode='MODEL_CHANGED', 
                         fit_columns_on_grid_load=False,
-                        theme='streamlit', #Add theme color to the table
+                        theme='streamlit',
                         enable_enterprise_modules=True, 
                         width = '100%' ,
                         height = 300
@@ -103,9 +98,8 @@ def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, p
             
             data = grid_response['data']
             selected = grid_response['selected_rows'] 
-            selected_df = pd.DataFrame(selected) #Pass the selected rows to a new dataframe df
+            selected_df = pd.DataFrame(selected) # selected rows from AgGrid passed to new df
 
-        
         if not selected_df.empty:
             selected_pca = full_df.copy()
             selectionList = []
@@ -119,25 +113,7 @@ def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, p
                 selected_pca.replace({items: 'Predicted'}, inplace = True)
 
             total_pca_selected = pd.concat([ref_pca, selected_pca], axis=0)
-
-            figSelected = px.scatter_3d(
-                total_pca_selected,
-                x=x,
-                y=y,
-                z=z,
-                color=color,
-                symbol=symbol,
-                title=title,
-                color_discrete_sequence=px.colors.qualitative.Bold,
-                range_x=x_range,
-                range_y=y_range,
-                range_z=z_range,
-                hover_name="IID"
-            )
-
-            figSelected.update_traces(marker={'size': 3})
-
-            st.plotly_chart(figSelected)
+            plot_3d(total_pca_selected, 'label')
 
 st.set_page_config(page_title = "PCA Analysis", layout = 'wide')
 
@@ -148,42 +124,12 @@ geno_path = f'GP2_QC_round3_MDGAP-QSBB'
 ref_labels = f'ref_panel_ancestry.txt'
 out_path = f'GP2_QC_round3_MDGAP-QSBB'
 
-print(os.getcwd())
-outdir = os.path.dirname(out_path)
-plot_dir = f'{outdir}/plot_ancestry'  # Should we make it a choice if they want to export plot?
-
 st.markdown(f'## **Cohort: {out_path.split("/")[-1].split("_")[-1]}**')
-# st.markdown('**Stats/Graph Selection**', unsafe_allow_html=True)
-# selected_metrics = st.selectbox(label="Stats Selection", options=['SNPs', 'Samples', 'Both'])
-# selected_metrics_1 = st.selectbox(label="PCA selection", options=['Reference PCA', 'Projected PCA', 'Both'])
-
-# metric_cols1, metric_cols2, metric_cols3 = st.columns(3)
-# metric_col1, metric_col2, metric_col3 = st.columns(3)
 
 ref_common_snps = blob_as_csv(bucket, 'ref_common_snps.common_snps', header=None)
 ref_fam = blob_as_csv(bucket, 'ref_common_snps.fam', header=None)
 geno_common_snps = blob_as_csv(bucket, f'{out_path}_common_snps.common_snps', header=None)
 geno_fam = blob_as_csv(bucket, f'{geno_path}.fam', header=None)
-
-# ref_common_snps = pd.read_csv(f'ref_common_snps.common_snps', sep='\s+', header=None)
-# geno_common_snps = pd.read_csv(f'{out_path}_common_snps.common_snps', sep='\s+', header=None)
-# geno_fam = pd.read_csv(f'{geno_path}.fam', sep='\s+', header=None)
-# ref_fam = pd.read_csv(f'ref_common_snps.fam', sep='\s+', header=None)
-
-
-# if (selected_metrics == 'SNPs') | (selected_metrics == 'Both'):
-#     # st.markdown(f'<p class="small-font">Number of SNPs used to train prediction model: {ref_common_snps.shape[0]}</p>', unsafe_allow_html=True)
-#     metric_cols1.metric('SNPs for Model Training', ref_common_snps.shape[0])
-#     # st.markdown(f'<p class="small-font">Number of overlapping SNPs: {geno_common_snps.shape[0]}</p>', unsafe_allow_html=True)
-#     metric_cols2.metric('Overlapping SNPs', geno_common_snps.shape[0])
-
-# if (selected_metrics == 'Samples') | (selected_metrics == 'Both'):
-#     # st.markdown(f'<p class="small-font">Number of samples for prediction: {geno_fam.shape[0]}</p>', unsafe_allow_html=True)
-#     metric_col1.metric('Samples for Prediction', geno_fam.shape[0])
-#     # st.markdown(f'<p class="small-font">Train set size: {round(ref_fam.shape[0]*0.8)}</p>', unsafe_allow_html=True)
-#     metric_col2.metric('Train Set Size', round(ref_fam.shape[0]*0.8))
-#     # st.markdown(f'<p class="small-font">Test set size: {round(ref_fam.shape[0]*0.2)}</p>', unsafe_allow_html=True)
-#     metric_col3.metric('Test Set Size', round(ref_fam.shape[0]*0.2))
 
 tab1, tab2, tab3 = st.tabs(["SNPs", "Samples", "Both"])
 
@@ -205,24 +151,24 @@ with tab3:
     metric_col2.metric('Train Set Size', round(ref_fam.shape[0]*0.8))
     metric_col3.metric('Test Set Size', round(ref_fam.shape[0]*0.2))
 
-# st.markdown('**PCA Selection**')
+
 selected_metrics_1 = st.selectbox(label = 'PCA Selection', label_visibility = 'collapsed', options=['Click to select PCA Plot...', 'Reference PCA', 'Projected PCA', 'Both'])
 
 ref_pca = blob_as_csv(bucket, f'{out_path}_labeled_ref_pca.txt')
 new_pca = blob_as_csv(bucket, f'{out_path}_projected_new_pca.txt')
 
-# ref_pca_path = f'{out_path}_labeled_ref_pca.txt'
-# ref_pca = pd.read_csv(ref_pca_path, sep='\s+')
-# new_pca_path = f'{out_path}_projected_new_pca.txt'
-# new_pca = pd.read_csv(new_pca_path, sep='\s+')
 total_pca = pd.concat([ref_pca, new_pca], axis=0)
 total_pca_copy = total_pca.replace({'new' : 'Predicted'})
 new_labels = blob_as_csv(bucket, f'{out_path}_umap_linearsvc_predicted_labels.txt')
-# new_labels = pd.read_csv(f'{out_path}_umap_linearsvc_predicted_labels.txt', delimiter = "\t")
 
+combined = pd.merge(new_pca, new_labels, on='IID')
+combined.rename(columns = {'IID': 'Sample ID', 'label_y': 'Predicted Ancestry'}, inplace = True)
+st.session_state['combined'] = combined
 
 if (selected_metrics_1 == 'Reference PCA') | (selected_metrics_1 == 'Both'):
-    plot_3d(ref_pca, 'label', predShow = False)
+    plot_3d(ref_pca, 'label')
+    pca_details(ref_pca, 'label', predShow = False)
 
 if (selected_metrics_1 == 'Projected PCA') | (selected_metrics_1 == 'Both'):
-    plot_3d(total_pca_copy, 'label', ref_pca, new_pca, new_labels)
+    plot_3d(total_pca_copy, 'label')
+    pca_details(total_pca_copy, 'label', ref_pca, new_pca, new_labels)

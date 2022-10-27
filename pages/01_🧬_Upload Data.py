@@ -88,7 +88,6 @@ elif uploaded_data:
         st.error('Error! Please submit at least 1 of each PLINK file type: .bed, .bim, .fam')
 
     if allThree:
-        # st.write(uploaded_data)
         file_summary, sample_summary, model_choice = st.columns([2, 1, 2])
         file_summary.markdown(f'### **File Paths**')
 
@@ -107,14 +106,8 @@ elif uploaded_data:
         file_summary.markdown(f'### **File Prefix**')
         file_summary.text(*file_prefixes)
 
-        # fam_df = pd.read_csv(fam_file)
-        # bim_df = pd.read_csv(bim_file)
-
         fam_df = blob_as_csv(st.session_state.bucket, fam_file)
         bim_df = blob_as_csv(st.session_state.bucket, bim_file)
-
-        # sample_summary.text(f"Number of Samples in Dataset: {len(fam_df.index)}")
-        # sample_summary.text(f"Number of SNPs in Dataset: {len(bim_df.index)}")
 
         sample_summary.metric("Number of Samples in Dataset:", len(fam_df.index))
         sample_summary.metric("Number of SNPs in Dataset:", len(bim_df.index))
