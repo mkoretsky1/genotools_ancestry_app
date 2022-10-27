@@ -31,6 +31,3 @@ def get_gcloud_bucket(bucket_name):
     storage_client = storage.Client(project='genotools')
     bucket = storage_client.get_bucket(bucket_name)
     return bucket
-
-bucket_name = 'frontend_app_data'
-bucket = get_gcloud_bucket(bucket_name)
