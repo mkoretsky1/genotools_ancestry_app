@@ -11,8 +11,8 @@ import seaborn as sns
 from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 import datetime
-from hold_data import blob_to_csv
 
+from hold_data import blob_as_csv, get_gcloud_bucket
 
 def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, predShow = True, symbol=None, x='PC1', y='PC2', z='PC3', title=None, x_range=None, y_range=None, z_range=None):
     '''
@@ -139,6 +139,10 @@ def plot_3d(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, p
 
             st.plotly_chart(figSelected)
 
+st.set_page_config(page_title = "PCA Analysis", layout = 'wide')
+
+bucket_name = 'frontend_app_data'
+bucket = get_gcloud_bucket(bucket_name)
 
 geno_path = f'GP2_QC_round3_MDGAP-QSBB'
 ref_labels = f'ref_panel_ancestry.txt'
@@ -156,10 +160,10 @@ st.markdown(f'## **Cohort: {out_path.split("/")[-1].split("_")[-1]}**')
 # metric_cols1, metric_cols2, metric_cols3 = st.columns(3)
 # metric_col1, metric_col2, metric_col3 = st.columns(3)
 
-ref_common_snps = blob_to_csv(st.session_state.bucket, 'ref_common_snps.common_snps', header=None)
-ref_fam = blob_to_csv(st.session_state.bucket, 'ref_common_snps.fam', header=None)
-geno_common_snps = blob_to_csv(st.session_state.bucket, f'{out_path}_common_snps.common_snps', header=None)
-geno_fam = blob_to_csv(st.session_state.bucket, f'{geno_path}.fam', header=None)
+ref_common_snps = blob_as_csv(bucket, 'ref_common_snps.common_snps', header=None)
+ref_fam = blob_as_csv(bucket, 'ref_common_snps.fam', header=None)
+geno_common_snps = blob_as_csv(bucket, f'{out_path}_common_snps.common_snps', header=None)
+geno_fam = blob_as_csv(bucket, f'{geno_path}.fam', header=None)
 
 # ref_common_snps = pd.read_csv(f'ref_common_snps.common_snps', sep='\s+', header=None)
 # geno_common_snps = pd.read_csv(f'{out_path}_common_snps.common_snps', sep='\s+', header=None)
@@ -204,8 +208,8 @@ with tab3:
 # st.markdown('**PCA Selection**')
 selected_metrics_1 = st.selectbox(label = 'PCA Selection', label_visibility = 'collapsed', options=['Click to select PCA Plot...', 'Reference PCA', 'Projected PCA', 'Both'])
 
-ref_pca = blob_to_csv(st.session_state.bucket, f'{out_path}_labeled_ref_pca.txt')
-new_pca = blob_to_csv(st.session_state.bucket, f'{out_path}_projected_new_pca.txt')
+ref_pca = blob_as_csv(bucket, f'{out_path}_labeled_ref_pca.txt')
+new_pca = blob_as_csv(bucket, f'{out_path}_projected_new_pca.txt')
 
 # ref_pca_path = f'{out_path}_labeled_ref_pca.txt'
 # ref_pca = pd.read_csv(ref_pca_path, sep='\s+')
@@ -213,7 +217,7 @@ new_pca = blob_to_csv(st.session_state.bucket, f'{out_path}_projected_new_pca.tx
 # new_pca = pd.read_csv(new_pca_path, sep='\s+')
 total_pca = pd.concat([ref_pca, new_pca], axis=0)
 total_pca_copy = total_pca.replace({'new' : 'Predicted'})
-new_labels = blob_to_csv(st.session_state.bucket, f'{out_path}_umap_linearsvc_predicted_labels.txt')
+new_labels = blob_as_csv(bucket, f'{out_path}_umap_linearsvc_predicted_labels.txt')
 # new_labels = pd.read_csv(f'{out_path}_umap_linearsvc_predicted_labels.txt', delimiter = "\t")
 
 
