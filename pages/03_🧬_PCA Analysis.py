@@ -128,45 +128,44 @@ st.markdown(f'## **PCA Analysis**')
 # if ('sample_data_path' not in st.session_state) and ('upload_data_path' not in st.session_state):
 #     st.error('Error! Please use the Upload Data page to either submit .bed/.bim/.fam files or choose a sample cohort!')
 
-if 'sample_data_path' not in st.session_state:
+if 'cohort_choice' not in st.session_state:
     st.error('Error! Please use the Upload Data page to choose a sample cohort!')
 
 else:
-    if ('sample_data_path' in st.session_state) and ('upload_data_path' not in st.session_state):
-        geno_path = st.session_state['sample_data_path']
-        ref_labels = f'ref_panel_ancestry.txt'
-        out_path = st.session_state['sample_data_path']
-        st.markdown(f'### **Cohort: {out_path.split("/")[-1].split("_")[-1]}**')
+    if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.session_state):
+        st.markdown(f'### Cohort: {st.session_state["cohort_choice"]}')
+        master_key = st.session_state['master_key']
+
     else:
         geno_path = st.session_state['upload_data_path']
         ref_labels = f'ref_panel_ancestry.txt'
         out_path = st.session_state['upload_data_path']
         st.markdown(f'### **Cohort: {out_path}**')
 
-    ref_common_snps = blob_as_csv(ref_panel_bucket, 'ref_common_snps.common_snps', header=None)
-    ref_fam = blob_as_csv(ref_panel_bucket, 'ref_common_snps.fam', header=None)
-    geno_common_snps = blob_as_csv(gp2_sample_bucket, f'{out_path}_common_snps.common_snps', header=None)
-    geno_fam = blob_as_csv(gp2_sample_bucket, f'{geno_path}.fam', header=None)
+    # ref_common_snps = blob_as_csv(ref_panel_bucket, 'ref_common_snps.common_snps', header=None)
+    # ref_fam = blob_as_csv(ref_panel_bucket, 'ref_common_snps.fam', header=None)
+    # geno_common_snps = blob_as_csv(gp2_sample_bucket, f'{out_path}_common_snps.common_snps', header=None)
+    # geno_fam = blob_as_csv(gp2_sample_bucket, f'{geno_path}.fam', header=None)
 
-    tab1, tab2, tab3 = st.tabs(["SNPs", "Samples", "Both"])
+    # tab1, tab2, tab3 = st.tabs(["SNPs", "Samples", "Both"])
 
-    with tab1:
-        metric_cols1, metric_cols2, metric_cols3 = st.columns(3)
-        metric_cols1.metric('SNPs for Model Training', ref_common_snps.shape[0])
-        metric_cols2.metric('Overlapping SNPs', geno_common_snps.shape[0])
-    with tab2:
-        metric_col1, metric_col2, metric_col3 = st.columns(3)
-        metric_col1.metric('Samples for Prediction', geno_fam.shape[0])
-        metric_col2.metric('Train Set Size', round(ref_fam.shape[0]*0.8))
-        metric_col3.metric('Test Set Size', round(ref_fam.shape[0]*0.2))
-    with tab3:
-        metric_cols1, metric_cols2, metric_cols3 = st.columns(3)
-        metric_col1, metric_col2, metric_col3 = st.columns(3)
-        metric_cols1.metric('SNPs for Model Training', ref_common_snps.shape[0])
-        metric_cols2.metric('Overlapping SNPs', geno_common_snps.shape[0])
-        metric_col1.metric('Samples for Prediction', geno_fam.shape[0])
-        metric_col2.metric('Train Set Size', round(ref_fam.shape[0]*0.8))
-        metric_col3.metric('Test Set Size', round(ref_fam.shape[0]*0.2))
+    # with tab1:
+    #     metric_cols1, metric_cols2, metric_cols3 = st.columns(3)
+    #     metric_cols1.metric('SNPs for Model Training', ref_common_snps.shape[0])
+    #     metric_cols2.metric('Overlapping SNPs', geno_common_snps.shape[0])
+    # with tab2:
+    #     metric_col1, metric_col2, metric_col3 = st.columns(3)
+    #     metric_col1.metric('Samples for Prediction', geno_fam.shape[0])
+    #     metric_col2.metric('Train Set Size', round(ref_fam.shape[0]*0.8))
+    #     metric_col3.metric('Test Set Size', round(ref_fam.shape[0]*0.2))
+    # with tab3:
+    #     metric_cols1, metric_cols2, metric_cols3 = st.columns(3)
+    #     metric_col1, metric_col2, metric_col3 = st.columns(3)
+    #     metric_cols1.metric('SNPs for Model Training', ref_common_snps.shape[0])
+    #     metric_cols2.metric('Overlapping SNPs', geno_common_snps.shape[0])
+    #     metric_col1.metric('Samples for Prediction', geno_fam.shape[0])
+    #     metric_col2.metric('Train Set Size', round(ref_fam.shape[0]*0.8))
+    #     metric_col3.metric('Test Set Size', round(ref_fam.shape[0]*0.2))
 
 
     selected_metrics_1 = st.selectbox(label = 'PCA Selection', label_visibility = 'collapsed', options=['Click to select PCA Plot...', 'Reference PCA', 'Projected PCA', 'Both'])
