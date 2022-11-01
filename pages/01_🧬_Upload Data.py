@@ -171,9 +171,11 @@ with head_3:
         #     st.write(lines)
 
 # st.sidebar.markdown('*OR*', unsafe_allow_html=True)
-st.sidebar.markdown('**Choose a sample cohort!**', unsafe_allow_html=True)
-selected_metrics = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=['Click to select Cohort...','MDGAP-QSBB', 'S4'])
 
+master_key = blob_as_csv(gp2_sample_bucket, f'master_key_release3_final.csv', sep=',')
+
+st.sidebar.markdown('**Choose a sample cohort!**', unsafe_allow_html=True)
+selected_metrics = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=['Click to select Cohort...']+[study for study in master_key['study'].unique()])
 
 if selected_metrics != 'Click to select Cohort...':
     if selected_metrics == 'MDGAP-QSBB':
