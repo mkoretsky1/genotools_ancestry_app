@@ -20,8 +20,11 @@ st.markdown('## **Reference Panel Ancestry**')
 gp2_sample_bucket_name = 'gp2_sample_data'
 gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
 
-if ('sample_data_path' not in st.session_state) and ('upload_data_path' not in st.session_state):
-    st.error('Error! Please use the Upload Data page to either submit .bed/.bim/.fam files or choose a sample cohort!')
+# if ('sample_data_path' not in st.session_state) and ('upload_data_path' not in st.session_state):
+#     st.error('Error! Please use the Upload Data page to either submit .bed/.bim/.fam files or choose a sample cohort!')
+
+if 'sample_data_path' not in st.session_state:
+    st.error('Error! Please use the Upload Data page to choose a sample cohort!')
 
 else:
     if ('sample_data_path' in st.session_state) and ('upload_data_path' not in st.session_state):
