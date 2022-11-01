@@ -19,12 +19,12 @@ from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'genotools-02f64a1e10be.json'
 
-def blob_as_csv(bucket, path, header='infer'):
+def blob_as_csv(bucket, path, sep='\s+', header='infer'):
     blob = bucket.get_blob(path)
     blob = blob.download_as_bytes()
     blob = str(blob, 'utf-8')
     blob = StringIO(blob)
-    df = pd.read_csv(blob, sep='\s+', header=header)
+    df = pd.read_csv(blob, sep=sep, header=header)
     return df
 
 def get_gcloud_bucket(bucket_name):
