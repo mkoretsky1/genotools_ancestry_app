@@ -1,4 +1,5 @@
 import os
+from select import select
 import sys
 import subprocess
 import numpy as np
@@ -174,23 +175,21 @@ with head_3:
 
 master_key = blob_as_csv(gp2_sample_bucket, f'master_key_release3_final.csv', sep=',')
 
-st.sidebar.markdown('**Choose a sample cohort!**', unsafe_allow_html=True)
-selected_metrics = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=['Click to select Cohort...']+[study for study in master_key['study'].unique()])
+st.sidebar.markdown('**Choose a cohort!**', unsafe_allow_html=True)
+selected_metrics = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=['Click to select Cohort...','GP2 Release 3 FULL']+[study for study in master_key['study'].unique()])
 
 if selected_metrics != 'Click to select Cohort...':
-    if selected_metrics == 'MDGAP-QSBB':
-        sample_data_path = 'GP2_QC_round3_MDGAP-QSBB'
+    st.session_state['cohort_choice'] = selected_metrics
 
-    if selected_metrics == 'S4':
-        sample_data_path = 'GP2_QC_round3_S4'
-    
-    fam_df = blob_as_csv(gp2_sample_bucket, f'{sample_data_path}.fam', header=None)
-    bim_df = blob_as_csv(gp2_sample_bucket, f'{sample_data_path}.bim', header=None)
+    if selected_metrics == 'GP2 Release 3 FULL':
+        st.session_state['master_key'] = master_key
 
-    st.markdown(f'### {sample_data_path}')
+    else:
+        master_key_cohort = master_key[master_key['study'] == selected_metrics]
+        st.session_state['master_key'] = master_key_cohort
+
+    st.markdown(f'### {selected_metrics}')
 
     metric_col1, metric_col2 = st.columns([1,1])
-    metric_col1.metric("Number of Samples in Dataset:", len(fam_df.index))
-    metric_col2.metric("Number of SNPs in Dataset:", len(bim_df.index))
-
-    st.session_state['sample_data_path'] = sample_data_path
+    metric_col1.metric("Number of Samples in Dataset:", st.session_state['master_key'].shape[0])
+    # metric_col2.metric("Number of SNPs in Dataset:", len(bim_df.index))
