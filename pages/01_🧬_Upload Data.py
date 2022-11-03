@@ -179,6 +179,7 @@ st.sidebar.markdown('**Choose a cohort!**', unsafe_allow_html=True)
 selected_metrics = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=['Click to select Cohort...','GP2 Release 3 FULL']+[study for study in master_key['study'].unique()])
 
 if selected_metrics != 'Click to select Cohort...':
+    st.session_state['cohort_choice'] = selected_metrics
 
     if selected_metrics == 'GP2 Release 3 FULL':
         st.session_state['master_key'] = master_key
@@ -192,5 +193,3 @@ if selected_metrics != 'Click to select Cohort...':
     metric_col1, metric_col2 = st.columns([1,1])
     metric_col1.metric("Number of Samples in Dataset:", st.session_state['master_key'].shape[0])
     # metric_col2.metric("Number of SNPs in Dataset:", len(bim_df.index))
-
-    st.session_state['cohort_choice'] = selected_metrics

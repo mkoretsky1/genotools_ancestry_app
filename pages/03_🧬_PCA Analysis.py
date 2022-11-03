@@ -53,67 +53,6 @@ def plot_3d(labeled_df, color, symbol=None, x='PC1', y='PC2', z='PC3', title=Non
 
     st.plotly_chart(fig)
 
-def pca_details(labeled_df, color, ref_pca = None, pred_df = None, text_df = None, predShow = True):
-    col1, col2, col3 = st.columns([2, 2, 2])
-
-    if predShow:
-        full_df = st.session_state.combined
-        combined = st.session_state.combined[['Sample ID', 'Predicted Ancestry']]
-        holdValues = combined['Predicted Ancestry'].value_counts().rename_axis('Predicted Ancestry Labels').reset_index(name='Counts')
-
-        with col1:
-            gb = GridOptionsBuilder.from_dataframe(combined)
-            gb.configure_pagination(paginationAutoPageSize=True)
-            gb.configure_side_bar()
-            gridOptions = gb.build()
-
-            grid_response = AgGrid(
-                        combined,
-                        gridOptions=gridOptions,
-                        data_return_mode='AS_INPUT', 
-                        update_mode='MODEL_CHANGED', 
-                        fit_columns_on_grid_load=False,
-                        theme='streamlit',
-                        enable_enterprise_modules=True, 
-                        width='100%',
-                        height = 300
-                    )
-
-        with col2:
-            gb = GridOptionsBuilder.from_dataframe(holdValues)
-            gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
-            gridOptions = gb.build()
-
-            grid_response = AgGrid(
-                        holdValues,
-                        gridOptions=gridOptions,
-                        data_return_mode='AS_INPUT', 
-                        update_mode='MODEL_CHANGED', 
-                        fit_columns_on_grid_load=False,
-                        theme='streamlit',
-                        enable_enterprise_modules=True, 
-                        width = '100%' ,
-                        height = 300
-                    )
-            
-            data = grid_response['data']
-            selected = grid_response['selected_rows'] 
-            selected_df = pd.DataFrame(selected) # selected rows from AgGrid passed to new df
-
-        if not selected_df.empty:
-            selected_pca = full_df.copy()
-            selectionList = []
-
-            for selections in selected_df['Predicted Ancestry Labels']:
-                selectionList.append(selections)
-            
-            selected_pca.drop(selected_pca[np.logical_not(selected_pca['Predicted Ancestry'].isin(selectionList))].index, inplace = True)
-            selected_pca.rename(columns = {'Predicted Ancestry': 'label'}, inplace = True)
-            for items in selectionList:
-                selected_pca.replace({items: 'Predicted'}, inplace = True)
-
-            total_pca_selected = pd.concat([ref_pca, selected_pca], axis=0)
-            plot_3d(total_pca_selected, 'label')
 
 st.set_page_config(page_title = "PCA Analysis", layout = 'wide')
 
@@ -167,24 +106,80 @@ else:
     #     metric_col2.metric('Train Set Size', round(ref_fam.shape[0]*0.8))
     #     metric_col3.metric('Test Set Size', round(ref_fam.shape[0]*0.2))
 
-
     selected_metrics_1 = st.selectbox(label = 'PCA Selection', label_visibility = 'collapsed', options=['Click to select PCA Plot...', 'Reference PCA', 'Projected PCA', 'Both'])
 
-    ref_pca = blob_as_csv(gp2_sample_bucket, f'{out_path}_labeled_ref_pca.txt')
-    new_pca = blob_as_csv(gp2_sample_bucket, f'{out_path}_projected_new_pca.txt')
+    ref_pca = blob_as_csv(gp2_sample_bucket, f'reference_pcs.csv', sep=',')
+    proj_pca = blob_as_csv(gp2_sample_bucket, f'projected_pcs.csv', sep=',')
 
-    total_pca = pd.concat([ref_pca, new_pca], axis=0)
-    total_pca_copy = total_pca.replace({'new' : 'Predicted'})
-    new_labels = blob_as_csv(gp2_sample_bucket, f'{out_path}_umap_linearsvc_predicted_labels.txt')
+    proj_pca_cohort = proj_pca.merge(master_key['GP2sampleID'], how='inner', left_on=['IID'], right_on=['GP2sampleID'])
+    proj_pca_cohort = proj_pca_cohort.drop(columns=['GP2sampleID'], axis=1)
+    proj_pca_cohort['plot_label'] = 'Predicted'
 
-    combined = pd.merge(new_pca, new_labels, on='IID')
-    combined.rename(columns = {'IID': 'Sample ID', 'label_y': 'Predicted Ancestry'}, inplace = True)
-    st.session_state['combined'] = combined
+    ref_pca['plot_label'] = ref_pca['label']
+
+    total_pca = pd.concat([ref_pca, proj_pca_cohort], axis=0)
+    new_labels = proj_pca_cohort['label']
 
     if (selected_metrics_1 == 'Reference PCA') | (selected_metrics_1 == 'Both'):
-        plot_3d(ref_pca, 'label')
-        pca_details(ref_pca, 'label', predShow = False)
+        plot_3d(ref_pca, 'plot_label')
 
     if (selected_metrics_1 == 'Projected PCA') | (selected_metrics_1 == 'Both'):
-        plot_3d(total_pca_copy, 'label')
-        pca_details(total_pca_copy, 'label', ref_pca, new_pca, new_labels)
+        plot_3d(total_pca, 'plot_label')
+
+        col1, col2, col3 = st.columns([2, 2, 2])
+
+        combined = proj_pca_cohort[['IID', 'label']]
+        holdValues = combined['label'].value_counts().rename_axis('Predicted Ancestry Labels').reset_index(name='Counts')
+
+        with col1:
+            gb = GridOptionsBuilder.from_dataframe(combined)
+            gb.configure_pagination(paginationAutoPageSize=True)
+            gb.configure_side_bar()
+            gridOptions = gb.build()
+
+            grid_response = AgGrid(
+                        combined,
+                        gridOptions=gridOptions,
+                        data_return_mode='AS_INPUT', 
+                        update_mode='MODEL_CHANGED', 
+                        fit_columns_on_grid_load=False,
+                        theme='streamlit',
+                        enable_enterprise_modules=True, 
+                        width='100%',
+                        height = 300
+                    )
+
+        with col2:
+            gb = GridOptionsBuilder.from_dataframe(holdValues)
+            gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
+            gridOptions = gb.build()
+
+            grid_response = AgGrid(
+                        holdValues,
+                        gridOptions=gridOptions,
+                        data_return_mode='AS_INPUT', 
+                        update_mode='MODEL_CHANGED', 
+                        fit_columns_on_grid_load=False,
+                        theme='streamlit',
+                        enable_enterprise_modules=True, 
+                        width = '100%' ,
+                        height = 300
+                    )
+            
+            selected = grid_response['selected_rows'] 
+            selected_df = pd.DataFrame(selected) # selected rows from AgGrid passed to new df
+
+        if not selected_df.empty:
+            selected_pca = proj_pca_cohort.copy()
+            selectionList = []
+
+            for selections in selected_df['Predicted Ancestry Labels']:
+                selectionList.append(selections)
+            
+            selected_pca.drop(selected_pca[np.logical_not(selected_pca['label'].isin(selectionList))].index, inplace = True)
+            
+            for items in selectionList:
+                selected_pca.replace({items: 'Predicted'}, inplace = True)
+
+            total_pca_selected = pd.concat([ref_pca, selected_pca], axis=0)
+            plot_3d(total_pca_selected, 'label')
