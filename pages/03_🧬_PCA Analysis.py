@@ -111,7 +111,9 @@ else:
     ref_pca = blob_as_csv(gp2_sample_bucket, f'reference_pcs.csv', sep=',')
     proj_pca = blob_as_csv(gp2_sample_bucket, f'projected_pcs.csv', sep=',')
 
-    proj_pca_cohort = proj_pca.merge(master_key['GP2sampleID'], how='inner', left_on=['IID'], right_on=['GP2sampleID'])
+    proj_pca = proj_pca.drop(columns=['label'], axis=1)
+
+    proj_pca_cohort = proj_pca.merge(master_key[['GP2sampleID','label']], how='inner', left_on=['IID'], right_on=['GP2sampleID'])
     proj_pca_cohort = proj_pca_cohort.drop(columns=['GP2sampleID'], axis=1)
     proj_pca_cohort['plot_label'] = 'Predicted'
 
