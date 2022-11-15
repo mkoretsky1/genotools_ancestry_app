@@ -145,4 +145,4 @@ st.markdown('Scaled PCs for genotypes are transformed using UMAP trained fitted 
             admixture is <90%')
 
 st.caption('**_References_**')
-st.caption('1. D.H. Alexander, J. Novembre, and K. Lange. Fast model-based estimation of ancestry in unrelated individuals. Genome Research, 19:1655–1664, 2009.')
+st.caption('_D.H. Alexander, J. Novembre, and K. Lange. Fast model-based estimation of ancestry in unrelated individuals. Genome Research, 19:1655–1664, 2009._')

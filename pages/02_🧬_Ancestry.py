@@ -102,7 +102,7 @@ def plot_pie(df):
     st.plotly_chart(pie_chart)
 
 if 'cohort_choice' not in st.session_state:
-    st.error('Error: Please use the Upload Data page to choose a sample cohort!')
+    st.error('Error: Please use the drop-down menu on the sidebar to choose a sample cohort!')
 else:
     with tabPCA:
         # st.markdown(f'## **PCA Analysis**')

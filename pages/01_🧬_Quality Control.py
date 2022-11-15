@@ -188,7 +188,7 @@ def createQC(master_key, data_name, rel_plot = True):
 
     bar_3.update_layout(
         autosize=False,
-        height=600, width=700
+        height=600, width = 1000
     )
 
     bar_3.update_layout(
@@ -231,13 +231,13 @@ def createQC(master_key, data_name, rel_plot = True):
                 ')
 
     st.header("**All Sample Filtering Counts**")
-    left_col1, right_col1 = st.columns([2,2])
+    left_col1, right_col1 = st.columns([1,2])
 
-    with left_col1:
+    with right_col1:
         st.plotly_chart(funnel_counts)
         
-    with right_col1:
-        st.write('')
+    with left_col1:
+        st.markdown('### ')
         st.dataframe(funnel_df[['step_name', 'remaining_samples']].rename(columns = {'step_name': 'QC Step', 'remaining_samples': 'Remaining Samples'}))
 
     # funnel2_left, funnel2_right = st.columns([3,2])
@@ -287,7 +287,7 @@ with tabFull:
 with tabCohort:
     if 'cohort_choice' in st.session_state:
         if st.session_state['cohort_choice'] == 'GP2 Release 3 FULL':
-            st.info('Use the drop-down menu on the Upload Data page to display QC metrics for a different cohort')
+            st.info('Use the drop-down menu on the sidebar to display QC metrics for a different cohort')
         else:
             if 'master_key' in st.session_state:
                 master_key2 = st.session_state['master_key']
@@ -295,7 +295,7 @@ with tabCohort:
 
                 createQC(master_key2, data_name, rel_plot = False)
     else:
-        st.error('Use the drop-down menu on the Upload Data page to display QC metrics for a specific cohort')
+        st.error('Use the drop-down menu on the sidebar to display QC metrics for a specific cohort')
 
 
 
