@@ -17,7 +17,7 @@ from geneview.algorithm._cluster import hierarchical_cluster
 from itertools import cycle
 from matplotlib.colors import to_rgba
 from matplotlib.cm import ScalarMappable
-from hold_data import blob_to_csv
+from hold_data import blob_as_csv, get_gcloud_bucket
 
 st.set_page_config(page_title = "Hidden Page", layout = 'wide')
 
@@ -84,6 +84,7 @@ st.set_page_config(page_title = "Hidden Page", layout = 'wide')
 
 #     for k in column_names:
 #         c = next(palette)  # one color for one 'k'
+#         print(c, k)
 #         start_g_pos = 0
 #         add_y = []
 #         for g in group_order:  # keep group order
@@ -135,17 +136,22 @@ st.set_page_config(page_title = "Hidden Page", layout = 'wide')
 #     ax.set_ylabel(ylabel, **ylabel_kws)
 #     ax.set_yticks([])
 
+#     # ax.legend(column_names)
+
 #     return ax
 
-# ref_admix = pd.read_csv('data/ref_panel_admixture.txt', sep='\s+')
-ref_admix = blob_to_csv(bucket, 'data/ref_panel_admixture.txt', sep='\s+')
+ref_admix = pd.read_csv('data/ref_panel_admixture_9.txt', sep='\s+')
+# ref_panel_bucket_name = 'ref_panel'
+# ref_panel_bucket = get_gcloud_bucket(ref_panel_bucket_name)
+# ref_admix = blob_as_csv(ref_panel_bucket, 'ref_panel_admixture.txt')
 
 st.dataframe(ref_admix.head())
 
 
 admix_pop_info = ref_admix['ancestry']
 st.dataframe(admix_pop_info.head())
-admixture_output = ref_admix[['pop1', 'pop2', 'pop3', 'pop4', 'pop5', 'pop6', 'pop7', 'pop8', 'pop9', 'pop10']]
+# admixture_output = ref_admix[['pop1', 'pop2', 'pop3', 'pop4', 'pop5', 'pop6', 'pop7', 'pop8', 'pop9', 'pop10']]
+admixture_output = ref_admix[['pop1', 'pop2', 'pop3', 'pop4', 'pop5', 'pop6', 'pop7', 'pop8', 'pop9']]
 st.dataframe(admixture_output)
 
 df = admixture_output
@@ -161,6 +167,7 @@ for g in popset:
 
 f, ax = plt.subplots(1, 1, figsize=(14, 2), facecolor="w", constrained_layout=True, dpi=300)
 ax = _draw_admixtureplot(data=data, ax=ax)
+
 st.pyplot(f)
 
-# f.savefig('data/refpanel_admix1.png')
+f.savefig('data/refpanel_admix_9.png')
