@@ -210,7 +210,7 @@ def createQC(master_key, data_name, rel_plot = True):
             titlefont_size=16,
             tickfont_size=14),
             barmode='stack', 
-            width=1200, height=600)
+            width=1100, height=600)
 
     ###### Create App
     # if 'cohort_choice' in st.session_state:

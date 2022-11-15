@@ -103,10 +103,12 @@ st.markdown(
             - African (AFR): 504
             - African Admixed and Caribbean (AAC): 157
             - Ashkenazi Jewish (AJ): 471
+            - Central Asian (CAS): 183
             - East Asian (EAS): 504
             - European (EUR): 404
             - Finnish (FIN): 99
             - Latino/American Admixed (AMR): 347
+            - Middle Eastern (MDE): 152
             - South Asian (SAS): 489
             """
             )
