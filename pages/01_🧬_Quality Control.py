@@ -198,7 +198,7 @@ def createQC(master_key, data_name, rel_plot = True):
     bar_6 = go.Figure(go.Bar(x=df_merged.index, y=df_merged['geno_removed_count'], name='Geno Removed Count'))
     bar_6.add_trace(go.Bar(x=df_merged.index, y=df_merged['mis_removed_count'], name='Mis Removed Count'))
     bar_6.add_trace(go.Bar(x=df_merged.index, y=df_merged['haplotype_removed_count'], name='Haplotype Removed Count'))
-    bar_6.add_trace(go.Bar(x=df_merged.index, y=df_merged['hwe_removed_count'], name='Hwe Removed Count'))
+    bar_6.add_trace(go.Bar(x=df_merged.index, y=df_merged['hwe_removed_count'], name='HWE Removed Count'))
 
     bar_6.update_layout(
         xaxis=dict(
