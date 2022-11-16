@@ -34,7 +34,7 @@ st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 ####################### HEAD ##############################################
 
-head_1, title, head_3 = st.columns([0.3, 0.75, 0.3])
+head_1, title, head_3 = st.columns([0.3, 0.5, 0.2])
 
 card = frontend_bucket.get_blob('card.jpeg')
 card = card.download_as_bytes()
