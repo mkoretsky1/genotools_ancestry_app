@@ -48,11 +48,11 @@ with title:
     st.markdown("""
     <style>
     .big-font {
-        font-family:Helvetica; color:#0f557a; font-size:40px !important;
+        font-family:Helvetica; color:#0f557a; font-size:48px !important;
     }
     </style>
     """, unsafe_allow_html=True)
-    st.markdown('<p class="big-font">GenoTools Ancestry Prediction</p>', unsafe_allow_html=True)
+    st.markdown('<p class="big-font">GenoTools Overview</p>', unsafe_allow_html=True)
     
 # with head_3:
 #     def modification_date(filename):
@@ -80,7 +80,7 @@ st.markdown("## _Quality Control_")
 st.markdown('### _Sample-Level Pruning_')
 st.markdown('Genotypes are pruned for call rate with maximum sample genotype missingness of 0.02 (--mind 0.02). Samples which pass\
              call rate pruning are then pruned for discordant sex where samples with 0.25 <= sex F <= 0.75 are pruned. Sex F < 0.25\
-             are Female and Sex F > 0.75 are male. Samples that pass sex pruning are then differentiated by ancestry (refer to\
+             are female and Sex F > 0.75 are male. Samples that pass sex pruning are then differentiated by ancestry (refer to\
              ancestry method below). Per-ancestry genotypes are then pruned for genetic relatedness where genetic relatedness matrix (grm)\
              cutoff 0.125 is used to determine second-degree relatedness and 0.95 is used to determine duplicates. For purposes of imputation,\
              related samples are left in and duplicated samples are pruned. Next, samples are pruned for heterozygosity where F <= -0.25 of\
@@ -113,15 +113,15 @@ st.markdown(
             """
             )
 st.markdown('Samples were chosen from 1000 Genomes to match the specific ancestries present in GP2. The reference panel was then\
-            pruned for palindrome snps (A1A2= AT or TA or GC or CG). snps were then pruned for maf 0.05, geno 0.01, and hwe 0.0001.')
+            pruned for palindrome SNPs (A1A2= AT or TA or GC or CG). SNPs were then pruned for maf 0.05, geno 0.01, and hwe 0.0001.')
 
 st.markdown('### _Preprocessing_')
 st.markdown('The genotypes were pruned for geno 0.1. Common variants between the reference panel and the genotypes were extracted \
             from both the reference panel and the genotypes. Any missing genotypes were imputed using the mean of that particular\
              variant in the reference panel.')
 st.markdown('The reference panel samples were split into an 80/20 train/test set and then PCs were fit to and transformed the training\
-             set using Sklearn PCA.fit_transform and mean and standard deviation were extracted for scaling (𝑥/2) * (1 − (𝑥/2)) where 𝑥 is \
-             the mean training set PCs. The test set was then transformed by the PCs in the training set using Sklearn PCA.transform and\
+             set using sklearn PCA.fit_transform and mean and standard deviation were extracted for scaling (𝑥/2) * (1 − (𝑥/2)) where 𝑥 is \
+             the mean training set PCs. The test set was then transformed by the PCs in the training set using sklearn PCA.transform and\
              then normalized to the mean and standard deviation of the training set. Genotypes were then transformed by the same process as\
              the test set for prediction after model training.')
 

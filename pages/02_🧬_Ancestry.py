@@ -208,7 +208,7 @@ else:
         accuracy=(np.trace(cm_matrix))/total
 
         heatmap1, heatmap2 = st.columns([2, 1])
-        fig = px.imshow(confusion_matrix, text_auto=True)
+        fig = px.imshow(confusion_matrix, labels=dict(x="Predicted Ancestry", y="Reference Panel Ancestry", color="Count"), text_auto=True)
         heatmap1.plotly_chart(fig)
 
         with heatmap2:

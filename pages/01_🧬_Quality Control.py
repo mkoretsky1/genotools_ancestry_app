@@ -16,7 +16,7 @@ from functools import reduce
 
 st.set_page_config(page_title = "Quality Control", layout = 'wide')
 
-tabFull, tabCohort = st.tabs(["Fulll GP2 Release 3", "Selected Cohort"])
+tabFull, tabCohort = st.tabs(["Full GP2 Release 3", "Selected Cohort"])
 
 gp2_sample_bucket_name = 'gp2_sample_data'
 gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
@@ -275,7 +275,8 @@ def createQC(master_key, data_name, rel_plot = True):
         st.markdown("**Failed Prune Steps**")
         failed_prune_exp = st.expander("Description", expanded=False)
         with failed_prune_exp:
-            st.write('Prune step considered "failed" if there was an insufficient number of samples within an ancestry to complete the step.')
+            st.write('Prune step considered "failed" if there was an insufficient number of samples within an ancestry to complete the \
+                    step, even if no sampels were pruned.')
         st.table(df_6)
 
 with tabFull:
