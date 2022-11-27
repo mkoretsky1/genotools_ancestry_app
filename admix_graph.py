@@ -21,6 +21,10 @@ from hold_data import blob_as_csv, get_gcloud_bucket
 
 st.set_page_config(page_title = "Hidden Page", layout = 'wide')
 
+'''Will update depending on changes needed for Admix Graph. This script does not display to any pages,
+only used to create and save Admix Plot in order to avoid loading times. Utilizes functions from Geneview
+package by Shujia Huang (https://github.com/ShujiaHuang/geneview)'''
+
 # def generate_colors_palette(cmap="viridis", n_colors=10, alpha=1.0):
 #     """Generate colors from matplotlib colormap; pass list to use exact colors"""
 #     if isinstance(cmap, list):
