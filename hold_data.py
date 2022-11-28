@@ -53,7 +53,12 @@ def cohort_select(master_key):
         master_key_cohort = master_key[master_key['study'] == selected_metrics]
         st.session_state['master_key'] = master_key_cohort  # subsets master key to only include selected cohort
 
-    pruned_samples = st.session_state.master_key['pruned'].value_counts()[1]
+    # checking for pruned samples
+    if 1 in st.session_state.master_key['pruned'].value_counts():
+        pruned_samples = st.session_state.master_key['pruned'].value_counts()[1]
+    else:
+        pruned_samples = 0
+    
     total_count = st.session_state['master_key'].shape[0]
 
     st.sidebar.metric("", selected_metrics)
