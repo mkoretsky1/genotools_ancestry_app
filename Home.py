@@ -54,11 +54,11 @@ sidebar2.image(gp2_removebg, use_column_width=True)
 st.markdown("<h1 style='text-align: center; color: #0f557a; font-family: Helvetica; '>GP2 Internal Cohort Browser</h1>", unsafe_allow_html=True)
 
 # Page formatting 
-sent1, sent2, sent3 = st.columns(3)  # holds brief overview sentences
+sent1, sent2, sent3 = st.columns([1.05,2,1])  # holds brief overview sentences
 exp1, exp2, exp3 = st.columns([1, 2, 1])  # holds expander for full description
 
 # Display expander with full project description
-sent2.markdown('##### Sentence 1 describing cohort browser or GP2. Sentence 2 describing cohort browser or GP2.')
+sent2.markdown("##### Interactive tool to visualize quality control and ancestry prediction summary statistics across all GP2 cohorts. #####")
 overview = exp2.expander("Full Description", expanded=False)
 with overview:
     st.markdown('''
