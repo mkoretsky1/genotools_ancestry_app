@@ -38,7 +38,10 @@ st.set_page_config(
      page_title="Home",
      page_icon=card_removebg,
      layout="wide",
- )
+)
+
+st.session_state['card_removebg'] = card_removebg
+st.session_state['gp2_removebg'] = gp2_removebg 
 
 # Background color
 css = frontend_bucket.get_blob('style.css')
@@ -54,11 +57,14 @@ sidebar2.image(gp2_removebg, use_column_width=True)
 st.markdown("<h1 style='text-align: center; color: #0f557a; font-family: Helvetica; '>GP2 Internal Cohort Browser</h1>", unsafe_allow_html=True)
 
 # Page formatting 
-sent1, sent2, sent3 = st.columns([1.05,2,1])  # holds brief overview sentences
+sent1, sent2, sent3 = st.columns([1,2,1])  # holds brief overview sentences
 exp1, exp2, exp3 = st.columns([1, 2, 1])  # holds expander for full description
 
-# Display expander with full project description
-sent2.markdown("##### Interactive tool to visualize quality control and ancestry prediction summary statistics across all GP2 cohorts. #####")
+# sent2.markdown("##### Interactive tool to visualize quality control and ancestry prediction summary statistics across all GP2 cohorts. #####")
+sent2.markdown("<h5 style='text-align: center; '>Interactive tool to visualize quality control and ancestry prediction summary statistics\
+             across all GP2 cohorts.</h1>", unsafe_allow_html=True)
+
+# # Display expander with full project description
 overview = exp2.expander("Full Description", expanded=False)
 with overview:
     st.markdown('''
@@ -68,6 +74,20 @@ with overview:
             }
             </style>
             ''', unsafe_allow_html=True)
+
+    st.markdown("## _Quality Control_")
+    st.markdown('### _Sample-Level Pruning:_')
+    st.markdown('Variants are pruned for missingness by case-control where P<=1e-4 to detect platform/batch differences in case-control status.\
+                Next, variants are pruned for missingness by haplotype for flanking variants where P<=1e-4. Lastly, controls are filtered for HWE\
+                at a threshold of 1e-4.')
+    st.markdown('### _Variant-Level Pruning_')
+    st.markdown('Genotypes are pruned for call rate with maximum sample genotype missingness of 0.02 (--mind 0.02). Samples which pass\
+            call rate pruning are then pruned for discordant sex where samples with 0.25 <= sex F <= 0.75 are pruned. Sex F < 0.25\
+            are female and Sex F > 0.75 are male. Samples that pass sex pruning are then differentiated by ancestry (refer to\
+            ancestry method below). Per-ancestry genotypes are then pruned for genetic relatedness where genetic relatedness matrix (grm)\
+            cutoff 0.125 is used to determine second-degree relatedness and 0.95 is used to determine duplicates. For purposes of imputation,\
+            related samples are left in and duplicated samples are pruned. Next, samples are pruned for heterozygosity where F <= -0.25 of\
+            F>= 0.25.')
 
     st.markdown("## _Ancestry_")
     st.markdown('### _Reference Panel_')
@@ -132,3 +152,4 @@ hvar = """ <script>
                 elements[0].style.color = '#0f557a';
             </script>"""
 components.html(hvar, height=0, width=0)
+

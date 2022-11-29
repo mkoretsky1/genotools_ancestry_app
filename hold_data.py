@@ -27,11 +27,12 @@ def blob_as_csv(bucket, path, sep='\s+', header='infer'):  # reads in file from 
     df = pd.read_csv(blob, sep=sep, header=header)
     return df
 
-def get_gcloud_bucket(bucket_name):  # gets folders from google cloud
+def get_gcloud_bucket(bucket_name):  # gets folders from Google Cloud
     storage_client = storage.Client(project='genotools')
     bucket = storage_client.get_bucket(bucket_name)
     return bucket
 
+# Pull data from Sample Data Google Cloud folder
 gp2_sample_bucket_name = 'gp2_sample_data'
 gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
 
@@ -53,7 +54,7 @@ def cohort_select(master_key):
         master_key_cohort = master_key[master_key['study'] == selected_metrics]
         st.session_state['master_key'] = master_key_cohort  # subsets master key to only include selected cohort
 
-    # checking for pruned samples
+    # Check for pruned samples
     if 1 in st.session_state.master_key['pruned'].value_counts():
         pruned_samples = st.session_state.master_key['pruned'].value_counts()[1]
     else:
@@ -64,3 +65,11 @@ def cohort_select(master_key):
     st.sidebar.metric("", selected_metrics)
     st.sidebar.metric("Number of Samples in Dataset:", f'{total_count:,}')
     st.sidebar.metric("Number of Samples After Pruning:", f'{(total_count-pruned_samples):,}')
+
+    # Place logos in sidebar
+    st.sidebar.markdown('---')
+    sidebar1, sidebar2 = st.sidebar.columns(2)
+    if 'card_removebg' in st.session_state:
+        sidebar1.image(st.session_state.card_removebg, use_column_width=True)
+        sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
+
