@@ -57,12 +57,12 @@ sidebar2.image(gp2_removebg, use_column_width=True)
 st.markdown("<h1 style='text-align: center; color: #0f557a; font-family: Helvetica; '>GP2 Internal Cohort Browser</h1>", unsafe_allow_html=True)
 
 # Page formatting 
-sent1, sent2, sent3 = st.columns([1,2,1])  # holds brief overview sentences
+sent1, sent2, sent3 = st.columns([1,6,1])  # holds brief overview sentences
 exp1, exp2, exp3 = st.columns([1, 2, 1])  # holds expander for full description
 
 # sent2.markdown("##### Interactive tool to visualize quality control and ancestry prediction summary statistics across all GP2 cohorts. #####")
 sent2.markdown("<h5 style='text-align: center; '>Interactive tool to visualize quality control and ancestry prediction summary statistics\
-             across all GP2 cohorts.</h1>", unsafe_allow_html=True)
+             across all GP2 cohorts. Please select a page marked with \U0001F9EC in the sidebar to begin.</h1>", unsafe_allow_html=True)
 
 # # Display expander with full project description
 overview = exp2.expander("Full Description", expanded=False)
