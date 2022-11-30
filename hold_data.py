@@ -40,11 +40,7 @@ gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
 def cohort_select(master_key):
     st.sidebar.markdown('### **Choose a cohort!**', unsafe_allow_html=True)
 
-    if 'cohort_choice' in st.session_state:  # changes selector label to chosen cohort
-        selected_metrics = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=[st.session_state['cohort_choice'], 'GP2 Release 3 FULL']+
-                            [study for study in master_key['study'].unique()])
-    else:  # defaults to GP2 Release 3 FULL cohort
-        selected_metrics = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=['GP2 Release 3 FULL']+[study for study in master_key['study'].unique()])
+    selected_metrics = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=['GP2 Release 3 FULL']+[study for study in master_key['study'].unique()])
     
     st.session_state['cohort_choice'] = selected_metrics  # can change selected cohort at any time
 
@@ -62,6 +58,7 @@ def cohort_select(master_key):
     
     total_count = st.session_state['master_key'].shape[0]
 
+    st.sidebar.markdown('### **Selected cohort:**', unsafe_allow_html=True)
     st.sidebar.metric("", selected_metrics)
     st.sidebar.metric("Number of Samples in Dataset:", f'{total_count:,}')
     st.sidebar.metric("Number of Samples After Pruning:", f'{(total_count-pruned_samples):,}')
