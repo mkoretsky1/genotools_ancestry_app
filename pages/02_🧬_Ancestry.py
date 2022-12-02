@@ -226,10 +226,13 @@ else:
         st.markdown(f'## **Model Accuracy**')
         confusion_matrix = blob_as_csv(gp2_sample_bucket, 'confusion_matrix.csv', sep=',')
         confusion_matrix.set_index(confusion_matrix.columns, inplace = True)
-        
-        cm_matrix = confusion_matrix.to_numpy()
-        total = cm_matrix.sum()
-        accuracy=(np.trace(cm_matrix))/total
+
+        tp = np.diag(confusion_matrix)
+        col_sum = confusion_matrix.sum(axis=0)
+        row_sum = confusion_matrix.sum(axis=1)
+
+        balanced_accuracy = np.mean(tp/col_sum)
+        margin_of_error = 1.96 * np.sqrt((balanced_accuracy*(1-balanced_accuracy))/sum(col_sum))
 
         heatmap1, heatmap2 = st.columns([2, 1])
         fig = px.imshow(confusion_matrix, labels=dict(x="Predicted Ancestry", y="Reference Panel Ancestry", color="Count"), text_auto=True)
@@ -238,7 +241,7 @@ else:
         # Plots heatmap of confusion matrix from Testing
         with heatmap2:
             st.markdown('### Test Set Performance')
-            st.metric('Classification Accuracy:', "{:.3f}".format(round(accuracy, 3)))
+            st.metric('Balanced Accuracy:', "{:.3f} \U000000B1 {:.3f}".format(round(balanced_accuracy, 3), round(margin_of_error, 3)))
 
     with tabPie:
         # Plots ancestry breakdowns of Predicted Samples vs. Reference Panel samples
