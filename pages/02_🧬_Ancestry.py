@@ -14,11 +14,17 @@ from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select
 
 
-st.set_page_config(
-     page_title="Ancestry",
-     page_icon=st.session_state.card_removebg,
-     layout="wide",
-)
+if 'gp2_removebg' in st.session_state:
+    st.set_page_config(
+        page_title="Ancestry",
+        page_icon=st.session_state.gp2_removebg,
+        layout="wide",
+    )
+else: 
+    st.set_page_config(
+        page_title="Ancestry",
+        layout="wide"
+    )
 
 # Pull data from different Google Cloud folders
 gp2_sample_bucket_name = 'gp2_sample_data'

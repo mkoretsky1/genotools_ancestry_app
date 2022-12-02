@@ -36,7 +36,7 @@ gp2_removebg = gp2_removebg.download_as_bytes()
 
 st.set_page_config(
      page_title="Home",
-     page_icon=card_removebg,
+     page_icon=gp2_removebg,
      layout="wide",
 )
 
