@@ -231,8 +231,15 @@ else:
         col_sum = confusion_matrix.sum(axis=0)
         row_sum = confusion_matrix.sum(axis=1)
 
-        balanced_accuracy = np.mean(tp/col_sum)
+        class_recall = np.array(tp/row_sum)
+        class_precision = np.array(tp/col_sum)
+
+        balanced_accuracy = np.mean(class_recall)
         margin_of_error = 1.96 * np.sqrt((balanced_accuracy*(1-balanced_accuracy))/sum(col_sum))
+
+        precision = np.mean(class_precision)
+
+        f1 = np.mean(2 * ((class_recall * class_precision)/(class_recall + class_precision)))
 
         heatmap1, heatmap2 = st.columns([2, 1])
         fig = px.imshow(confusion_matrix, labels=dict(x="Predicted Ancestry", y="Reference Panel Ancestry", color="Count"), text_auto=True)
@@ -242,6 +249,8 @@ else:
         with heatmap2:
             st.markdown('### Test Set Performance')
             st.metric('Balanced Accuracy:', "{:.3f} \U000000B1 {:.3f}".format(round(balanced_accuracy, 3), round(margin_of_error, 3)))
+            st.metric('Precision:', "{:.3f}".format(round(precision, 3)))
+            st.metric('F1 Score:', "{:.3f}".format(round(f1, 3)))
 
     with tabPie:
         # Plots ancestry breakdowns of Predicted Samples vs. Reference Panel samples
