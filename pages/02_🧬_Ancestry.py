@@ -242,14 +242,20 @@ else:
         f1 = np.mean(2 * ((class_recall * class_precision)/(class_recall + class_precision)))
 
         heatmap1, heatmap2 = st.columns([2, 1])
-        fig = px.imshow(confusion_matrix, labels=dict(x="Predicted Ancestry", y="Reference Panel Ancestry", color="Count"), text_auto=True)
-        heatmap1.plotly_chart(fig)
+
+        with heatmap1:
+            st.markdown('### Confusion Matrix')
+            fig = px.imshow(confusion_matrix, labels=dict(x="Predicted Ancestry", y="Reference Panel Ancestry", color="Count"), text_auto=True)
+            st.plotly_chart(fig)
 
         # Plots heatmap of confusion matrix from Testing
         with heatmap2:
             st.markdown('### Test Set Performance')
+            st.markdown('#')
             st.metric('Balanced Accuracy:', "{:.3f} \U000000B1 {:.3f}".format(round(balanced_accuracy, 3), round(margin_of_error, 3)))
+            st.markdown('#')
             st.metric('Precision:', "{:.3f}".format(round(precision, 3)))
+            st.markdown('#')
             st.metric('F1 Score:', "{:.3f}".format(round(f1, 3)))
 
     with tabPie:
