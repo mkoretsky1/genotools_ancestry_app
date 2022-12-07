@@ -36,18 +36,27 @@ def get_gcloud_bucket(bucket_name):  # gets folders from Google Cloud
 gp2_sample_bucket_name = 'gp2_sample_data'
 gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
 
+def callback():
+    st.session_state['old_choice'] = st.session_state['cohort_choice']
+    st.session_state['cohort_choice'] = st.session_state['new_choice']
+
 # Sidebar selector (on every page)
 def cohort_select(master_key):
     st.sidebar.markdown('### **Choose a cohort!**', unsafe_allow_html=True)
 
-    selected_metrics = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=['GP2 Release 3 FULL']+[study for study in master_key['study'].unique()])
-    
-    st.session_state['cohort_choice'] = selected_metrics  # can change selected cohort at any time
+    options=['GP2 Release 3 FULL']+[study for study in master_key['study'].unique()]
 
-    if selected_metrics == 'GP2 Release 3 FULL':
+    if 'cohort_choice' not in st.session_state:
+        st.session_state['cohort_choice'] = options[0]
+    if 'old_choice' not in st.session_state:
+        st.session_state['old_choice'] = ""
+
+    st.session_state['cohort_choice'] = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['cohort_choice']), key='new_choice', on_change=callback)
+
+    if st.session_state['cohort_choice'] == 'GP2 Release 3 FULL':
         st.session_state['master_key'] = master_key
     else:
-        master_key_cohort = master_key[master_key['study'] == selected_metrics]
+        master_key_cohort = master_key[master_key['study'] == st.session_state['cohort_choice']]
         st.session_state['master_key'] = master_key_cohort  # subsets master key to only include selected cohort
 
     # Check for pruned samples
@@ -59,7 +68,7 @@ def cohort_select(master_key):
     total_count = st.session_state['master_key'].shape[0]
 
     st.sidebar.markdown('### **Selected cohort:**', unsafe_allow_html=True)
-    st.sidebar.metric("", selected_metrics)
+    st.sidebar.metric("", st.session_state['cohort_choice'])
     st.sidebar.metric("Number of Samples in Dataset:", f'{total_count:,}')
     st.sidebar.metric("Number of Samples After Pruning:", f'{(total_count-pruned_samples):,}')
 
