@@ -67,7 +67,6 @@ def cohort_select(master_key):
     
     total_count = st.session_state['master_key'].shape[0]
 
-    st.sidebar.markdown('### **Selected cohort:**', unsafe_allow_html=True)
     st.sidebar.metric("", st.session_state['cohort_choice'])
     st.sidebar.metric("Number of Samples in Dataset:", f'{total_count:,}')
     st.sidebar.metric("Number of Samples After Pruning:", f'{(total_count-pruned_samples):,}')
