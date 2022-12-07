@@ -158,7 +158,7 @@ funnel_counts = go.Figure(go.Funnelarea(
     marker = {"colors": ["#999999", "#E69F00", "#56B4E9", "#009E73", "#AA4499", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]},
     opacity = 0.9, textinfo = 'text',
     customdata=funnel_df['remaining_samples'],
-    hovertemplate = 'Remaining Samples: %{customdata[0]:.f}'+'<extra></extra>'))
+    hovertemplate = 'Remaining Samples:' + '<br>%{customdata[0]:.f}'+'<extra></extra>'))
 
 funnel_counts.update_layout(showlegend = False, margin=dict(l=0, r=300, t=10, b=10))
 
