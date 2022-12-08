@@ -33,15 +33,18 @@ card_removebg = frontend_bucket.get_blob('card-removebg.png')
 card_removebg = card_removebg.download_as_bytes()
 gp2_removebg = frontend_bucket.get_blob('gp2_2-removebg.png')
 gp2_removebg = gp2_removebg.download_as_bytes()
+gp2_bg = frontend_bucket.get_blob('gp2_2.jpg')
+gp2_bg = gp2_bg.download_as_bytes()
 
 st.set_page_config(
      page_title="Home",
-     page_icon=gp2_removebg,
+     page_icon=gp2_bg,
      layout="wide",
 )
 
 st.session_state['card_removebg'] = card_removebg
-st.session_state['gp2_removebg'] = gp2_removebg 
+st.session_state['gp2_removebg'] = gp2_removebg
+st.session_state['gp2_bg'] = gp2_bg
 
 # Background color
 css = frontend_bucket.get_blob('style.css')
