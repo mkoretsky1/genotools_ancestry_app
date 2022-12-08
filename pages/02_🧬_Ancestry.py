@@ -17,7 +17,7 @@ from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select
 if 'gp2_removebg' in st.session_state:
     st.set_page_config(
         page_title="Ancestry",
-        page_icon=st.session_state.gp2_removebg,
+        page_icon=st.session_state.gp2_bg,
         layout="wide",
     )
 else: 
