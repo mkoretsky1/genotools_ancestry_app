@@ -11,20 +11,10 @@ import plotly.io as pio
 import seaborn as sns
 from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
-from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select
+from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, config_page
 
 
-if 'gp2_removebg' in st.session_state:
-    st.set_page_config(
-        page_title="Ancestry",
-        page_icon=st.session_state.gp2_bg,
-        layout="wide",
-    )
-else: 
-    st.set_page_config(
-        page_title="Ancestry",
-        layout="wide"
-    )
+config_page('Ancestry')
 
 # Pull data from different Google Cloud folders
 gp2_sample_bucket_name = 'gp2_sample_data'
@@ -38,7 +28,7 @@ cohort_select(master_key)
 
 # Update when re-add Upload Data feature
 if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.session_state):
-    st.markdown(f'### Cohort: {st.session_state["cohort_choice"]}')
+    st.title(f'Cohort: {st.session_state["cohort_choice"]}')
     master_key = st.session_state['master_key']
 # else:
 #     geno_path = st.session_state['upload_data_path']
