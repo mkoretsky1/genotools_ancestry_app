@@ -38,7 +38,7 @@ cohort_select(master_key)
 
 # Update when re-add Upload Data feature
 if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.session_state):
-    st.markdown(f'### Cohort: {st.session_state["cohort_choice"]}')
+    st.title(f'Cohort: {st.session_state["cohort_choice"]}')
     master_key = st.session_state['master_key']
 # else:
 #     geno_path = st.session_state['upload_data_path']

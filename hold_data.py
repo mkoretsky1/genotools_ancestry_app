@@ -36,9 +36,9 @@ def get_gcloud_bucket(bucket_name):  # gets folders from Google Cloud
 gp2_sample_bucket_name = 'gp2_sample_data'
 gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
 
-def callback():
-    st.session_state['old_choice'] = st.session_state['cohort_choice']
-    st.session_state['cohort_choice'] = st.session_state['new_choice']
+def cohort_callback():
+    st.session_state['old_cohort_choice'] = st.session_state['cohort_choice']
+    st.session_state['cohort_choice'] = st.session_state['new_cohort_choice']
 
 # Sidebar selector (on every page)
 def cohort_select(master_key):
@@ -48,10 +48,10 @@ def cohort_select(master_key):
 
     if 'cohort_choice' not in st.session_state:
         st.session_state['cohort_choice'] = options[0]
-    if 'old_choice' not in st.session_state:
-        st.session_state['old_choice'] = ""
+    if 'old_cohort_choice' not in st.session_state:
+        st.session_state['old_cohort_choice'] = ""
 
-    st.session_state['cohort_choice'] = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['cohort_choice']), key='new_choice', on_change=callback)
+    st.session_state['cohort_choice'] = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['cohort_choice']), key='new_cohort_choice', on_change=cohort_callback)
 
     if st.session_state['cohort_choice'] == 'GP2 Release 3 FULL':
         st.session_state['master_key'] = master_key
@@ -78,3 +78,42 @@ def cohort_select(master_key):
         sidebar1.image(st.session_state.card_removebg, use_column_width=True)
         sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
 
+def gene_callback():
+    st.session_state['old_gene_choice'] = st.session_state['gene_choice']
+    st.session_state['gene_choice'] = st.session_state['new_gene_choice']
+
+def ancestry_callback():
+    st.session_state['old_ancestry_choice'] = st.session_state['ancestry_choice']
+    st.session_state['ancestry_choice'] = st.session_state['new_ancestry_choice']
+
+def gene_ancestry_select():
+    st.sidebar.markdown('### **Choose a gene!**', unsafe_allow_html=True)
+
+    options=['SNCA', 'PRKN','Both']
+
+    if 'gene_choice' not in st.session_state:
+        st.session_state['gene_choice'] = options[0]
+    if 'old_gene_choice' not in st.session_state:
+        st.session_state['old_gene_choice'] = ""
+
+    st.session_state['gene_choice'] = st.sidebar.selectbox(label = 'Gene Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['gene_choice']), key='new_gene_choice', on_change=gene_callback)
+
+    st.sidebar.markdown('### **Choose an Ancestry!**', unsafe_allow_html=True)
+
+    options=['AAC','AFR','Both']
+
+    if 'ancestry_choice' not in st.session_state:
+        st.session_state['ancestry_choice'] = options[0]
+    if 'old_ancestry_choice' not in st.session_state:
+        st.session_state['old_ancestry_choice'] = ""
+
+    st.session_state['ancestry_choice'] = st.sidebar.selectbox(label = 'Ancestry Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['ancestry_choice']), key='new_ancestry_choice', on_change=gene_callback)
+
+    # Place logos in sidebar
+    st.sidebar.markdown('---')
+    sidebar1, sidebar2 = st.sidebar.columns(2)
+    if 'card_removebg' in st.session_state:
+        sidebar1.image(st.session_state.card_removebg, use_column_width=True)
+        sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
+
+    
