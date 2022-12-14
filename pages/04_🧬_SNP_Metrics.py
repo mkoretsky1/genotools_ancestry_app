@@ -48,16 +48,16 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     xlim = [xmin-.1, xmax+.1]
     ylim = [ymin-.1, ymax+.1]
 
-    fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497)
+    fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497,labels={'r':'R','theta':'Theta'}, symbol='phenotype')
 
-    fig.update_xaxes(range=xlim, nticks=10)
-    fig.update_yaxes(range=ylim, nticks=10)
+    fig.update_xaxes(range=xlim, nticks=10, zeroline=False)
+    fig.update_yaxes(range=ylim, nticks=10, zeroline=False)
     
-    fig.update_layout(margin=dict(r=76, t=63, b=75),)
+    fig.update_layout(margin=dict(r=76, t=63, b=75))
 
-    fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1, xanchor="right", x=1))
+    # fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1, xanchor="right", x=1))
 
-    fig.update_layout(legend_title_text='')
+    fig.update_layout(legend_title_text='Genotype')
 
     out_dict = {
         'fig': fig,
@@ -65,14 +65,14 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
         'ylim': ylim
     }
     
-    fig.update_layout(title_text=title)
+    fig.update_layout(title_text=f'<b>{title}<b>')
     
     return out_dict
 
 
 config_page('SNP Metrics')
 
-st.title('SNP Metrics Browser')
+st.title('GP2 SNP Metrics Browser')
 
 # Pull data from different Google Cloud folders
 gp2_sample_bucket_name = 'gp2_sample_data'
@@ -103,38 +103,44 @@ snps_query = f"select * from `{snps_table}` where chromosome={chromosome}"
 snps = query_snps(snps_query)
 
 if gene_choice == 'Both':
-        st.markdown(f'Number of available SNPs: {snps.shape[0]}')
+    metric1,metric2,metric3 = st.columns(3)
 else:
-    st.markdown(f'Number of available SNPs associated with {gene_choice} (\U000000B1 250kb): {snps.shape[0]}')
+    metric1,metric2,metric3 = st.columns([1.3,0.75,1])
+
+with metric1:
+    if gene_choice == 'Both':
+        st.metric(f'Number of available SNPs:', "{:.0f}".format(snps.shape[0]))
+    else:
+        st.metric(f'Number of available SNPs associated with {gene_choice} (\U000000B1 250kb):', "{:.0f}".format(snps.shape[0]))
 
 if ancestry_choice == 'Both':
     samples_query = f"select * from `{samples_table}`"
     samples = query_samples(samples_query)
-    st.markdown(f'Number of samples: {samples.shape[0]}')
+    with metric2:
+        st.metric(f'Number of samples:', "{:.0f}".format(samples.shape[0]))
     metrics_query = f"select * from `{samples_table}` join `{metrics_table}` on `{samples_table}`.iid=`{metrics_table}`.iid join `{snps_table}` on `{snps_table}`.snpid=`{metrics_table}`.snpid where `{snps_table}`.chromosome={chromosome}"
 else:
     samples_query = f"select * from `{samples_table}` where `{samples_table}`.label='{st.session_state['ancestry_choice']}'"
     samples = query_samples(samples_query)
-    st.markdown(f'Number of {ancestry_choice} samples: {samples.shape[0]}')
+    with metric2:
+        st.metric(f'Number of {ancestry_choice} samples:', "{:.0f}".format(samples.shape[0]))
     metrics_query = f"select * from `{samples_table}` join `{metrics_table}` on `{samples_table}`.iid=`{metrics_table}`.iid join `{snps_table}` on `{snps_table}`.snpid=`{metrics_table}`.snpid where `{snps_table}`.chromosome={chromosome} and `{samples_table}`.label='{ancestry_choice}'"
 
 metrics = query_metrics(metrics_query)
 
 num_sample_metrics = int(metrics.shape[0] / snps.shape[0])
 
-if ancestry_choice != 'Both':
-        st.markdown(f'Number of {ancestry_choice} samples with SNP metrics available: {num_sample_metrics}')
-else:
-    st.markdown(f'Number of samples with SNP metrics available: {num_sample_metrics}')
+with metric3:
+    if ancestry_choice != 'Both':
+        st.metric(f'Number of {ancestry_choice} samples with SNP metrics available:', "{:.0f}".format(num_sample_metrics))
+    else:
+        st.metric(f'Number of samples with SNP metrics available:', "{:.0f}".format(num_sample_metrics))
 
 if num_sample_metrics > 0:
-    st.markdown('SNP Selection for Cluster Plot')
+    st.markdown('### Select SNP for Cluster Plot')
     selected_snp = st.selectbox(label='SNP', label_visibility='collapsed', options=['Select SNP!']+[snp for snp in metrics['snpid'].unique()])
-    
-    col1, col2, col3 = st.columns([0.2,1,0.2])
 
     if selected_snp != 'Select SNP!':
         plot_df = metrics[metrics['snpid'] == selected_snp]
         fig = plot_clusters(plot_df, gtype_col='gt', title=selected_snp)['fig']
-        with col2:
-            st.plotly_chart(fig)
+        st.plotly_chart(fig, use_container_width=True)

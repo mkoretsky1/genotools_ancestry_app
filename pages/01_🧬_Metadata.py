@@ -17,3 +17,5 @@ from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, config_page
 
 
 config_page('Metadata')
+
+st.title('GP2 Release 3 Metadata')

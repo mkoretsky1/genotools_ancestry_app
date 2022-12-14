@@ -137,7 +137,7 @@ def gene_ancestry_select():
     if 'old_ancestry_choice' not in st.session_state:
         st.session_state['old_ancestry_choice'] = ""
 
-    st.session_state['ancestry_choice'] = st.sidebar.selectbox(label = 'Ancestry Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['ancestry_choice']), key='new_ancestry_choice', on_change=gene_callback)
+    st.session_state['ancestry_choice'] = st.sidebar.selectbox(label = 'Ancestry Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['ancestry_choice']), key='new_ancestry_choice', on_change=ancestry_callback)
 
     # Place logos in sidebar
     st.sidebar.markdown('---')
