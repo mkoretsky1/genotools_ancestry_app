@@ -17,7 +17,7 @@ from io import StringIO
 from google.cloud import storage
 
 from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
-from hold_data import blob_as_csv, get_gcloud_bucket
+from hold_data import blob_as_csv, get_gcloud_bucket, place_logos, config_page
 
 
 # Pull data from different Google Cloud folders
@@ -28,23 +28,7 @@ gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
 ref_panel_bucket_name = 'ref_panel'
 ref_panel_bucket = get_gcloud_bucket(ref_panel_bucket_name)
 
-# Save CARD and GP2 logos
-card_removebg = frontend_bucket.get_blob('card-removebg.png')
-card_removebg = card_removebg.download_as_bytes()
-gp2_removebg = frontend_bucket.get_blob('gp2_2-removebg.png')
-gp2_removebg = gp2_removebg.download_as_bytes()
-gp2_bg = frontend_bucket.get_blob('gp2_2.jpg')
-gp2_bg = gp2_bg.download_as_bytes()
-
-st.set_page_config(
-     page_title="Home",
-     page_icon=gp2_bg,
-     layout="wide",
-)
-
-st.session_state['card_removebg'] = card_removebg
-st.session_state['gp2_removebg'] = gp2_removebg
-st.session_state['gp2_bg'] = gp2_bg
+config_page('Home')
 
 # Background color
 css = frontend_bucket.get_blob('style.css')
@@ -52,9 +36,7 @@ css = css.download_as_string()
 st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 # Place logos in sidebar
-sidebar1, sidebar2 = st.sidebar.columns(2)
-sidebar1.image(card_removebg, use_column_width=True)
-sidebar2.image(gp2_removebg, use_column_width=True)
+place_logos()
 
 # Main title
 st.markdown("<h1 style='text-align: center; color: #0f557a; font-family: Helvetica; '>GP2 Internal Cohort Browser</h1>", unsafe_allow_html=True)
