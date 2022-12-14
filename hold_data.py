@@ -32,9 +32,42 @@ def get_gcloud_bucket(bucket_name):  # gets folders from Google Cloud
     bucket = storage_client.get_bucket(bucket_name)
     return bucket
 
-# Pull data from Sample Data Google Cloud folder
-gp2_sample_bucket_name = 'gp2_sample_data'
-gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
+def config_page(title):
+    if 'gp2_bg' in st.session_state:
+        st.set_page_config(
+            page_title=title,
+            page_icon=st.session_state.gp2_bg,
+            layout="wide",
+        )
+    else: 
+        frontend_bucket_name = 'frontend_app_materials'
+        frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
+        gp2_bg = frontend_bucket.get_blob('gp2_2.jpg')
+        gp2_bg = gp2_bg.download_as_bytes()
+        st.session_state['gp2_bg'] = gp2_bg
+        st.set_page_config(
+            page_title=title,
+            page_icon=gp2_bg,
+            layout="wide"
+        )
+
+
+def place_logos():
+    sidebar1, sidebar2 = st.sidebar.columns(2)
+    if 'card_removebg' in st.session_state:
+        sidebar1.image(st.session_state.card_removebg, use_column_width=True)
+        sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
+    else:
+        frontend_bucket_name = 'frontend_app_materials'
+        frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
+        card_removebg = frontend_bucket.get_blob('card-removebg.png')
+        card_removebg = card_removebg.download_as_bytes()
+        gp2_removebg = frontend_bucket.get_blob('gp2_2-removebg.png')
+        gp2_removebg = gp2_removebg.download_as_bytes()
+        st.session_state['card_removebg'] = card_removebg
+        st.session_state['gp2_removebg'] = gp2_removebg
+        sidebar1.image(card_removebg, use_column_width=True)
+        sidebar2.image(gp2_removebg, use_column_width=True)
 
 def cohort_callback():
     st.session_state['old_cohort_choice'] = st.session_state['cohort_choice']
@@ -73,10 +106,7 @@ def cohort_select(master_key):
 
     # Place logos in sidebar
     st.sidebar.markdown('---')
-    sidebar1, sidebar2 = st.sidebar.columns(2)
-    if 'card_removebg' in st.session_state:
-        sidebar1.image(st.session_state.card_removebg, use_column_width=True)
-        sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
+    place_logos()
 
 def gene_callback():
     st.session_state['old_gene_choice'] = st.session_state['gene_choice']
@@ -111,9 +141,6 @@ def gene_ancestry_select():
 
     # Place logos in sidebar
     st.sidebar.markdown('---')
-    sidebar1, sidebar2 = st.sidebar.columns(2)
-    if 'card_removebg' in st.session_state:
-        sidebar1.image(st.session_state.card_removebg, use_column_width=True)
-        sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
+    place_logos()
 
     

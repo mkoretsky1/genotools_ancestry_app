@@ -11,7 +11,7 @@ import plotly.io as pio
 import seaborn as sns
 from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
-from hold_data import blob_as_csv, get_gcloud_bucket, gene_ancestry_select
+from hold_data import blob_as_csv, get_gcloud_bucket, gene_ancestry_select, config_page
 
 from google.cloud import bigquery
 
@@ -69,17 +69,8 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     
     return out_dict
 
-if 'gp2_removebg' in st.session_state:
-    st.set_page_config(
-        page_title="Ancestry",
-        page_icon=st.session_state.gp2_bg,
-        layout="wide",
-    )
-else: 
-    st.set_page_config(
-        page_title="Ancestry",
-        layout="wide"
-    )
+
+config_page('SNP Metrics')
 
 st.title('SNP Metrics Browser')
 
