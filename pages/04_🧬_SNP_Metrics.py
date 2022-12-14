@@ -48,7 +48,7 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     xlim = [xmin-.1, xmax+.1]
     ylim = [ymin-.1, ymax+.1]
 
-    fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497,labels={'r':'R','theta':'Theta'}, symbol='phenotype')
+    fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497,labels={'r':'R','theta':'Theta'}, symbol='phenotype', symbol_sequence=['circle','circle-open'])
 
     fig.update_xaxes(range=xlim, nticks=10, zeroline=False)
     fig.update_yaxes(range=ylim, nticks=10, zeroline=False)
@@ -140,7 +140,28 @@ if num_sample_metrics > 0:
     st.markdown('### Select SNP for Cluster Plot')
     selected_snp = st.selectbox(label='SNP', label_visibility='collapsed', options=['Select SNP!']+[snp for snp in metrics['snpid'].unique()])
 
+    col1, col2 = st.columns([2.5,1])
+
     if selected_snp != 'Select SNP!':
-        plot_df = metrics[metrics['snpid'] == selected_snp]
-        fig = plot_clusters(plot_df, gtype_col='gt', title=selected_snp)['fig']
-        st.plotly_chart(fig, use_container_width=True)
+        snp_df = metrics[metrics['snpid'] == selected_snp]
+        fig = plot_clusters(snp_df, gtype_col='gt', title=selected_snp)['fig']
+
+        with col1:
+            st.plotly_chart(fig, use_container_width=True)
+
+        hide_table_row_index = """<style>thead tr th:first-child {display:none} tbody th {display:none}"""
+        st.markdown(hide_table_row_index, unsafe_allow_html=True)
+
+        with col2:
+            st.markdown('#')
+            st.markdown('**Control Genotype Distribution**')
+            gt_counts = snp_df[snp_df['phenotype'] == 'Control']['gt'].value_counts().rename_axis('Genotype').reset_index(name='Counts')
+            gt_rel_counts = snp_df[snp_df['phenotype'] == 'Control']['gt'].value_counts(normalize=True).rename_axis('Genotype').reset_index(name='Frequency')
+            gt_counts = pd.concat([gt_counts, gt_rel_counts['Frequency']], axis=1)
+            st.table(gt_counts)
+
+            st.markdown('**PD Genotype Distribution**')
+            gt_counts = snp_df[snp_df['phenotype'] == 'PD']['gt'].value_counts().rename_axis('Genotype').reset_index(name='Counts')
+            gt_rel_counts = snp_df[snp_df['phenotype'] == 'PD']['gt'].value_counts(normalize=True).rename_axis('Genotype').reset_index(name='Frequency')
+            gt_counts = pd.concat([gt_counts, gt_rel_counts['Frequency']], axis=1)
+            st.table(gt_counts)
