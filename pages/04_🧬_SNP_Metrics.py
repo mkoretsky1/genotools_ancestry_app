@@ -92,7 +92,9 @@ snps_table = f'{db_name}.snps'
 samples_table = f'{db_name}.samples'
 metrics_table = f'{db_name}.metrics'
 
-if gene_choice == 'SNCA':
+if gene_choice == 'GBA':
+    chromosome = 1
+elif gene_choice == 'SNCA':
     chromosome = 4
 elif gene_choice == 'PRKN':
     chromosome = 6

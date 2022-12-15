@@ -119,7 +119,7 @@ def ancestry_callback():
 def gene_ancestry_select():
     st.sidebar.markdown('### **Choose a gene!**', unsafe_allow_html=True)
 
-    options=['SNCA', 'PRKN','Both']
+    options=['GBA','SNCA', 'PRKN','Both']
 
     if 'gene_choice' not in st.session_state:
         st.session_state['gene_choice'] = options[0]
