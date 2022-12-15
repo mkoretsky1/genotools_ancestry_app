@@ -15,7 +15,6 @@ from PIL import Image
 
 from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, config_page
 
-
 config_page('Quality Control')
 
 # Pull data from different Google Cloud folders
