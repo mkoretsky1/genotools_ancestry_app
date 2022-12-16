@@ -18,6 +18,7 @@ from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, config_page
 config_page('Metadata')
 
 st.title('GP2 Release 3 Metadata')
+plot1, plot2 = st.columns([1,2])
 
 # Pull data from different Google Cloud folders
 gp2_sample_bucket_name = 'gp2_sample_data'
@@ -30,15 +31,15 @@ cohort_select(master_key)
 
 master_key = st.session_state['master_key']  # plots full GP2 release metrics by default
 master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex'}, inplace = True)
+master_key = master_key[master_key.Sex != 0]
 
 master_key['Sex'].replace(1, 'Male', inplace = True)
 master_key['Sex'].replace(2, 'Female', inplace = True)
 master_key['Sex'].replace(0, 'Unknown', inplace = True)
 
-st.dataframe(master_key.head())
+# st.dataframe(master_key.head())
 
-fig = px.histogram(master_key['Age'], x = 'Age', nbins = 25)
-st.plotly_chart(fig)
+# st.plotly_chart(age_overall)
 
 # create the bins
 # min_age = int(min(age))
@@ -48,16 +49,19 @@ st.plotly_chart(fig)
 # fig = px.bar(x=bins, y=counts, labels={'x':'Age', 'y':'Count'})
 # st.plotly_chart(fig)
 
-st.markdown('#### Stratify Age by:')
-sex = st.checkbox('Sex')
-phenotype= st.checkbox('Phenotype')
+plot1.markdown('#### Stratify Age by:')
+sex = plot1.checkbox('Sex')
+phenotype= plot1.checkbox('Phenotype')
 
+if not sex and not phenotype:
+    age_overall = px.histogram(master_key['Age'], x = 'Age', nbins = 25)
+    plot2.plotly_chart(age_overall)
 if sex:
     fig = px.histogram(master_key, x="Age", color="Sex", nbins = 25)
-    st.plotly_chart(fig)
+    plot2.plotly_chart(fig)
 if phenotype:
     fig = px.histogram(master_key, x="Age", color="Phenotype", nbins = 25)
-    st.plotly_chart(fig)
+    plot2.plotly_chart(fig)
 
 male_pheno = master_key.loc[master_key['Sex'] == 'Male', 'Phenotype']
 female_pheno = master_key.loc[master_key['Sex'] == 'Female', 'Phenotype']
@@ -65,5 +69,8 @@ female_pheno = master_key.loc[master_key['Sex'] == 'Female', 'Phenotype']
 combined_counts = pd.DataFrame()
 combined_counts['Male'] = male_pheno.value_counts()
 combined_counts['Female'] = female_pheno.value_counts()
+combined_counts = combined_counts.transpose()
 
-st.dataframe(combined_counts.transpose())
+plot1.markdown('---')
+plot1.markdown('#### Phenotype Count Split by Sex')
+plot1.dataframe(combined_counts)
