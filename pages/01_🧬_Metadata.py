@@ -36,30 +36,24 @@ master_key = master_key[master_key.Sex != 0]
 master_key['Sex'].replace(1, 'Male', inplace = True)
 master_key['Sex'].replace(2, 'Female', inplace = True)
 master_key['Sex'].replace(0, 'Unknown', inplace = True)
-
 # st.dataframe(master_key.head())
 
-# st.plotly_chart(age_overall)
-
-# create the bins
-# min_age = int(min(age))
-# max_age = int(max(age))
-# counts, bins = np.histogram(age, bins=range(min_age, max_age, 5))
-# bins = 0.5 * (bins[:-1] + bins[1:])
-# fig = px.bar(x=bins, y=counts, labels={'x':'Age', 'y':'Count'})
-# st.plotly_chart(fig)
-
 plot1.markdown('#### Stratify Age by:')
-sex = plot1.checkbox('Sex')
-phenotype= plot1.checkbox('Phenotype')
+# none = plot1.checkbox('None', )
+# sex = plot1.checkbox('Sex')
+# phenotype= plot1.checkbox('Phenotype')
 
-if not sex and not phenotype:
+stratify = plot1.radio(
+    "Stratify Age by:",
+    ('None', 'Sex', 'Phenotype'), label_visibility="collapsed")
+
+if stratify == 'None':
     age_overall = px.histogram(master_key['Age'], x = 'Age', nbins = 25)
     plot2.plotly_chart(age_overall)
-if sex:
+if stratify == 'Sex':
     fig = px.histogram(master_key, x="Age", color="Sex", nbins = 25)
     plot2.plotly_chart(fig)
-if phenotype:
+if stratify == 'Phenotype':
     fig = px.histogram(master_key, x="Age", color="Phenotype", nbins = 25)
     plot2.plotly_chart(fig)
 
