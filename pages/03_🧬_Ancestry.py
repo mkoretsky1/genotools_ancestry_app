@@ -251,7 +251,7 @@ else:
     with tabPie:
         # Plots ancestry breakdowns of Predicted Samples vs. Reference Panel samples
         pie1, pie2, pie3 = st.columns([2,1,2])
-        p1, p2, p3 = st.columns([2,2,2])
+        p1, p2, p3 = st.columns([2,4,1])
 
         ref_pca = blob_as_csv(gp2_sample_bucket, f'reference_pcs.csv', sep=',')
 
