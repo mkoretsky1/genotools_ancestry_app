@@ -12,8 +12,10 @@ import seaborn as sns
 from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 from hold_data import blob_as_csv, get_gcloud_bucket, gene_ancestry_select, config_page
+from io import StringIO
 
 from google.cloud import bigquery
+from google.cloud import storage
 
 @st.cache
 def query_snps(snps_query):
@@ -48,7 +50,10 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     xlim = [xmin-.1, xmax+.1]
     ylim = [ymin-.1, ymax+.1]
 
-    fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497,labels={'r':'R','theta':'Theta'}, symbol='phenotype', symbol_sequence=['circle','circle-open'])
+    lmap = {'r':'R','theta':'Theta'}
+    smap = {'Control':'circle','PD':'circle-open'}
+
+    fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497, labels=lmap, symbol='phenotype', symbol_map=smap)
 
     fig.update_xaxes(range=xlim, nticks=10, zeroline=False)
     fig.update_yaxes(range=ylim, nticks=10, zeroline=False)
@@ -69,6 +74,25 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     
     return out_dict
 
+def calculate_maf(gtype_df):
+    gtypes_map = {
+        'AA': 0,
+        'AB': 1,
+        'BA': 1,
+        'BB': 2,
+        'NC': np.nan
+        }
+
+    gtypes = gtype_df.pivot(index='snpid', columns='iid', values='gt').replace(gtypes_map)
+    
+    # count only called genotypes
+    N = gtypes.shape[1]-gtypes.isna().sum(axis=1)
+    freq = pd.DataFrame({'freq': gtypes.sum(axis=1)/(2*N)})
+    freq.loc[:,'maf'] = np.where(freq < 0.5, freq, 1-freq)
+    maf_out = freq.drop(columns=['freq']).reset_index()
+
+    return maf_out
+
 
 config_page('SNP Metrics')
 
@@ -79,6 +103,8 @@ gp2_sample_bucket_name = 'gp2_sample_data'
 gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
 ref_panel_bucket_name = 'ref_panel'
 ref_panel_bucket = get_gcloud_bucket(ref_panel_bucket_name)
+snp_metrics_bucket_name = 'snp_metrics_db'
+snp_metrics_bucket = get_gcloud_bucket(snp_metrics_bucket_name)
 
 gene_ancestry_select()
 
@@ -128,7 +154,21 @@ else:
         st.metric(f'Number of {ancestry_choice} samples:', "{:.0f}".format(samples.shape[0]))
     metrics_query = f"select * from `{samples_table}` join `{metrics_table}` on `{samples_table}`.iid=`{metrics_table}`.iid join `{snps_table}` on `{snps_table}`.snpid=`{metrics_table}`.snpid where `{snps_table}`.chromosome={chromosome} and `{samples_table}`.label='{ancestry_choice}'"
 
-metrics = query_metrics(metrics_query)
+selection = f'{gene_choice}_{ancestry_choice}'
+blob_name = f'hold_query/{selection}.csv'
+blob = snp_metrics_bucket.blob(blob_name)
+
+# metrics = query_metrics(metrics_query)
+if selection not in st.session_state:
+    if blob.exists():
+        metrics = blob_as_csv(snp_metrics_bucket, blob_name, sep=',')
+    else:
+        metrics = query_metrics(metrics_query)
+        blob = snp_metrics_bucket.blob(blob_name)
+        blob.upload_from_string(metrics.to_csv(index=False), 'text/csv')
+    st.session_state[selection] = metrics
+else:
+    metrics = st.session_state[selection]
 
 num_sample_metrics = int(metrics.shape[0] / snps.shape[0])
 
@@ -138,15 +178,20 @@ with metric3:
     else:
         st.metric(f'Number of samples with SNP metrics available:', "{:.0f}".format(num_sample_metrics))
 
+metrics_copy = metrics.copy(deep=True)
+metrics_copy['snp_label'] = metrics_copy['snpid'] + ' (' + metrics_copy['chromosome'].astype(str) + ':' + metrics_copy['position'].astype(str) + ')'
+
 if num_sample_metrics > 0:
     st.markdown('### Select SNP for Cluster Plot')
-    selected_snp = st.selectbox(label='SNP', label_visibility='collapsed', options=['Select SNP!']+[snp for snp in metrics['snpid'].unique()])
-
-    col1, col2 = st.columns([2.5,1])
+    selected_snp = st.selectbox(label='SNP', label_visibility='collapsed', options=['Select SNP!']+[snp for snp in metrics_copy['snp_label'].unique()])
 
     if selected_snp != 'Select SNP!':
-        snp_df = metrics[metrics['snpid'] == selected_snp]
+        snp_df = metrics_copy[metrics_copy['snp_label'] == selected_snp]
+        snp_df = snp_df.reset_index(drop=True)
+
         fig = plot_clusters(snp_df, gtype_col='gt', title=selected_snp)['fig']
+
+        col1, col2 = st.columns([2.5,1])
 
         with col1:
             st.plotly_chart(fig, use_container_width=True)
@@ -155,15 +200,23 @@ if num_sample_metrics > 0:
         st.markdown(hide_table_row_index, unsafe_allow_html=True)
 
         with col2:
-            st.markdown('#')
-            st.markdown('**Control Genotype Distribution**')
-            gt_counts = snp_df[snp_df['phenotype'] == 'Control']['gt'].value_counts().rename_axis('Genotype').reset_index(name='Counts')
-            gt_rel_counts = snp_df[snp_df['phenotype'] == 'Control']['gt'].value_counts(normalize=True).rename_axis('Genotype').reset_index(name='Frequency')
-            gt_counts = pd.concat([gt_counts, gt_rel_counts['Frequency']], axis=1)
-            st.table(gt_counts)
+            st.metric(f'GenTrain Score:', "{:.3f}".format(snp_df['gentrainscore'][0]))
 
-            st.markdown('**PD Genotype Distribution**')
-            gt_counts = snp_df[snp_df['phenotype'] == 'PD']['gt'].value_counts().rename_axis('Genotype').reset_index(name='Counts')
-            gt_rel_counts = snp_df[snp_df['phenotype'] == 'PD']['gt'].value_counts(normalize=True).rename_axis('Genotype').reset_index(name='Frequency')
-            gt_counts = pd.concat([gt_counts, gt_rel_counts['Frequency']], axis=1)
-            st.table(gt_counts)
+            maf = calculate_maf(snp_df)
+            st.metric(f'Minor Allele Frequency:', "{:.3f}".format(maf['maf'][0]))
+
+            # st.markdown('**Control Genotype Distribution**')
+            with st.expander('**Control Genotype Distribution**'):
+                gt_counts = snp_df[snp_df['phenotype'] == 'Control']['gt'].value_counts().rename_axis('Genotype').reset_index(name='Counts')
+                gt_rel_counts = snp_df[snp_df['phenotype'] == 'Control']['gt'].value_counts(normalize=True).rename_axis('Genotype').reset_index(name='Frequency')
+                gt_counts = pd.concat([gt_counts, gt_rel_counts['Frequency']], axis=1)
+                st.table(gt_counts)
+
+            # st.markdown('**PD Genotype Distribution**')
+            with st.expander('**PD Genotype Distribution**'):
+                gt_counts = snp_df[snp_df['phenotype'] == 'PD']['gt'].value_counts().rename_axis('Genotype').reset_index(name='Counts')
+                gt_rel_counts = snp_df[snp_df['phenotype'] == 'PD']['gt'].value_counts(normalize=True).rename_axis('Genotype').reset_index(name='Frequency')
+                gt_counts = pd.concat([gt_counts, gt_rel_counts['Frequency']], axis=1)
+                st.table(gt_counts)
+    
+        
