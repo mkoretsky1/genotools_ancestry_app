@@ -59,4 +59,5 @@ else:
     rv_data_selected = rv_data_selected
 
 go = gb_builder(rv_data_selected)
-user_response = AgGrid(rv_data_selected, gridOptions=go,allow_unsafe_jscode=True)
+user_response = AgGrid(rv_data_selected, gridOptions=go, allow_unsafe_jscode=True)
+
