@@ -142,10 +142,10 @@ df_6 = df_6.reset_index(drop=True)
 
 # Pruning Steps plot
 funnel_counts = go.Figure(go.Funnelarea(
-    text = funnel_df['step_name'],
+    text = [f'<b>{i}</b>' for i in funnel_df['step_name']],
     values = funnel_df['remaining_samples'],
     marker = {"colors": ["#999999", "#E69F00", "#56B4E9", "#009E73", "#AA4499", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]},
-    opacity = 0.9, textinfo = 'text',
+    opacity = 1.0, textinfo = 'text',
     customdata=funnel_df['remaining_samples'],
     hovertemplate = 'Remaining Samples:' + '<br>%{customdata[0]:.f}'+'<extra></extra>'))
 
@@ -236,7 +236,7 @@ if df_6.shape[0]>0:
     failed_prune_exp = st.expander("Description", expanded=False)
     with failed_prune_exp:
         st.write('Prune step considered "failed" if there was an insufficient number of samples within an ancestry to complete the \
-                step, even if no sampels were pruned.')
+                step, even if no samples were pruned.')
     st.table(df_6)
 
 
