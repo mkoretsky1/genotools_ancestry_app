@@ -51,7 +51,7 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     ylim = [ymin-.1, ymax+.1]
 
     lmap = {'r':'R','theta':'Theta'}
-    smap = {'Control':'circle','PD':'circle-open'}
+    smap = {'Control':'circle','PD':'diamond-open-dot'}
 
     fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497, labels=lmap, symbol='phenotype', symbol_map=smap)
 

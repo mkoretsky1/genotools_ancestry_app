@@ -119,28 +119,78 @@ def ancestry_callback():
 def gene_ancestry_select():
     st.sidebar.markdown('### **Choose a gene!**', unsafe_allow_html=True)
 
-    options=['GBA','SNCA', 'PRKN','Both']
+    gene_options=['GBA','SNCA', 'PRKN','Both']
 
     if 'gene_choice' not in st.session_state:
-        st.session_state['gene_choice'] = options[0]
+        st.session_state['gene_choice'] = gene_options[0]
     if 'old_gene_choice' not in st.session_state:
         st.session_state['old_gene_choice'] = ""
 
-    st.session_state['gene_choice'] = st.sidebar.selectbox(label = 'Gene Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['gene_choice']), key='new_gene_choice', on_change=gene_callback)
+    st.session_state['gene_choice'] = st.sidebar.selectbox(label = 'Gene Selection', label_visibility = 'collapsed', options=gene_options, index=gene_options.index(st.session_state['gene_choice']), key='new_gene_choice', on_change=gene_callback)
 
     st.sidebar.markdown('### **Choose an Ancestry!**', unsafe_allow_html=True)
 
-    options=['AAC','AFR','Both']
+    ancestry_options=['AAC','AFR','Both']
 
     if 'ancestry_choice' not in st.session_state:
-        st.session_state['ancestry_choice'] = options[0]
+        st.session_state['ancestry_choice'] = ancestry_options[0]
     if 'old_ancestry_choice' not in st.session_state:
         st.session_state['old_ancestry_choice'] = ""
 
-    st.session_state['ancestry_choice'] = st.sidebar.selectbox(label = 'Ancestry Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['ancestry_choice']), key='new_ancestry_choice', on_change=ancestry_callback)
+    st.session_state['ancestry_choice'] = st.sidebar.selectbox(label = 'Ancestry Selection', label_visibility = 'collapsed', options=ancestry_options, index=ancestry_options.index(st.session_state['ancestry_choice']), key='new_ancestry_choice', on_change=ancestry_callback)
 
     # Place logos in sidebar
     st.sidebar.markdown('---')
     place_logos()
 
-    
+def rv_cohort_callback():
+    st.session_state['old_rv_cohort_choice'] = st.session_state['rv_cohort_choice']
+    st.session_state['rv_cohort_choice'] = st.session_state['new_rv_cohort_choice']
+
+def method_callback():
+    st.session_state['old_method_choice'] = st.session_state['method_choice']
+    st.session_state['method_choice'] = st.session_state['new_method_choice']
+
+def rv_gene_callback():
+    st.session_state['old_rv_gene_choice'] = st.session_state['rv_gene_choice']
+    st.session_state['rv_gene_choice'] = st.session_state['new_rv_gene_choice']
+
+def rv_select(rv_data):
+    st.sidebar.markdown('### **Choose a cohort!**', unsafe_allow_html=True)
+
+    rv_cohort_options = [i for i in rv_data['Study code'].unique()]
+
+    if 'rv_cohort_choice' not in st.session_state:
+        st.session_state['rv_cohort_choice'] = None
+    if 'old_rv_cohort_choice' not in st.session_state:
+        st.session_state['old_rv_cohort_choice'] = ""
+
+    st.session_state['rv_cohort_choice'] = st.sidebar.multiselect(label = 'Cohort Selection', label_visibility = 'collapsed', options=rv_cohort_options, default=st.session_state['rv_cohort_choice'], key='new_rv_cohort_choice', on_change=rv_cohort_callback)
+
+
+    st.sidebar.markdown('### **Choose a discovery method!**', unsafe_allow_html=True)
+
+    method_options = [i for i in rv_data['Methods'].unique()]
+
+    if 'method_choice' not in st.session_state:
+        st.session_state['method_choice'] = None
+    if 'old_method_choice' not in st.session_state:
+        st.session_state['old_method_choice'] = ""
+
+    st.session_state['method_choice'] = st.sidebar.multiselect(label = 'Method Selection', label_visibility = 'collapsed', options=method_options, default=st.session_state['method_choice'], key='new_method_choice', on_change=method_callback)
+
+
+    st.sidebar.markdown('### **Choose a gene!**', unsafe_allow_html=True)
+
+    rv_gene_options = [i for i in rv_data['Gene'].unique()]
+
+    if 'rv_gene_choice' not in st.session_state:
+        st.session_state['rv_gene_choice'] = None
+    if 'old_rv_gene_choice' not in st.session_state:
+        st.session_state['old_rv_gene_choice'] = ""
+
+    st.session_state['rv_gene_choice'] = st.sidebar.multiselect(label = 'Gene Selection', label_visibility = 'collapsed', options=rv_gene_options, default=st.session_state['rv_gene_choice'], key='new_rv_gene_choice', on_change=rv_gene_callback)
+
+    # Place logos in sidebar
+    st.sidebar.markdown('---')
+    place_logos()
