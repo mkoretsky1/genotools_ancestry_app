@@ -17,17 +17,17 @@ from io import StringIO
 from google.cloud import bigquery
 from google.cloud import storage
 
-@st.cache
+@st.cache_data
 def query_snps(snps_query):
     snps = client.query(snps_query).to_dataframe()
     return snps
 
-@st.cache
+@st.cache_data
 def query_samples(samples_query):
     samples = client.query(samples_query).to_dataframe()
     return samples
 
-@st.cache
+@st.cache_data
 def query_metrics(metrics_query):
     metrics = client.query(metrics_query).to_dataframe()
     return metrics

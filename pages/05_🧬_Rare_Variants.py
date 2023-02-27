@@ -11,7 +11,7 @@ import plotly.io as pio
 import seaborn as sns
 from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
-from hold_data import blob_as_csv, get_gcloud_bucket, config_page, place_logos, rv_select
+from hold_data import blob_as_csv, get_gcloud_bucket, config_page, place_logos, rv_select, release_select
 from io import StringIO
 
 def gb_builder(dataframe):
@@ -23,6 +23,8 @@ def gb_builder(dataframe):
     return builder.build() 
 
 config_page('Rare Variants')
+
+release_select()
 
 st.title('GP2 Rare Variant Browser')
 

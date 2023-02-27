@@ -69,11 +69,26 @@ def place_logos():
         sidebar1.image(card_removebg, use_column_width=True)
         sidebar2.image(gp2_removebg, use_column_width=True)
 
+# Sidebar selector (on every page)
+def release_callback():
+    st.session_state['old_release_choice'] = st.session_state['release_choice']
+    st.session_state['release_choice'] = st.session_state['new_release_choice']
+
+def release_select():
+    st.sidebar.markdown('### **Choose a release!**')
+    options = ['GP2 Release 3']
+
+    if 'release_choice' not in st.session_state:
+        st.session_state['release_choice'] = options[0]
+    if 'old_release_choice' not in st.session_state:
+        st.session_state['old_release_choice'] = ""
+    
+    st.session_state['release_choice'] = st.sidebar.selectbox(label='Release Selection', label_visibility='collapsed', options=options, index=options.index(st.session_state['release_choice']), key='new_release_choice', on_change=release_callback)
+
 def cohort_callback():
     st.session_state['old_cohort_choice'] = st.session_state['cohort_choice']
     st.session_state['cohort_choice'] = st.session_state['new_cohort_choice']
 
-# Sidebar selector (on every page)
 def cohort_select(master_key):
     st.sidebar.markdown('### **Choose a cohort!**', unsafe_allow_html=True)
 

@@ -13,9 +13,11 @@ import seaborn as sns
 from functools import reduce
 from PIL import Image
 
-from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, config_page
+from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page
 
 config_page('Quality Control')
+
+release_select()
 
 # Pull data from different Google Cloud folders
 gp2_sample_bucket_name = 'gp2_sample_data'

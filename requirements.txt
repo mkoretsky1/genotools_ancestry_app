@@ -5,4 +5,6 @@ plotly
 matplotlib
 seaborn
 google-cloud-storage
+google-cloud-bigquery
+db-dtypes
 streamlit-aggrid
