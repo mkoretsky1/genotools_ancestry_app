@@ -54,17 +54,19 @@ if master_key_age.shape[0] != 0:
         ('None', 'Sex', 'Phenotype'), label_visibility="collapsed")
 
     if stratify == 'None':
-        fig = px.histogram(master_key['Age'], x = 'Age', nbins = 25)
+        fig = px.histogram(master_key['Age'], x = 'Age', nbins = 25, color_discrete_sequence=["#332288"])
         fig.update_layout(title_text=f'<b>Age Distribution<b>')
         plot2.plotly_chart(fig)
     if stratify == 'Sex':
-        fig = px.histogram(master_key, x="Age", color="Sex", nbins = 25)
+        fig = px.histogram(master_key, x="Age", color="Sex", nbins = 25, color_discrete_map={'Male':"#332288",'Female':"#CC6677"})
         fig.update_layout(title_text=f'<b>Age Distribution by Sex<b>')
         plot2.plotly_chart(fig)
     if stratify == 'Phenotype':
-        fig = px.histogram(master_key, x="Age", color="Phenotype", nbins = 25)
+        fig = px.histogram(master_key, x="Age", color="Phenotype", nbins = 25, color_discrete_map={'Control':"#332288",'PD':"#CC6677",'Other':"#117733",'Not Reported':"#D55E00"})
         fig.update_layout(title_text=f'<b>Age Distribution by Phenotype<b>')
         plot2.plotly_chart(fig)
+    
+    plot1.markdown('---')
 
 male_pheno = master_key.loc[master_key['Sex'] == 'Male', 'Phenotype']
 female_pheno = master_key.loc[master_key['Sex'] == 'Female', 'Phenotype']
@@ -77,6 +79,5 @@ combined_counts['Total'] = combined_counts.sum(axis=1)
 combined_counts = combined_counts.fillna(0)
 combined_counts = combined_counts.astype('int32')
 
-plot1.markdown('---')
 plot1.markdown('#### Phenotype Count Split by Sex')
 plot1.dataframe(combined_counts)

@@ -237,7 +237,7 @@ else:
 
         with heatmap1:
             st.markdown('### Confusion Matrix')
-            fig = px.imshow(confusion_matrix, labels=dict(x="Predicted Ancestry", y="Reference Panel Ancestry", color="Count"), text_auto=True)
+            fig = px.imshow(confusion_matrix, labels=dict(x="Predicted Ancestry", y="Reference Panel Ancestry", color="Count"), text_auto=True, color_continuous_scale='plasma')
             st.plotly_chart(fig)
 
         # Plots heatmap of confusion matrix from Testing

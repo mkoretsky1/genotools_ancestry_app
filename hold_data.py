@@ -54,9 +54,10 @@ def config_page(title):
 
 def place_logos():
     sidebar1, sidebar2 = st.sidebar.columns(2)
-    if 'card_removebg' in st.session_state:
+    if ('card_removebg' in st.session_state) and ('redlat' in st.session_state):
         sidebar1.image(st.session_state.card_removebg, use_column_width=True)
         sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
+        st.sidebar.image(st.session_state.redlat, use_column_width=True)
     else:
         frontend_bucket_name = 'frontend_app_materials'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
@@ -64,10 +65,14 @@ def place_logos():
         card_removebg = card_removebg.download_as_bytes()
         gp2_removebg = frontend_bucket.get_blob('gp2_2-removebg.png')
         gp2_removebg = gp2_removebg.download_as_bytes()
+        redlat = frontend_bucket.get_blob('Redlat.png')
+        redlat = redlat.download_as_bytes()
         st.session_state['card_removebg'] = card_removebg
         st.session_state['gp2_removebg'] = gp2_removebg
+        st.session_state['redlat'] = redlat
         sidebar1.image(card_removebg, use_column_width=True)
         sidebar2.image(gp2_removebg, use_column_width=True)
+        st.sidebar.image(redlat, use_column_width=True)
 
 # Sidebar selector (on every page)
 def release_callback():
