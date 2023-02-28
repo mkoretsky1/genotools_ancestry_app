@@ -19,14 +19,14 @@ config_page('Ancestry')
 release_select()
 
 # Pull data from different Google Cloud folders
-gp2_sample_bucket_name = 'gp2_sample_data'
-gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
-ref_panel_bucket_name = 'ref_panel'
-ref_panel_bucket = get_gcloud_bucket(ref_panel_bucket_name)
+gp2_data_bucket = get_gcloud_bucket('gp2tier2')
 
 # Gets master key (full GP2 release or selected cohort)
-master_key = blob_as_csv(gp2_sample_bucket, f'master_key_release3_final.csv', sep=',')
+master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
+master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
 cohort_select(master_key)
+
+pca_folder = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics'
 
 # Update when re-add Upload Data feature
 if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.session_state):
@@ -121,8 +121,8 @@ if 'cohort_choice' not in st.session_state:
     st.error('Error: Please use the drop-down menu on the sidebar to choose a sample cohort!')
 else:
     with tabPCA:
-        ref_pca = blob_as_csv(gp2_sample_bucket, f'reference_pcs.csv', sep=',')
-        proj_pca = blob_as_csv(gp2_sample_bucket, f'projected_pcs.csv', sep=',')
+        ref_pca = blob_as_csv(gp2_data_bucket, f'{pca_folder}/reference_pcs.csv', sep=',')
+        proj_pca = blob_as_csv(gp2_data_bucket, f'{pca_folder}/projected_pcs.csv', sep=',')
 
         proj_pca = proj_pca.drop(columns=['label'], axis=1)
 
@@ -216,7 +216,7 @@ else:
 
     with tabPredStats:
         st.markdown(f'## **Model Accuracy**')
-        confusion_matrix = blob_as_csv(gp2_sample_bucket, 'confusion_matrix.csv', sep=',')
+        confusion_matrix = blob_as_csv(gp2_data_bucket, f'{pca_folder}/confusion_matrix.csv', sep=',')
         confusion_matrix.set_index(confusion_matrix.columns, inplace = True)
 
         tp = np.diag(confusion_matrix)
@@ -255,7 +255,7 @@ else:
         pie1, pie2, pie3 = st.columns([2,1,2])
         p1, p2, p3 = st.columns([2,4,1])
 
-        ref_pca = blob_as_csv(gp2_sample_bucket, f'reference_pcs.csv', sep=',')
+        ref_pca = blob_as_csv(gp2_data_bucket, f'{pca_folder}/reference_pcs.csv', sep=',')
 
         # Get dataframe of counts per ancestry category for reference panel
         df_ancestry_counts = ref_pca['label'].value_counts(normalize = True).rename_axis('Ancestry Category').reset_index(name='Proportion')

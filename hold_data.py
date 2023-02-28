@@ -16,7 +16,7 @@ from google.cloud import storage
 
 from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'genotools-02f64a1e10be.json'
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'genotools-02f64a1e10be.json'
 
 # Functions auto loaded and used in every page
 def blob_as_csv(bucket, path, sep='\s+', header='infer'):  # reads in file from google cloud folder
@@ -81,14 +81,21 @@ def release_callback():
 
 def release_select():
     st.sidebar.markdown('### **Choose a release!**')
-    options = ['GP2 Release 3']
+    options = [3, 4]
 
     if 'release_choice' not in st.session_state:
-        st.session_state['release_choice'] = options[0]
+        st.session_state['release_choice'] = options[-1]
     if 'old_release_choice' not in st.session_state:
         st.session_state['old_release_choice'] = ""
     
     st.session_state['release_choice'] = st.sidebar.selectbox(label='Release Selection', label_visibility='collapsed', options=options, index=options.index(st.session_state['release_choice']), key='new_release_choice', on_change=release_callback)
+    st.session_state['cohort_choice'] = f'GP2 Release {st.session_state["release_choice"]} FULL'
+
+    # st.session_state['cohort_choice'] = f'GP2 Release {st.session_state["release_choice"]} FULL'
+
+    release_folder_dict = {1:'release1_29112021', 2:'release2_06052022', 3:'release3_31102022', 4:'release4_14022023'}
+
+    st.session_state['release_bucket'] = release_folder_dict[st.session_state['release_choice']]
 
 def cohort_callback():
     st.session_state['old_cohort_choice'] = st.session_state['cohort_choice']
@@ -97,7 +104,7 @@ def cohort_callback():
 def cohort_select(master_key):
     st.sidebar.markdown('### **Choose a cohort!**', unsafe_allow_html=True)
 
-    options=['GP2 Release 3 FULL']+[study for study in master_key['study'].unique()]
+    options=[f'GP2 Release {st.session_state["release_choice"]} FULL']+[study for study in master_key['study'].unique()]
 
     if 'cohort_choice' not in st.session_state:
         st.session_state['cohort_choice'] = options[0]
@@ -106,7 +113,7 @@ def cohort_select(master_key):
 
     st.session_state['cohort_choice'] = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['cohort_choice']), key='new_cohort_choice', on_change=cohort_callback)
 
-    if st.session_state['cohort_choice'] == 'GP2 Release 3 FULL':
+    if st.session_state['cohort_choice'] == f'GP2 Release {st.session_state["release_choice"]} FULL':
         st.session_state['master_key'] = master_key
     else:
         master_key_cohort = master_key[master_key['study'] == st.session_state['cohort_choice']]

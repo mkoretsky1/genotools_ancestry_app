@@ -20,12 +20,11 @@ config_page('Metadata')
 release_select()
 
 # Pull data from different Google Cloud folders
-gp2_sample_bucket_name = 'gp2_sample_data'
-gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
-df_qc = blob_as_csv(gp2_sample_bucket, 'qc_metrics.csv', sep = ',')  # current version: cannot split by cohort
+gp2_data_bucket = get_gcloud_bucket('gp2tier2')
 
 # Gets master key (full GP2 release or selected cohort)
-master_key = blob_as_csv(gp2_sample_bucket, f'master_key_release3_final.csv', sep=',')
+master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
+master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
 cohort_select(master_key)
 
 st.title(f'{st.session_state["cohort_choice"]} Metadata')
@@ -33,7 +32,7 @@ st.title(f'{st.session_state["cohort_choice"]} Metadata')
 plot1, plot2 = st.columns([1,1.75])
 
 master_key = st.session_state['master_key']  # plots full GP2 release metrics by default
-master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex'}, inplace = True)
+master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'phenotype':'Phenotype'}, inplace = True)
 master_key = master_key[master_key.Sex != 0]
 master_key_age = master_key[master_key['Age'].notnull()]
 

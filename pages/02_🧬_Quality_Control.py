@@ -20,12 +20,15 @@ config_page('Quality Control')
 release_select()
 
 # Pull data from different Google Cloud folders
-gp2_sample_bucket_name = 'gp2_sample_data'
-gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
-df_qc = blob_as_csv(gp2_sample_bucket, 'qc_metrics.csv', sep = ',')  # current version: cannot split by cohort
+gp2_data_bucket = get_gcloud_bucket('gp2tier2')
+
+# Get qc metrics
+qc_metrics_path = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics/qc_metrics.csv'
+df_qc = blob_as_csv(gp2_data_bucket, qc_metrics_path, sep = ',')  # current version: cannot split by cohort
 
 # Gets master key (full GP2 release or selected cohort)
-master_key = blob_as_csv(gp2_sample_bucket, f'master_key_release3_final.csv', sep=',')
+master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
+master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
 cohort_select(master_key)
 
 # Necessary dataframes for QC Plots
@@ -216,7 +219,7 @@ with left_col1:
     
 with right_col1:
     # st.dataframe(funnel_df[['step_name', 'remaining_samples']].rename(columns = {'step_name': 'QC Step', 'remaining_samples': 'Remaining Samples'}))
-    if st.session_state['cohort_choice'] == 'GP2 Release 3 FULL':  # will disappear if other cohort selected
+    if st.session_state['cohort_choice'] == f'GP2 Release {st.session_state["release_choice"]} FULL':  # will disappear if other cohort selected
         st.header("**Relatedness per Ancestry**")
         st.plotly_chart(bar_3)
 
