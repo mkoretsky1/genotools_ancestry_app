@@ -74,7 +74,7 @@ def place_logos():
         sidebar2.image(gp2_removebg, use_column_width=True)
         st.sidebar.image(redlat, use_column_width=True)
 
-# Sidebar selector (on every page)
+# Sidebar selectors
 def release_callback():
     st.session_state['old_release_choice'] = st.session_state['release_choice']
     st.session_state['release_choice'] = st.session_state['new_release_choice']
@@ -89,9 +89,6 @@ def release_select():
         st.session_state['old_release_choice'] = ""
     
     st.session_state['release_choice'] = st.sidebar.selectbox(label='Release Selection', label_visibility='collapsed', options=options, index=options.index(st.session_state['release_choice']), key='new_release_choice', on_change=release_callback)
-    st.session_state['cohort_choice'] = f'GP2 Release {st.session_state["release_choice"]} FULL'
-
-    # st.session_state['cohort_choice'] = f'GP2 Release {st.session_state["release_choice"]} FULL'
 
     release_folder_dict = {1:'release1_29112021', 2:'release2_06052022', 3:'release3_31102022', 4:'release4_14022023'}
 
@@ -106,7 +103,7 @@ def cohort_select(master_key):
 
     options=[f'GP2 Release {st.session_state["release_choice"]} FULL']+[study for study in master_key['study'].unique()]
 
-    if 'cohort_choice' not in st.session_state:
+    if ('cohort_choice' not in st.session_state) or (st.session_state['cohort_choice'] not in options):
         st.session_state['cohort_choice'] = options[0]
     if 'old_cohort_choice' not in st.session_state:
         st.session_state['old_cohort_choice'] = ""

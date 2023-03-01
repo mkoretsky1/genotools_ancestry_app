@@ -47,8 +47,12 @@ hold_prunes = master_key['pruned_reason'].value_counts().rename_axis('pruned_rea
 remaining_samples = pre_QC_total
 
 # Proper order of pruning steps to pull from Master Key
-ordered_prune = ['insufficient_ancestry_sample_n','phenotype_not_reported', 'missing_idat', 'corrupted_idat', 'callrate_prune', 'sex_prune', 
-                'het_prune', 'duplicated']
+if st.session_state['release_choice'] == 3:
+    ordered_prune = ['insufficient_ancestry_sample_n','phenotype_not_reported', 'missing_idat', 'corrupted_idat', 'callrate_prune', 'sex_prune', 
+                    'het_prune', 'duplicated']
+if st.session_state['release_choice'] == 4:
+    ordered_prune = ['insufficient_ancestry_sample_n','phenotype_not_reported', 'missing_idat', 'missing_beds', 'callrate_prune', 'sex_prune', 
+                    'het_prune', 'duplicated_prune']
 
 for prunes in ordered_prune:
     step_name = prunes
@@ -65,48 +69,72 @@ steps_dict = {
     'pre_QC': 'Pre-QC',
     'insufficient_ancestry_sample_n': 'Insufficient Ancestry Count',
     'missing_idat': 'Missing IDAT',
+    'missing_beds': 'Missing BED',
     'corrupted_idat': 'Corrupted IDAT',
     'phenotype_not_reported': 'Phenotype Not Reported',
     'callrate_prune':'Call Rate Prune',
     'sex_prune': 'Sex Prune',
     'duplicated': 'Duplicated',
+    'duplicated_prune': 'Duplicated',
     'het_prune': 'Heterozygosity Prune'
 }
 
 funnel_df.loc[:,'step_name'] = funnel_df.loc[:,'step'].map(steps_dict)  # prepares dataframe for funnel chart
 
-# Prepares dataframe for Relatedness Per Ancestry Plot (only for full GP2 Release, not any other selected cohorts)
-df_3 = df_qc.query("step == 'related_prune'")
-df_3 = df_3[['ancestry', 'pruned_count', 'metric']]
-
-# Counts all samples marked for related prune
-df_3_related = df_3.query("metric == 'related_count'").reset_index(drop=True)
-df_3_related = df_3_related.rename(columns={'pruned_count': 'related_count'})
-df_3_related = df_3_related.drop('metric', 1)
-
-# Counts samples labeled as "duplicated" within the related prune labels
-df_3_duplicated = df_3.query("metric == 'duplicated_count'").reset_index(drop=True)
-df_3_duplicated = df_3_duplicated.rename(columns={'pruned_count': 'duplicated_count'})
-df_3_duplicated = df_3_duplicated.drop('metric', 1)
-
-# Full names of ancestry labels to map abbreviations in Master Key
-df_4 = pd.merge(df_3_related, df_3_duplicated, on="ancestry")
 ancestry_dict = {
-        'AFR':'African',
-        'SAS':'South Asian',
-        'EAS':'East Asian',
-        'EUR':'European',
-        'AMR': 'American',
-        'AJ': 'Ashkenazi Jewish',
-        'AAC': 'African American/Afro-Caribbean',
-        'CAS': 'Central Asian',
-        'MDE': 'Middle Eastern',
-        'FIN': 'Finnish'
-    }
+            'AFR':'African',
+            'SAS':'South Asian',
+            'EAS':'East Asian',
+            'EUR':'European',
+            'AMR': 'American',
+            'AJ': 'Ashkenazi Jewish',
+            'AAC': 'African American/Afro-Caribbean',
+            'CAS': 'Central Asian',
+            'MDE': 'Middle Eastern',
+            'FIN': 'Finnish'
+        }
 
-df_4.loc[:,'label'] = df_4.loc[:,'ancestry'].map(ancestry_dict)
-df_4.set_index('ancestry', inplace=True)
+# Prepares dataframe for Relatedness Per Ancestry Plot (only for full GP2 Release, not any other selected cohorts)
+if 'related' not in master_key.columns:
+    df_3 = df_qc.query("step == 'related_prune'")
+    df_3 = df_3[['ancestry', 'pruned_count', 'metric']]
 
+    # Counts all samples marked for related prune
+    df_3_related = df_3.query("metric == 'related_count'").reset_index(drop=True)
+    df_3_related = df_3_related.rename(columns={'pruned_count': 'related_count'})
+    df_3_related = df_3_related.drop('metric', 1)
+
+    # Counts samples labeled as "duplicated" within the related prune labels
+    df_3_duplicated = df_3.query("metric == 'duplicated_count'").reset_index(drop=True)
+    df_3_duplicated = df_3_duplicated.rename(columns={'pruned_count': 'duplicated_count'})
+    df_3_duplicated = df_3_duplicated.drop('metric', 1)
+
+    # Full names of ancestry labels to map abbreviations in Master Key
+    df_4 = pd.merge(df_3_related, df_3_duplicated, on="ancestry")
+
+    df_4.loc[:,'label'] = df_4.loc[:,'ancestry'].map(ancestry_dict)
+    df_4.set_index('ancestry', inplace=True)
+else:
+    df_3 = master_key[master_key['related'] == 1]
+    df_3 = df_3[['label','pruned']]
+
+    df_4 = pd.DataFrame()
+
+    if len(df_3) > 0:
+
+        df_4_dicts = [] 
+
+        for label in df_3['label'].unique():
+            ancestry_df_dict = {}
+            df_3_ancestry = df_3[df_3['label'] == label]
+            ancestry_df_dict['ancestry'] = label
+            ancestry_df_dict['related_count'] = df_3_ancestry[df_3_ancestry['pruned'] == 0].shape[0]
+            ancestry_df_dict['duplicated_count'] = df_3_ancestry[df_3_ancestry['pruned'] == 1].shape[0]
+            df_4_dicts.append(ancestry_df_dict)
+
+        df_4 = pd.DataFrame(df_4_dicts)
+        df_4.loc[:,'label'] = df_4.loc[:,'ancestry'].map(ancestry_dict)
+        df_4.set_index('ancestry', inplace=True)
 
 ###### Variant pruning
 
@@ -157,25 +185,26 @@ funnel_counts = go.Figure(go.Funnelarea(
 funnel_counts.update_layout(showlegend = False, margin=dict(l=0, r=300, t=10, b=10))
 
 # Relatedness Per Anceestry Plot
-bar_3 = go.Figure(data=[
-        go.Bar(y=df_4.label, x=df_4['related_count'], orientation='h', name="Related", base=0, marker_color="#0072B2"),
-        go.Bar(y=df_4.label, x=-df_4['duplicated_count'], orientation='h', name="Duplicated", base=0, marker_color="#D55E00")])
+if len(df_4) > 0:
+    bar_3 = go.Figure(data=[
+            go.Bar(y=df_4.label, x=df_4['related_count'], orientation='h', name="Related", base=0, marker_color="#0072B2"),
+            go.Bar(y=df_4.label, x=-df_4['duplicated_count'], orientation='h', name="Duplicated", base=0, marker_color="#D55E00")])
 
-bar_3.update_layout(barmode='stack')
+    bar_3.update_layout(barmode='stack')
 
-bar_3.update_yaxes(
-    ticktext=df_4.label,
-    tickvals=df_4.label
-)
+    bar_3.update_yaxes(
+        ticktext=df_4.label,
+        tickvals=df_4.label
+    )
+    
+    bar_3.update_layout(
+        autosize=False,
+        height=500, width = 750
+    )
 
-bar_3.update_layout(
-    autosize=False,
-    height=500, width = 750
-)
-
-bar_3.update_layout(
-    margin=dict(l=0, r=200, t=10, b=60),
-)
+    bar_3.update_layout(
+        margin=dict(l=0, r=200, t=10, b=60),
+    )
 
 # Variant-Level Pruning plot
 bar_6 = go.Figure(go.Bar(x=df_merged.index, y=df_merged['geno_removed_count'], name='Geno Removed Count', marker_color = "#0072B2"))
@@ -218,10 +247,13 @@ with left_col1:
     st.plotly_chart(funnel_counts)
     
 with right_col1:
-    # st.dataframe(funnel_df[['step_name', 'remaining_samples']].rename(columns = {'step_name': 'QC Step', 'remaining_samples': 'Remaining Samples'}))
-    if st.session_state['cohort_choice'] == f'GP2 Release {st.session_state["release_choice"]} FULL':  # will disappear if other cohort selected
-        st.header("**Relatedness per Ancestry**")
-        st.plotly_chart(bar_3)
+    if len(df_4) > 0:
+        if st.session_state['cohort_choice'] == f'GP2 Release 3 FULL':  # will disappear if other cohort selected
+            st.header("**Relatedness per Ancestry**")
+            st.plotly_chart(bar_3)
+        if st.session_state['release_choice'] == 4:
+            st.header("**Relatedness per Ancestry**")
+            st.plotly_chart(bar_3)
 
 st.markdown('---')
 
