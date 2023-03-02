@@ -81,10 +81,10 @@ def release_callback():
 
 def release_select():
     st.sidebar.markdown('### **Choose a release!**')
-    options = [3, 4]
+    options = [4, 3, 2, 1]
 
     if 'release_choice' not in st.session_state:
-        st.session_state['release_choice'] = options[-1]
+        st.session_state['release_choice'] = options[0]
     if 'old_release_choice' not in st.session_state:
         st.session_state['old_release_choice'] = ""
     
@@ -102,9 +102,17 @@ def cohort_select(master_key):
     st.sidebar.markdown('### **Choose a cohort!**', unsafe_allow_html=True)
 
     options=[f'GP2 Release {st.session_state["release_choice"]} FULL']+[study for study in master_key['study'].unique()]
+    full_release_options=[f'GP2 Release {i} FULL' for i in range(1,5)] 
 
-    if ('cohort_choice' not in st.session_state) or (st.session_state['cohort_choice'] not in options):
+    if 'cohort_choice' not in st.session_state:
         st.session_state['cohort_choice'] = options[0]
+
+    if st.session_state['cohort_choice'] not in options:
+        if (st.session_state['cohort_choice'] not in full_release_options):
+            st.error(f"Cohort: {st.session_state['cohort_choice']} not available for GP2 Release {st.session_state['release_choice']}. \
+                    Displaying GP2 Release {st.session_state['release_choice']} FULL instead!")
+        st.session_state['cohort_choice'] = options[0]
+
     if 'old_cohort_choice' not in st.session_state:
         st.session_state['old_cohort_choice'] = ""
 

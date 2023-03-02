@@ -32,6 +32,7 @@ st.title(f'{st.session_state["cohort_choice"]} Metadata')
 plot1, plot2 = st.columns([1,1.75])
 
 master_key = st.session_state['master_key']  # plots full GP2 release metrics by default
+# master_key = master_key[master_key['pruned'] == 0]
 master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'phenotype':'Phenotype'}, inplace = True)
 master_key = master_key[master_key.Sex != 0]
 master_key_age = master_key[master_key['Age'].notnull()]

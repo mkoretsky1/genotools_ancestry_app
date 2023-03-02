@@ -47,12 +47,8 @@ hold_prunes = master_key['pruned_reason'].value_counts().rename_axis('pruned_rea
 remaining_samples = pre_QC_total
 
 # Proper order of pruning steps to pull from Master Key
-if st.session_state['release_choice'] == 3:
-    ordered_prune = ['insufficient_ancestry_sample_n','phenotype_not_reported', 'missing_idat', 'corrupted_idat', 'callrate_prune', 'sex_prune', 
-                    'het_prune', 'duplicated_prune']
-if st.session_state['release_choice'] == 4:
-    ordered_prune = ['insufficient_ancestry_sample_n','phenotype_not_reported', 'missing_idat', 'missing_beds', 'callrate_prune', 'sex_prune', 
-                    'het_prune', 'duplicated_prune']
+ordered_prune = ['insufficient_ancestry_sample_n','phenotype_not_reported', 'missing_idat', 'corrupted_idat', 'callrate_prune', 'sex_prune', 
+                'het_prune', 'duplicated_prune']
 
 for prunes in ordered_prune:
     step_name = prunes
@@ -74,7 +70,6 @@ steps_dict = {
     'phenotype_not_reported': 'Phenotype Not Reported',
     'callrate_prune':'Call Rate Prune',
     'sex_prune': 'Sex Prune',
-    'duplicated': 'Duplicated',
     'duplicated_prune': 'Duplicated',
     'het_prune': 'Heterozygosity Prune'
 }
@@ -119,20 +114,28 @@ df_3 = df_3[['label','pruned']]
 
 df_4 = pd.DataFrame()
 
-if len(df_3) > 0:
-    df_4_dicts = [] 
+# if len(df_3) > 0:
+df_4_dicts = [] 
 
-    for label in df_3['label'].unique():
-        ancestry_df_dict = {}
+for label in master_key['label'].unique():
+    ancestry_df_dict = {}
+    if label in df_3['label'].unique():
         df_3_ancestry = df_3[df_3['label'] == label]
         ancestry_df_dict['ancestry'] = label
         ancestry_df_dict['related_count'] = df_3_ancestry[df_3_ancestry['pruned'] == 0].shape[0]
         ancestry_df_dict['duplicated_count'] = df_3_ancestry[df_3_ancestry['pruned'] == 1].shape[0]
-        df_4_dicts.append(ancestry_df_dict)
+    else:
+        ancestry_df_dict['ancestry'] = label
+        ancestry_df_dict['related_count'] = 0
+        ancestry_df_dict['duplicated_count'] = 0
 
-    df_4 = pd.DataFrame(df_4_dicts)
-    df_4.loc[:,'label'] = df_4.loc[:,'ancestry'].map(ancestry_dict)
-    df_4.set_index('ancestry', inplace=True)
+    df_4_dicts.append(ancestry_df_dict)
+
+df_4 = pd.DataFrame(df_4_dicts)
+df_4 = df_4.sort_values(by='related_count', ascending=False)
+df_4.loc[:,'label'] = df_4.loc[:,'ancestry'].map(ancestry_dict)
+df_4.set_index('ancestry', inplace=True)
+
 
 ###### Variant pruning
 
