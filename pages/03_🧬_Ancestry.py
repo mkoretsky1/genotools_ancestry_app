@@ -41,6 +41,7 @@ if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.sessi
 # if ('sample_data_path' not in st.session_state) and ('upload_data_path' not in st.session_state):
 #     st.error('Error: Please use the Upload Data page to either submit .bed/.bim/.fam files or choose a sample cohort!')
 
+# remove pruned samples
 master_key = master_key[master_key['pruned'] == 0]
 
 # Tab navigator for different parts of Ancestry Method

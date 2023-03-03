@@ -18,8 +18,10 @@ from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
 
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'genotools-02f64a1e10be.json'
 
-# Functions auto loaded and used in every page
-def blob_as_csv(bucket, path, sep='\s+', header='infer'):  # reads in file from google cloud folder
+# functions used on every pages
+
+# reads in file from google cloud folder
+def blob_as_csv(bucket, path, sep='\s+', header='infer'):
     blob = bucket.get_blob(path)
     blob = blob.download_as_bytes()
     blob = str(blob, 'utf-8')
@@ -27,11 +29,13 @@ def blob_as_csv(bucket, path, sep='\s+', header='infer'):  # reads in file from 
     df = pd.read_csv(blob, sep=sep, header=header)
     return df
 
-def get_gcloud_bucket(bucket_name):  # gets folders from Google Cloud
+# gets folders from Google Cloud
+def get_gcloud_bucket(bucket_name): 
     storage_client = storage.Client(project='genotools')
     bucket = storage_client.get_bucket(bucket_name)
     return bucket
 
+# config page with gp2 logo in browser tab
 def config_page(title):
     if 'gp2_bg' in st.session_state:
         st.set_page_config(
@@ -51,7 +55,7 @@ def config_page(title):
             layout="wide"
         )
 
-
+# load and place sidebar logos
 def place_logos():
     sidebar1, sidebar2 = st.sidebar.columns(2)
     if ('card_removebg' in st.session_state) and ('redlat' in st.session_state):
@@ -90,8 +94,8 @@ def release_select():
     
     st.session_state['release_choice'] = st.sidebar.selectbox(label='Release Selection', label_visibility='collapsed', options=options, index=options.index(st.session_state['release_choice']), key='new_release_choice', on_change=release_callback)
 
+    # folder name based on release selection
     release_folder_dict = {1:'release1_29112021', 2:'release2_06052022', 3:'release3_31102022', 4:'release4_14022023'}
-
     st.session_state['release_bucket'] = release_folder_dict[st.session_state['release_choice']]
 
 def cohort_callback():
@@ -107,7 +111,9 @@ def cohort_select(master_key):
     if 'cohort_choice' not in st.session_state:
         st.session_state['cohort_choice'] = options[0]
 
+    # error message for when cohort is not available in a previous release
     if st.session_state['cohort_choice'] not in options:
+        # exclude full releases
         if (st.session_state['cohort_choice'] not in full_release_options):
             st.error(f"Cohort: {st.session_state['cohort_choice']} not available for GP2 Release {st.session_state['release_choice']}. \
                     Displaying GP2 Release {st.session_state['release_choice']} FULL instead!")
@@ -122,9 +128,10 @@ def cohort_select(master_key):
         st.session_state['master_key'] = master_key
     else:
         master_key_cohort = master_key[master_key['study'] == st.session_state['cohort_choice']]
-        st.session_state['master_key'] = master_key_cohort  # subsets master key to only include selected cohort
+        # subsets master key to only include selected cohort
+        st.session_state['master_key'] = master_key_cohort 
 
-    # Check for pruned samples
+    # check for pruned samples
     if 1 in st.session_state.master_key['pruned'].value_counts():
         pruned_samples = st.session_state.master_key['pruned'].value_counts()[1]
     else:
@@ -136,7 +143,7 @@ def cohort_select(master_key):
     st.sidebar.metric("Number of Samples in Dataset:", f'{total_count:,}')
     st.sidebar.metric("Number of Samples After Pruning:", f'{(total_count-pruned_samples):,}')
 
-    # Place logos in sidebar
+    # place logos in sidebar
     st.sidebar.markdown('---')
     place_logos()
 
