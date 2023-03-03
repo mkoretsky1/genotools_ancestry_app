@@ -89,26 +89,7 @@ ancestry_dict = {
             'FIN': 'Finnish'
         }
 
-# Prepares dataframe for Relatedness Per Ancestry Plot (only for full GP2 Release, not any other selected cohorts)
-# df_3 = df_qc.query("step == 'related_prune'")
-# df_3 = df_3[['ancestry', 'pruned_count', 'metric']]
-
-# # Counts all samples marked for related prune
-# df_3_related = df_3.query("metric == 'related_count'").reset_index(drop=True)
-# df_3_related = df_3_related.rename(columns={'pruned_count': 'related_count'})
-# df_3_related = df_3_related.drop('metric', 1)
-
-# # Counts samples labeled as "duplicated" within the related prune labels
-# df_3_duplicated = df_3.query("metric == 'duplicated_count'").reset_index(drop=True)
-# df_3_duplicated = df_3_duplicated.rename(columns={'pruned_count': 'duplicated_count'})
-# df_3_duplicated = df_3_duplicated.drop('metric', 1)
-
-# # Full names of ancestry labels to map abbreviations in Master Key
-# df_4 = pd.merge(df_3_related, df_3_duplicated, on="ancestry")
-
-# df_4.loc[:,'label'] = df_4.loc[:,'ancestry'].map(ancestry_dict)
-# df_4.set_index('ancestry', inplace=True)
-
+# Prepares dataframe for Relatedness Per Ancestry Plot
 df_3 = master_key[master_key['related'] == 1]
 df_3 = df_3[['label','pruned']]
 
@@ -132,7 +113,7 @@ for label in master_key['label'].unique():
     df_4_dicts.append(ancestry_df_dict)
 
 df_4 = pd.DataFrame(df_4_dicts)
-df_4 = df_4.sort_values(by='related_count', ascending=False)
+df_4 = df_4.sort_values(by=['related_count', 'duplicated_count'], ascending=False)
 df_4.loc[:,'label'] = df_4.loc[:,'ancestry'].map(ancestry_dict)
 df_4.set_index('ancestry', inplace=True)
 
