@@ -98,7 +98,7 @@ df_4 = pd.DataFrame()
 # if len(df_3) > 0:
 df_4_dicts = [] 
 
-for label in master_key['label'].unique():
+for label in ancestry_dict:
     ancestry_df_dict = {}
     if label in df_3['label'].unique():
         df_3_ancestry = df_3[df_3['label'] == label]
