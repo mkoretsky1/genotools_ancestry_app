@@ -44,7 +44,7 @@ def config_page(title):
             layout="wide",
         )
     else: 
-        frontend_bucket_name = 'frontend_app_materials'
+        frontend_bucket_name = 'gt_app_utils'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
         gp2_bg = frontend_bucket.get_blob('gp2_2.jpg')
         gp2_bg = gp2_bg.download_as_bytes()

@@ -89,6 +89,19 @@ ancestry_dict = {
             'FIN': 'Finnish'
         }
 
+ancestry_index = {
+            'AFR':3,
+            'SAS':7,
+            'EAS':8,
+            'EUR':0,
+            'AMR':2,
+            'AJ':1,
+            'AAC':4,
+            'CAS':5,
+            'MDE':6,
+            'FIN':9
+        }
+
 # Prepares dataframe for Relatedness Per Ancestry Plot
 df_3 = master_key[master_key['related'] == 1]
 df_3 = df_3[['label','pruned']]
@@ -113,8 +126,10 @@ for label in ancestry_dict:
     df_4_dicts.append(ancestry_df_dict)
 
 df_4 = pd.DataFrame(df_4_dicts)
-df_4 = df_4.sort_values(by=['related_count', 'duplicated_count'], ascending=False)
+# df_4 = df_4.sort_values(by=['related_count', 'duplicated_count'], ascending=False)
 df_4.loc[:,'label'] = df_4.loc[:,'ancestry'].map(ancestry_dict)
+df_4.loc[:, 'label_index'] = df_4.loc[:,'ancestry'].map(ancestry_index)
+df_4 = df_4.sort_values(by=['label_index'], ascending=True)
 df_4.set_index('ancestry', inplace=True)
 
 

@@ -288,7 +288,7 @@ else:
             st.dataframe(pie_table[['Ancestry Category', 'Ref Panel Counts', 'Predicted Counts']])
 
     with tabAdmix:
-        frontend_bucket_name = 'frontend_app_materials'
+        frontend_bucket_name = 'gt_app_utils'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
 
         st.markdown('## **Reference Panel Admixture Populations**')
