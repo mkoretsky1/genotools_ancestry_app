@@ -99,10 +99,6 @@ config_page('SNP Metrics')
 st.title('GP2 SNP Metrics Browser')
 
 # Pull data from different Google Cloud folders
-gp2_sample_bucket_name = 'gp2_sample_data'
-gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
-ref_panel_bucket_name = 'ref_panel'
-ref_panel_bucket = get_gcloud_bucket(ref_panel_bucket_name)
 snp_metrics_bucket_name = 'snp_metrics_db'
 snp_metrics_bucket = get_gcloud_bucket(snp_metrics_bucket_name)
 

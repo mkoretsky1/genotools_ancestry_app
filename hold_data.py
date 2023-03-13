@@ -16,8 +16,6 @@ from google.cloud import storage
 
 from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
 
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'genotools-02f64a1e10be.json'
-
 # functions used on every pages
 
 # reads in file from google cloud folder
@@ -31,7 +29,7 @@ def blob_as_csv(bucket, path, sep='\s+', header='infer'):
 
 # gets folders from Google Cloud
 def get_gcloud_bucket(bucket_name): 
-    storage_client = storage.Client(project='genotools')
+    storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
     return bucket
 
@@ -63,7 +61,7 @@ def place_logos():
         sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
         st.sidebar.image(st.session_state.redlat, use_column_width=True)
     else:
-        frontend_bucket_name = 'frontend_app_materials'
+        frontend_bucket_name = 'gt_app_utils'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
         card_removebg = frontend_bucket.get_blob('card-removebg.png')
         card_removebg = card_removebg.download_as_bytes()
