@@ -27,7 +27,7 @@ config_page('GP2 Rare Variant Browser')
 release_select()
 
 # Pull data from different Google Cloud folders
-gp2_sample_bucket_name = 'gp2_sample_data'
+gp2_sample_bucket_name = 'gt_app_utils'
 gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
 
 # Gets rare variant data

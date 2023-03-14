@@ -156,7 +156,7 @@ def ancestry_callback():
 def gene_ancestry_select():
     st.sidebar.markdown('### **Choose a gene!**', unsafe_allow_html=True)
 
-    gene_options=['GBA','SNCA', 'PRKN','Both']
+    gene_options=['GBA','SNCA','PRKN','All']
 
     if 'gene_choice' not in st.session_state:
         st.session_state['gene_choice'] = gene_options[0]
@@ -167,7 +167,7 @@ def gene_ancestry_select():
 
     st.sidebar.markdown('### **Choose an Ancestry!**', unsafe_allow_html=True)
 
-    ancestry_options=['AAC','AFR','Both']
+    ancestry_options=['AAC','AFR','All']
 
     if 'ancestry_choice' not in st.session_state:
         st.session_state['ancestry_choice'] = ancestry_options[0]
