@@ -22,27 +22,19 @@ def gb_builder(dataframe):
 
     return builder.build() 
 
-config_page('Rare Variants')
+config_page('GP2 Rare Variant Browser')
 
 release_select()
 
-st.title('GP2 Rare Variant Browser')
-
 # Pull data from different Google Cloud folders
-gp2_sample_bucket_name = 'gp2_sample_data'
-gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
-ref_panel_bucket_name = 'ref_panel'
-ref_panel_bucket = get_gcloud_bucket(ref_panel_bucket_name)
-snp_metrics_bucket_name = 'snp_metrics_db'
-snp_metrics_bucket = get_gcloud_bucket(snp_metrics_bucket_name)
-
-# Pull data from different Google Cloud folders
-gp2_sample_bucket_name = 'gp2_sample_data'
+gp2_sample_bucket_name = 'gt_app_utils'
 gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
 
 # Gets rare variant data
 rv_data = blob_as_csv(gp2_sample_bucket, f'gp2_RV_browser_input.csv', sep=',')
 rv_select(rv_data)
+
+st.title('GP2 Rare Variant Browser')
 
 # Filter df based on the user selection 
 if len(st.session_state['rv_cohort_choice'])>0:      

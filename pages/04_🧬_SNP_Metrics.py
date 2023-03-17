@@ -99,11 +99,7 @@ config_page('SNP Metrics')
 st.title('GP2 SNP Metrics Browser')
 
 # Pull data from different Google Cloud folders
-gp2_sample_bucket_name = 'gp2_sample_data'
-gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
-ref_panel_bucket_name = 'ref_panel'
-ref_panel_bucket = get_gcloud_bucket(ref_panel_bucket_name)
-snp_metrics_bucket_name = 'snp_metrics_db'
+snp_metrics_bucket_name = 'gt_app_utils'
 snp_metrics_bucket = get_gcloud_bucket(snp_metrics_bucket_name)
 
 gene_ancestry_select()
@@ -113,7 +109,7 @@ ancestry_choice = st.session_state['ancestry_choice']
 
 client = bigquery.Client()
 
-db_name = 'genotools.snp_metrics'
+db_name = 'gp2-release-terra.snp_metrics'
 snps_table = f'{db_name}.snps'
 samples_table = f'{db_name}.samples'
 metrics_table = f'{db_name}.metrics'
@@ -130,18 +126,18 @@ else:
 snps_query = f"select * from `{snps_table}` where chromosome={chromosome}"
 snps = query_snps(snps_query)
 
-if gene_choice == 'Both':
+if gene_choice == 'All':
     metric1,metric2,metric3 = st.columns(3)
 else:
     metric1,metric2,metric3 = st.columns([1.3,0.75,1])
 
 with metric1:
-    if gene_choice == 'Both':
+    if gene_choice == 'All':
         st.metric(f'Number of available SNPs:', "{:.0f}".format(snps.shape[0]))
     else:
         st.metric(f'Number of available SNPs associated with {gene_choice} (\U000000B1 250kb):', "{:.0f}".format(snps.shape[0]))
 
-if ancestry_choice == 'Both':
+if ancestry_choice == 'All':
     samples_query = f"select * from `{samples_table}`"
     samples = query_samples(samples_query)
     with metric2:
@@ -155,7 +151,7 @@ else:
     metrics_query = f"select * from `{samples_table}` join `{metrics_table}` on `{samples_table}`.iid=`{metrics_table}`.iid join `{snps_table}` on `{snps_table}`.snpid=`{metrics_table}`.snpid where `{snps_table}`.chromosome={chromosome} and `{samples_table}`.label='{ancestry_choice}'"
 
 selection = f'{gene_choice}_{ancestry_choice}'
-blob_name = f'hold_query/{selection}.csv'
+blob_name = f'gp2_snp_metrics_db/hold_query/{selection}.csv'
 blob = snp_metrics_bucket.blob(blob_name)
 
 # metrics = query_metrics(metrics_query)
@@ -173,7 +169,7 @@ else:
 num_sample_metrics = int(metrics.shape[0] / snps.shape[0])
 
 with metric3:
-    if ancestry_choice != 'Both':
+    if ancestry_choice != 'All':
         st.metric(f'Number of {ancestry_choice} samples with SNP metrics available:', "{:.0f}".format(num_sample_metrics))
     else:
         st.metric(f'Number of samples with SNP metrics available:', "{:.0f}".format(num_sample_metrics))

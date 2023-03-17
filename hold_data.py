@@ -16,10 +16,10 @@ from google.cloud import storage
 
 from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'genotools-02f64a1e10be.json'
+# functions used on every pages
 
-# Functions auto loaded and used in every page
-def blob_as_csv(bucket, path, sep='\s+', header='infer'):  # reads in file from google cloud folder
+# reads in file from google cloud folder
+def blob_as_csv(bucket, path, sep='\s+', header='infer'):
     blob = bucket.get_blob(path)
     blob = blob.download_as_bytes()
     blob = str(blob, 'utf-8')
@@ -27,11 +27,13 @@ def blob_as_csv(bucket, path, sep='\s+', header='infer'):  # reads in file from 
     df = pd.read_csv(blob, sep=sep, header=header)
     return df
 
-def get_gcloud_bucket(bucket_name):  # gets folders from Google Cloud
-    storage_client = storage.Client(project='genotools')
+# gets folders from Google Cloud
+def get_gcloud_bucket(bucket_name): 
+    storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
     return bucket
 
+# config page with gp2 logo in browser tab
 def config_page(title):
     if 'gp2_bg' in st.session_state:
         st.set_page_config(
@@ -40,7 +42,7 @@ def config_page(title):
             layout="wide",
         )
     else: 
-        frontend_bucket_name = 'frontend_app_materials'
+        frontend_bucket_name = 'gt_app_utils'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
         gp2_bg = frontend_bucket.get_blob('gp2_2.jpg')
         gp2_bg = gp2_bg.download_as_bytes()
@@ -51,7 +53,7 @@ def config_page(title):
             layout="wide"
         )
 
-
+# load and place sidebar logos
 def place_logos():
     sidebar1, sidebar2 = st.sidebar.columns(2)
     if ('card_removebg' in st.session_state) and ('redlat' in st.session_state):
@@ -59,7 +61,7 @@ def place_logos():
         sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
         st.sidebar.image(st.session_state.redlat, use_column_width=True)
     else:
-        frontend_bucket_name = 'frontend_app_materials'
+        frontend_bucket_name = 'gt_app_utils'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
         card_removebg = frontend_bucket.get_blob('card-removebg.png')
         card_removebg = card_removebg.download_as_bytes()
@@ -74,14 +76,14 @@ def place_logos():
         sidebar2.image(gp2_removebg, use_column_width=True)
         st.sidebar.image(redlat, use_column_width=True)
 
-# Sidebar selector (on every page)
+# Sidebar selectors
 def release_callback():
     st.session_state['old_release_choice'] = st.session_state['release_choice']
     st.session_state['release_choice'] = st.session_state['new_release_choice']
 
 def release_select():
     st.sidebar.markdown('### **Choose a release!**')
-    options = ['GP2 Release 3']
+    options = [4, 3, 2, 1]
 
     if 'release_choice' not in st.session_state:
         st.session_state['release_choice'] = options[0]
@@ -90,6 +92,10 @@ def release_select():
     
     st.session_state['release_choice'] = st.sidebar.selectbox(label='Release Selection', label_visibility='collapsed', options=options, index=options.index(st.session_state['release_choice']), key='new_release_choice', on_change=release_callback)
 
+    # folder name based on release selection
+    release_folder_dict = {1:'release1_29112021', 2:'release2_06052022', 3:'release3_31102022', 4:'release4_14022023'}
+    st.session_state['release_bucket'] = release_folder_dict[st.session_state['release_choice']]
+
 def cohort_callback():
     st.session_state['old_cohort_choice'] = st.session_state['cohort_choice']
     st.session_state['cohort_choice'] = st.session_state['new_cohort_choice']
@@ -97,22 +103,33 @@ def cohort_callback():
 def cohort_select(master_key):
     st.sidebar.markdown('### **Choose a cohort!**', unsafe_allow_html=True)
 
-    options=['GP2 Release 3 FULL']+[study for study in master_key['study'].unique()]
+    options=[f'GP2 Release {st.session_state["release_choice"]} FULL']+[study for study in master_key['study'].unique()]
+    full_release_options=[f'GP2 Release {i} FULL' for i in range(1,5)] 
 
     if 'cohort_choice' not in st.session_state:
         st.session_state['cohort_choice'] = options[0]
+
+    # error message for when cohort is not available in a previous release
+    if st.session_state['cohort_choice'] not in options:
+        # exclude full releases
+        if (st.session_state['cohort_choice'] not in full_release_options):
+            st.error(f"Cohort: {st.session_state['cohort_choice']} not available for GP2 Release {st.session_state['release_choice']}. \
+                    Displaying GP2 Release {st.session_state['release_choice']} FULL instead!")
+        st.session_state['cohort_choice'] = options[0]
+
     if 'old_cohort_choice' not in st.session_state:
         st.session_state['old_cohort_choice'] = ""
 
     st.session_state['cohort_choice'] = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['cohort_choice']), key='new_cohort_choice', on_change=cohort_callback)
 
-    if st.session_state['cohort_choice'] == 'GP2 Release 3 FULL':
+    if st.session_state['cohort_choice'] == f'GP2 Release {st.session_state["release_choice"]} FULL':
         st.session_state['master_key'] = master_key
     else:
         master_key_cohort = master_key[master_key['study'] == st.session_state['cohort_choice']]
-        st.session_state['master_key'] = master_key_cohort  # subsets master key to only include selected cohort
+        # subsets master key to only include selected cohort
+        st.session_state['master_key'] = master_key_cohort 
 
-    # Check for pruned samples
+    # check for pruned samples
     if 1 in st.session_state.master_key['pruned'].value_counts():
         pruned_samples = st.session_state.master_key['pruned'].value_counts()[1]
     else:
@@ -124,7 +141,7 @@ def cohort_select(master_key):
     st.sidebar.metric("Number of Samples in Dataset:", f'{total_count:,}')
     st.sidebar.metric("Number of Samples After Pruning:", f'{(total_count-pruned_samples):,}')
 
-    # Place logos in sidebar
+    # place logos in sidebar
     st.sidebar.markdown('---')
     place_logos()
 
@@ -139,7 +156,7 @@ def ancestry_callback():
 def gene_ancestry_select():
     st.sidebar.markdown('### **Choose a gene!**', unsafe_allow_html=True)
 
-    gene_options=['GBA','SNCA', 'PRKN','Both']
+    gene_options=['GBA','SNCA','PRKN','All']
 
     if 'gene_choice' not in st.session_state:
         st.session_state['gene_choice'] = gene_options[0]
@@ -150,7 +167,7 @@ def gene_ancestry_select():
 
     st.sidebar.markdown('### **Choose an Ancestry!**', unsafe_allow_html=True)
 
-    ancestry_options=['AAC','AFR','Both']
+    ancestry_options=['AAC','AFR','All']
 
     if 'ancestry_choice' not in st.session_state:
         st.session_state['ancestry_choice'] = ancestry_options[0]

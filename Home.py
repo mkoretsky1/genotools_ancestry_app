@@ -20,20 +20,7 @@ from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
 from hold_data import blob_as_csv, get_gcloud_bucket, place_logos, config_page
 
 
-# Pull data from different Google Cloud folders
-frontend_bucket_name = 'frontend_app_materials'
-frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
-gp2_sample_bucket_name = 'gp2_sample_data'
-gp2_sample_bucket = get_gcloud_bucket(gp2_sample_bucket_name)
-ref_panel_bucket_name = 'ref_panel'
-ref_panel_bucket = get_gcloud_bucket(ref_panel_bucket_name)
-
 config_page('Home')
-
-# Background color
-css = frontend_bucket.get_blob('style.css')
-css = css.download_as_string()
-st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 # Place logos in sidebar
 place_logos()
