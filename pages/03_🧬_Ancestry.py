@@ -157,7 +157,7 @@ else:
             gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
             gridOptions = gb.build()
 
-            # Selectable dataframe to plot specific ancestry categories of predicted samples 
+            # Selectable dataframe to plot specific ancestry categories of predicted samples
             grid_response = AgGrid(
                         holdValues,
                         gridOptions=gridOptions,
@@ -169,6 +169,7 @@ else:
                         width = '100%' ,
                         height = 350
                     )
+            
             selected = grid_response['selected_rows'] 
             selected_df = pd.DataFrame(selected)  # selected rows from AgGrid passed to new df
 
@@ -201,18 +202,10 @@ else:
             gridOptions = gb.build()
 
             # Non-selectable dataframe: lists all Predicted subjects and their respective ancestry predictions
-            grid_response = AgGrid(combined_labelled, gridOptions=gridOptions, allow_unsafe_jscode=True)
-            # grid_response = AgGrid(
-            #             combined_labelled,
-            #             gridOptions=gridOptions,
-            #             data_return_mode='AS_INPUT',
-            #             fit_columns_on_grid_load=True,
-            #             theme='streamlit',
-            #             enable_enterprise_modules=False, 
-            #             width='100%',
-            #             height = 350,
-            #             allow_unsafe_jscode=True
-            #         )
+            grid_response = AgGrid(combined_labelled, 
+                                   gridOptions=gridOptions, 
+                                   allow_unsafe_jscode=True)
+            
         with col2: 
             plot_3d(proj_pca_cohort, 'label')  # only plots PCA of predicted samples
 
