@@ -80,8 +80,7 @@ def plot_3d(labeled_df, color, symbol=None, x='PC1', y='PC2', z='PC3', title=Non
                 range_x=x_range,
                 range_y=y_range,
                 range_z=z_range,
-                # hover_name="IID",
-                hover_name=None,
+                hover_name="IID",
                 color_discrete_map={'AFR': "#88CCEE",
                                     'SAS': "#CC6677",
                                     'EAS': "#DDCC77",
@@ -143,8 +142,7 @@ else:
         col1, col2 = st.columns([1.5, 3])
 
         # Get actual ancestry labels of each sample in Projected PCAs instead of "Predicted" for all samples
-        # combined = proj_pca_cohort[['IID', 'label']]
-        combined = proj_pca_cohort[['study', 'label']]
+        combined = proj_pca_cohort[['IID', 'label']]
         combined_labelled = combined.rename(columns={'label': 'Predicted Ancestry'})
         holdValues = combined['label'].value_counts().rename_axis('Predicted Ancestry').reset_index(name='Counts')
 
@@ -198,22 +196,23 @@ else:
             with st.expander("Description"):
                 st.write('All Predicted samples and their respective labels are listed below.')
             gb = GridOptionsBuilder.from_dataframe(combined_labelled)
-            gb.configure_pagination(paginationAutoPageSize=True)
+            gb.configure_pagination(enabled=True, paginationAutoPageSize=False, paginationPageSize=10)
             gb.configure_side_bar()
             gridOptions = gb.build()
 
             # Non-selectable dataframe: lists all Predicted subjects and their respective ancestry predictions
-            grid_response = AgGrid(
-                        combined_labelled,
-                        gridOptions=gridOptions,
-                        data_return_mode='AS_INPUT', 
-                        update_mode='MODEL_CHANGED', 
-                        fit_columns_on_grid_load=True,
-                        theme='streamlit',
-                        enable_enterprise_modules=True, 
-                        width='100%',
-                        height = 350
-                    )
+            grid_response = AgGrid(combined_labelled, gridOptions=gridOptions, allow_unsafe_jscode=True)
+            # grid_response = AgGrid(
+            #             combined_labelled,
+            #             gridOptions=gridOptions,
+            #             data_return_mode='AS_INPUT',
+            #             fit_columns_on_grid_load=True,
+            #             theme='streamlit',
+            #             enable_enterprise_modules=False, 
+            #             width='100%',
+            #             height = 350,
+            #             allow_unsafe_jscode=True
+            #         )
         with col2: 
             plot_3d(proj_pca_cohort, 'label')  # only plots PCA of predicted samples
 
