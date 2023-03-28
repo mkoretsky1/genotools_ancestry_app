@@ -130,7 +130,7 @@ else:
         proj_pca = proj_pca.drop(columns=['label'], axis=1)
 
         # Projected PCAs will have label "Predicted", Reference panel is labeled by ancestry 
-        proj_pca_cohort = proj_pca.merge(master_key[['GP2sampleID','label']], how='inner', left_on=['IID'], right_on=['GP2sampleID'])
+        proj_pca_cohort = proj_pca.merge(master_key[['GP2sampleID','label','study']], how='inner', left_on=['IID'], right_on=['GP2sampleID'])
         proj_pca_cohort = proj_pca_cohort.drop(columns=['GP2sampleID'], axis=1)
         proj_pca_cohort['plot_label'] = 'Predicted'
         ref_pca['plot_label'] = ref_pca['label']
@@ -143,7 +143,8 @@ else:
         col1, col2 = st.columns([1.5, 3])
 
         # Get actual ancestry labels of each sample in Projected PCAs instead of "Predicted" for all samples
-        combined = proj_pca_cohort[['IID', 'label']]
+        # combined = proj_pca_cohort[['IID', 'label']]
+        combined = proj_pca_cohort[['study', 'label']]
         combined_labelled = combined.rename(columns={'label': 'Predicted Ancestry'})
         holdValues = combined['label'].value_counts().rename_axis('Predicted Ancestry').reset_index(name='Counts')
 
