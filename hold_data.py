@@ -29,7 +29,7 @@ def blob_as_csv(bucket, path, sep='\s+', header='infer'):
 
 # gets folders from Google Cloud
 def get_gcloud_bucket(bucket_name): 
-    storage_client = storage.Client(project='genotools')
+    storage_client = storage.Client(project='gp2-release-terra')
     bucket = storage_client.get_bucket(bucket_name)
     return bucket
 
