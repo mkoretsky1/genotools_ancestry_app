@@ -29,7 +29,7 @@ def blob_as_csv(bucket, path, sep='\s+', header='infer'):
 
 # gets folders from Google Cloud
 def get_gcloud_bucket(bucket_name): 
-    storage_client = storage.Client()
+    storage_client = storage.Client(project='genotools')
     bucket = storage_client.get_bucket(bucket_name)
     return bucket
 
@@ -145,29 +145,29 @@ def cohort_select(master_key):
     st.sidebar.markdown('---')
     place_logos()
 
-def gene_callback():
-    st.session_state['old_gene_choice'] = st.session_state['gene_choice']
-    st.session_state['gene_choice'] = st.session_state['new_gene_choice']
+def chr_callback():
+    st.session_state['old_chr_choice'] = st.session_state['chr_choice']
+    st.session_state['chr_choice'] = st.session_state['new_chr_choice']
 
 def ancestry_callback():
     st.session_state['old_ancestry_choice'] = st.session_state['ancestry_choice']
     st.session_state['ancestry_choice'] = st.session_state['new_ancestry_choice']
 
-def gene_ancestry_select():
-    st.sidebar.markdown('### **Choose a gene!**', unsafe_allow_html=True)
+def chr_ancestry_select():
+    st.sidebar.markdown('### **Choose a chromosome!**', unsafe_allow_html=True)
 
-    gene_options=['GBA','SNCA','PRKN','All']
+    chr_options=[i for i in range(1,23)]
 
-    if 'gene_choice' not in st.session_state:
-        st.session_state['gene_choice'] = gene_options[0]
-    if 'old_gene_choice' not in st.session_state:
-        st.session_state['old_gene_choice'] = ""
+    if 'chr_choice' not in st.session_state:
+        st.session_state['chr_choice'] = chr_options[0]
+    if 'old_chr_choice' not in st.session_state:
+        st.session_state['old_chr_choice'] = ""
 
-    st.session_state['gene_choice'] = st.sidebar.selectbox(label = 'Gene Selection', label_visibility = 'collapsed', options=gene_options, index=gene_options.index(st.session_state['gene_choice']), key='new_gene_choice', on_change=gene_callback)
+    st.session_state['chr_choice'] = st.sidebar.selectbox(label = 'Chromosome Selection', label_visibility = 'collapsed', options=chr_options, index=chr_options.index(st.session_state['chr_choice']), key='new_chr_choice', on_change=chr_callback)
 
     st.sidebar.markdown('### **Choose an Ancestry!**', unsafe_allow_html=True)
 
-    ancestry_options=['AAC','AFR','All']
+    ancestry_options=['AAC','AFR','AJ','AMR','CAS','EAS','EUR','FIN','MDE','SAS']
 
     if 'ancestry_choice' not in st.session_state:
         st.session_state['ancestry_choice'] = ancestry_options[0]
