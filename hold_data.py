@@ -29,7 +29,7 @@ def blob_as_csv(bucket, path, sep='\s+', header='infer'):
 
 # gets folders from Google Cloud
 def get_gcloud_bucket(bucket_name): 
-    storage_client = storage.Client(project='gp2-release-terra')
+    storage_client = storage.Client(project='redlat-app')
     bucket = storage_client.get_bucket(bucket_name)
     return bucket
 
@@ -42,7 +42,7 @@ def config_page(title):
             layout="wide",
         )
     else: 
-        frontend_bucket_name = 'gt_app_utils'
+        frontend_bucket_name = 'redlat_gt_app_utils'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
         gp2_bg = frontend_bucket.get_blob('gp2_2.jpg')
         gp2_bg = gp2_bg.download_as_bytes()
@@ -61,7 +61,7 @@ def place_logos():
         sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
         st.sidebar.image(st.session_state.redlat, use_column_width=True)
     else:
-        frontend_bucket_name = 'gt_app_utils'
+        frontend_bucket_name = 'redlat_gt_app_utils'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
         card_removebg = frontend_bucket.get_blob('card-removebg.png')
         card_removebg = card_removebg.download_as_bytes()

@@ -1,4 +1,4 @@
-service: gp2-cohort-browser
+service: default
 runtime: custom
 env: flex
 resources:

@@ -96,7 +96,7 @@ with sample_exp:
                 in a sliding window of 1000 variants with a step size of 10 variants (--indep-pairwise 1000 10 0.02).')
 
 # Pull data from different Google Cloud folders
-snp_metrics_bucket_name = 'gt_app_utils'
+snp_metrics_bucket_name = 'redlat_gt_app_utils'
 snp_metrics_bucket = get_gcloud_bucket(snp_metrics_bucket_name)
 
 chr_ancestry_select()

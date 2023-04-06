@@ -19,7 +19,7 @@ config_page('Ancestry')
 release_select()
 
 # Pull data from different Google Cloud folders
-gp2_data_bucket = get_gcloud_bucket('gp2tier2')
+gp2_data_bucket = get_gcloud_bucket('redlat_gp2tier2')
 
 # Gets master key (full GP2 release or selected cohort)
 master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
@@ -80,7 +80,7 @@ def plot_3d(labeled_df, color, symbol=None, x='PC1', y='PC2', z='PC3', title=Non
                 range_x=x_range,
                 range_y=y_range,
                 range_z=z_range,
-                hover_name="IID",
+                hover_name=None,
                 color_discrete_map={'AFR': "#88CCEE",
                                     'SAS': "#CC6677",
                                     'EAS': "#DDCC77",
@@ -142,8 +142,8 @@ else:
         col1, col2 = st.columns([1.5, 3])
 
         # Get actual ancestry labels of each sample in Projected PCAs instead of "Predicted" for all samples
-        combined = proj_pca_cohort[['IID', 'label']]
-        combined_labelled = combined.rename(columns={'label': 'Predicted Ancestry'})
+        combined = proj_pca_cohort[['study', 'label']]
+        combined_labelled = combined.rename(columns={'study':'Cohort','label': 'Predicted Ancestry'})
         holdValues = combined['label'].value_counts().rename_axis('Predicted Ancestry').reset_index(name='Counts')
 
         with pca_col1:
@@ -282,7 +282,7 @@ else:
             st.dataframe(pie_table[['Ancestry Category', 'Ref Panel Counts', 'Predicted Counts']])
 
     with tabAdmix:
-        frontend_bucket_name = 'gt_app_utils'
+        frontend_bucket_name = 'redlat_gt_app_utils'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
 
         st.markdown('## **Reference Panel Admixture Populations**')

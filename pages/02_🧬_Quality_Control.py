@@ -20,7 +20,7 @@ config_page('Quality Control')
 release_select()
 
 # Pull data from different Google Cloud folders
-gp2_data_bucket = get_gcloud_bucket('gp2tier2')
+gp2_data_bucket = get_gcloud_bucket('redlat_gp2tier2')
 
 # Get qc metrics
 qc_metrics_path = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics/qc_metrics.csv'
