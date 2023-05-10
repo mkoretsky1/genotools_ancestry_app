@@ -213,7 +213,11 @@ else:
     with tabPredStats:
         st.markdown(f'## **Model Accuracy**')
         confusion_matrix = blob_as_csv(gp2_data_bucket, f'{pca_folder}/confusion_matrix.csv', sep=',')
-        confusion_matrix.set_index(confusion_matrix.columns, inplace = True)
+
+        if 'label' in confusion_matrix.columns:
+            confusion_matrix.set_index('label', inplace=True)
+        else:
+            confusion_matrix.set_index(confusion_matrix.columns, inplace = True)
 
         tp = np.diag(confusion_matrix)
         col_sum = confusion_matrix.sum(axis=0)

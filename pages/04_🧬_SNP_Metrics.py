@@ -12,7 +12,7 @@ import seaborn as sns
 from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 from hold_data import blob_as_csv, get_gcloud_bucket, chr_ancestry_select, config_page, place_logos
-from io import StringIO
+from io import StringIO, BytesIO
 
 from google.cloud import bigquery
 from google.cloud import storage
@@ -171,6 +171,17 @@ if num_sample_metrics > 0:
 
         with col1:
             st.plotly_chart(fig, use_container_width=True)
+
+            export_button = st.button('Click here to export displayed SNP metrics cluster plot to .png!')
+            if export_button:
+                file_name = f'cluster_plots/{ancestry_choice}_{str(st.session_state["snp_choice"]).replace(" ","_")}.png'
+                blob = snp_metrics_bucket.blob(file_name)
+
+                buf = BytesIO()
+                fig.write_image(buf, width=1980, height=1080)
+                blob.upload_from_file(buf, content_type='image/png', rewind=True)
+
+                st.markdown(f'Cluster plot for {st.session_state["snp_choice"]} written to {snp_metrics_bucket_name}/{file_name}')
 
         hide_table_row_index = """<style>thead tr th:first-child {display:none} tbody th {display:none}"""
         st.markdown(hide_table_row_index, unsafe_allow_html=True)
