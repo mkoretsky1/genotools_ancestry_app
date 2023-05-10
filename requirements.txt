@@ -8,3 +8,4 @@ google-cloud-storage
 google-cloud-bigquery
 db-dtypes
 streamlit-aggrid
+kaleido

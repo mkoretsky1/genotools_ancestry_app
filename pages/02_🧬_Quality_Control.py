@@ -47,7 +47,7 @@ hold_prunes = master_key['pruned_reason'].value_counts().rename_axis('pruned_rea
 remaining_samples = pre_QC_total
 
 # Proper order of pruning steps to pull from Master Key
-ordered_prune = ['insufficient_ancestry_sample_n','phenotype_not_reported', 'missing_idat', 'corrupted_idat', 'callrate_prune', 'sex_prune', 
+ordered_prune = ['insufficient_ancestry_sample_n','phenotype_not_reported', 'missing_idat', 'missing_bed', 'callrate_prune', 'sex_prune', 
                 'het_prune', 'duplicated_prune']
 
 for prunes in ordered_prune:
@@ -65,8 +65,7 @@ steps_dict = {
     'pre_QC': 'Pre-QC',
     'insufficient_ancestry_sample_n': 'Insufficient Ancestry Count',
     'missing_idat': 'Missing IDAT',
-    'missing_beds': 'Missing BED',
-    'corrupted_idat': 'Corrupted IDAT',
+    'missing_bed': 'Missing BED',
     'phenotype_not_reported': 'Phenotype Not Reported',
     'callrate_prune':'Call Rate Prune',
     'sex_prune': 'Sex Prune',
@@ -103,7 +102,7 @@ ancestry_index = {
         }
 
 # Prepares dataframe for Relatedness Per Ancestry Plot
-df_3 = master_key[master_key['related'] == 1]
+df_3 = master_key[(master_key['related'] == 1) | (master_key['pruned_reason'] == 'duplicated_prune')]
 df_3 = df_3[['label','pruned']]
 
 df_4 = pd.DataFrame()

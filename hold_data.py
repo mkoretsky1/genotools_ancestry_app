@@ -83,7 +83,7 @@ def release_callback():
 
 def release_select():
     st.sidebar.markdown('### **Choose a release!**')
-    options = [4, 3, 2, 1]
+    options = [5, 4, 3, 2, 1]
 
     if 'release_choice' not in st.session_state:
         st.session_state['release_choice'] = options[0]
@@ -93,7 +93,7 @@ def release_select():
     st.session_state['release_choice'] = st.sidebar.selectbox(label='Release Selection', label_visibility='collapsed', options=options, index=options.index(st.session_state['release_choice']), key='new_release_choice', on_change=release_callback)
 
     # folder name based on release selection
-    release_folder_dict = {1:'release1_29112021', 2:'release2_06052022', 3:'release3_31102022', 4:'release4_14022023'}
+    release_folder_dict = {1:'release1_29112021', 2:'release2_06052022', 3:'release3_31102022', 4:'release4_14022023', 5:'release5_11052023'}
     st.session_state['release_bucket'] = release_folder_dict[st.session_state['release_choice']]
 
 def cohort_callback():
@@ -104,7 +104,7 @@ def cohort_select(master_key):
     st.sidebar.markdown('### **Choose a cohort!**', unsafe_allow_html=True)
 
     options=[f'GP2 Release {st.session_state["release_choice"]} FULL']+[study for study in master_key['study'].unique()]
-    full_release_options=[f'GP2 Release {i} FULL' for i in range(1,5)] 
+    full_release_options=[f'GP2 Release {i} FULL' for i in range(1,6)] 
 
     if 'cohort_choice' not in st.session_state:
         st.session_state['cohort_choice'] = options[0]
