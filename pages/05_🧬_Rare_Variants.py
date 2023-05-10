@@ -24,7 +24,7 @@ def gb_builder(dataframe):
 
 config_page('GP2 Rare Variant Browser')
 
-release_select()
+# release_select()
 
 # Pull data from different Google Cloud folders
 gp2_sample_bucket_name = 'redlat_gt_app_utils'
