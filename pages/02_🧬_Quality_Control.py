@@ -101,6 +101,12 @@ ancestry_index = {
             'FIN':9
         }
 
+# remove CAS and MDE labels for releases 1 and 2
+if st.session_state['release_choice'] < 3:
+    for key in ['CAS','MDE']:
+        ancestry_dict.pop(key)
+        ancestry_index.pop(key)
+
 # Prepares dataframe for Relatedness Per Ancestry Plot
 df_3 = master_key[(master_key['related'] == 1) | (master_key['pruned_reason'] == 'duplicated_prune')]
 df_3 = df_3[['label','pruned']]
