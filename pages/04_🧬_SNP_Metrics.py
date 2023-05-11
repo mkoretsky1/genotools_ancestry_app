@@ -89,7 +89,7 @@ selection = f'{ancestry_choice}_{chr_choice}'
 
 # FIN doesn't have SNP metrics yet (> 50 samples)
 if ancestry_choice ==  'FIN':
-    st.error(f"SNP metrics are not yet available for FIN, because less than 50 samples have been released for this ancestry. Please \
+    st.error(f"SNP metrics are not yet available for FIN because less than 50 samples have been released for this ancestry. Please \
              select a different ancestry!")
 
 else:
