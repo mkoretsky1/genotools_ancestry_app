@@ -59,25 +59,6 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     
     return out_dict
 
-def calculate_maf(gtype_df):
-    gtypes_map = {
-        'AA': 0,
-        'AB': 1,
-        'BA': 1,
-        'BB': 2,
-        'NC': np.nan
-        }
-
-    gtypes = gtype_df.pivot(index='snpid', columns='iid', values='gt').replace(gtypes_map)
-    
-    # count only called genotypes
-    N = gtypes.shape[1]-gtypes.isna().sum(axis=1)
-    freq = pd.DataFrame({'freq': gtypes.sum(axis=1)/(2*N)})
-    freq.loc[:,'maf'] = np.where(freq < 0.5, freq, 1-freq)
-    maf_out = freq.drop(columns=['freq']).reset_index()
-
-    return maf_out
-
 def snp_callback():
     st.session_state['old_snp_choice'] = st.session_state['snp_choice']
     st.session_state['snp_choice'] = st.session_state['new_snp_choice']
@@ -93,7 +74,8 @@ with sample_exp:
                 after the steps described on the Quality Control page. Within each ancestry, variants were pruned for call rate \
                 with a maximum variant genotype missingness of 0.01 (--geno 0.01), a minumum minor allele frequency of 0.01 (--maf 0.01) \
                 and HWE at a thresthold of 5e-6. LD pruning was performed to find and prune any pairs of variants with r\u00b2 > 0.02 \
-                in a sliding window of 1000 variants with a step size of 10 variants (--indep-pairwise 1000 10 0.02).')
+                in a sliding window of 1000 variants with a step size of 10 variants (--indep-pairwise 1000 10 0.02). Please note that \
+                SNP Metrics are only available for the most recent GP2 release (GP2 Release 5).')
 
 # Pull data from different Google Cloud folders
 snp_metrics_bucket_name = 'gt_app_utils'
@@ -103,106 +85,118 @@ chr_ancestry_select()
 
 chr_choice = st.session_state['chr_choice']
 ancestry_choice = st.session_state['ancestry_choice']
-
 selection = f'{ancestry_choice}_{chr_choice}'
 
-metrics_blob_name = f'gp2_snp_metrics_db/{ancestry_choice}/chr{chr_choice}_metrics.csv'
-maf_blob_name = f'gp2_snp_metrics_db/{ancestry_choice}/chr{chr_choice}_maf_metrics.csv'
-full_maf_blob_name = f'gp2_snp_metrics_db/full_maf/chr{chr_choice}_maf_metrics.csv'
-
-if selection not in st.session_state:
-    metrics = blob_as_csv(snp_metrics_bucket, metrics_blob_name, sep=',')
-    st.session_state[selection] = metrics
-    maf = blob_as_csv(snp_metrics_bucket, maf_blob_name, sep=',')
-    st.session_state[f'{selection}_maf'] = maf
-    full_maf = blob_as_csv(snp_metrics_bucket, full_maf_blob_name, sep=',')
-    st.session_state[f'{selection}_full_maf'] = full_maf
+# FIN doesn't have SNP metrics yet (> 50 samples)
+if ancestry_choice ==  'FIN':
+    st.error(f"SNP metrics are not yet available for FIN, because less than 50 samples have been released for this ancestry. Please \
+             select a different ancestry!")
 
 else:
-    metrics = st.session_state[selection]
-    maf = st.session_state[f'{selection}_maf']
-    full_maf = st.session_state[f'{selection}_full_maf']
+    metrics_blob_name = f'gp2_snp_metrics/{ancestry_choice}/chr{chr_choice}_metrics.csv'
+    maf_blob_name = f'gp2_snp_metrics/{ancestry_choice}/{ancestry_choice}_maf.afreq'
+    full_maf_blob_name = f'gp2_snp_metrics/full_maf.afreq'
 
-metrics.columns = ['snpid','iid','r','theta','gentrainscore','gt','chromosome','position','phenotype']
+    if selection not in st.session_state:
+        metrics = blob_as_csv(snp_metrics_bucket, metrics_blob_name, sep=',')
+        st.session_state[selection] = metrics
+    else:
+        metrics = st.session_state[selection]
 
-metric1,metric2 = st.columns([1,1])
+    if f'{ancestry_choice}_maf' not in st.session_state:
+        maf = blob_as_csv(snp_metrics_bucket, maf_blob_name, sep='\t')
+        st.session_state[f'{ancestry_choice}_maf'] = maf
+    else:
+        maf = st.session_state[f'{ancestry_choice}_maf']
 
-num_snps = len(metrics['snpid'].unique())
-num_sample_metrics = len(metrics['iid'].unique())
+    if 'full_maf' not in st.session_state:
+        full_maf = blob_as_csv(snp_metrics_bucket, full_maf_blob_name, sep='\t')
+        st.session_state[f'full_maf'] = full_maf
+    else:
+        full_maf = st.session_state['full_maf']
 
-with metric1:
-    st.metric(f'Number of available SNPs on Chromosome {chr_choice} for {ancestry_choice}:', "{:.0f}".format(num_snps))
 
-with metric2:
-    st.metric(f'Number of {ancestry_choice} samples with SNP metrics available:',"{:.0f}".format(num_sample_metrics))
+    # metrics.columns = ['snpid','r','theta','gentrainscore','gt','chromosome','position','iid','phenotype']
 
-metrics_copy = metrics.copy(deep=True)
-metrics_copy['snp_label'] = metrics_copy['snpid'] + ' (' + metrics_copy['chromosome'].astype(str) + ':' + metrics_copy['position'].astype(str) + ')'
+    metric1,metric2 = st.columns([1,1])
 
-if num_sample_metrics > 0:
-    snp_options = ['Select SNP!']+[snp for snp in metrics_copy['snp_label'].unique()]
+    num_snps = len(metrics['snpID'].unique())
+    num_sample_metrics = len(metrics['Sample_ID'].unique())
 
-    if 'snp_choice' not in st.session_state:
-        st.session_state['snp_choice'] = snp_options[0]
-    if 'old_snp_choice' not in st.session_state:
-        st.session_state['old_snp_choice'] = ""
+    with metric1:
+        st.metric(f'Number of available SNPs on Chromosome {chr_choice} for {ancestry_choice}:', "{:.0f}".format(num_snps))
 
-    if st.session_state['snp_choice'] in snp_options:
-        index = snp_options.index(st.session_state['snp_choice'])
-    
-    if st.session_state['snp_choice'] not in snp_options:
-        if ((st.session_state['snp_choice'] != 'Select SNP!') and (int(st.session_state['snp_choice'].split('(')[1].split(':')[0]) == st.session_state['old_chr_choice'])):
-            index = 0
-        else:
-            st.error(f'SNP: {st.session_state["snp_choice"]} is not availble for {ancestry_choice}. Please choose another SNP!')
-            index=0
+    with metric2:
+        st.metric(f'Number of {ancestry_choice} samples with SNP metrics available:',"{:.0f}".format(num_sample_metrics))
 
-    st.markdown('### Select SNP for Cluster Plot')
+    metrics_copy = metrics.copy(deep=True)
+    metrics_copy['snp_label'] = metrics_copy['snpID'] + ' (' + metrics_copy['chromosome'].astype(str) + ':' + metrics_copy['position'].astype(str) + ')'
 
-    st.session_state['snp_choice'] = st.selectbox(label='SNP', label_visibility='collapsed', options=snp_options, index=index, key='new_snp_choice', on_change=snp_callback)
+    if num_sample_metrics > 0:
+        snp_options = ['Select SNP!']+[snp for snp in metrics_copy['snp_label'].unique()]
 
-    if st.session_state['snp_choice'] != 'Select SNP!':
-        snp_df = metrics_copy[metrics_copy['snp_label'] == st.session_state['snp_choice']]
-        snp_df = snp_df.reset_index(drop=True)
+        if 'snp_choice' not in st.session_state:
+            st.session_state['snp_choice'] = snp_options[0]
+        if 'old_snp_choice' not in st.session_state:
+            st.session_state['old_snp_choice'] = ""
 
-        fig = plot_clusters(snp_df, gtype_col='gt', title=st.session_state['snp_choice'])['fig']
+        if st.session_state['snp_choice'] in snp_options:
+            index = snp_options.index(st.session_state['snp_choice'])
+        
+        if st.session_state['snp_choice'] not in snp_options:
+            if ((st.session_state['snp_choice'] != 'Select SNP!') and (int(st.session_state['snp_choice'].split('(')[1].split(':')[0]) == st.session_state['old_chr_choice'])):
+                index = 0
+            else:
+                st.error(f'SNP: {st.session_state["snp_choice"]} is not availble for {ancestry_choice}. Please choose another SNP!')
+                index=0
 
-        col1, col2 = st.columns([2.5,1])
+        st.markdown('### Select SNP for Cluster Plot')
 
-        with col1:
-            st.plotly_chart(fig, use_container_width=True)
+        st.session_state['snp_choice'] = st.selectbox(label='SNP', label_visibility='collapsed', options=snp_options, index=index, key='new_snp_choice', on_change=snp_callback)
 
-            export_button = st.button('Click here to export displayed SNP metrics cluster plot to .png!')
-            if export_button:
-                file_name = f'cluster_plots/{ancestry_choice}_{str(st.session_state["snp_choice"]).replace(" ","_")}.png'
-                blob = snp_metrics_bucket.blob(file_name)
+        if st.session_state['snp_choice'] != 'Select SNP!':
+            snp_df = metrics_copy[metrics_copy['snp_label'] == st.session_state['snp_choice']]
+            snp_df = snp_df.reset_index(drop=True)
 
-                buf = BytesIO()
-                fig.write_image(buf, width=1980, height=1080)
-                blob.upload_from_file(buf, content_type='image/png', rewind=True)
+            fig = plot_clusters(snp_df, x_col='Theta', y_col='R', gtype_col='GT', title=st.session_state['snp_choice'])['fig']
 
-                st.markdown(f'Cluster plot for {st.session_state["snp_choice"]} written to {snp_metrics_bucket_name}/{file_name}')
+            col1, col2 = st.columns([2.5,1])
 
-        hide_table_row_index = """<style>thead tr th:first-child {display:none} tbody th {display:none}"""
-        st.markdown(hide_table_row_index, unsafe_allow_html=True)
+            with col1:
+                st.plotly_chart(fig, use_container_width=True)
 
-        with col2:
-            st.metric(f'GenTrain Score:', "{:.3f}".format(snp_df['gentrainscore'][0]))
+                ### FOR EXPORTING CLUSTER PLOT AS PNG
+                # export_button = st.button('Click here to export displayed SNP metrics cluster plot to .png!')
+                # if export_button:
+                #     file_name = f'cluster_plots/{ancestry_choice}_{str(snp_df["snpID"].values[0]).replace(" ","_")}.png'
+                #     blob = snp_metrics_bucket.blob(file_name)
 
-            within_ancestry_maf = maf[maf['snpid'] == snp_df['snpid'].values[0]]
-            across_ancestry_maf = full_maf[full_maf['snpid'] == snp_df['snpid'].values[0]]
+                #     buf = BytesIO()
+                #     fig.write_image(buf, width=1980, height=1080)
+                #     blob.upload_from_file(buf, content_type='image/png', rewind=True)
 
-            st.metric(f'Minor Allele Frequency within {ancestry_choice}:', "{:.3f}".format(within_ancestry_maf['maf'].values[0]))
-            st.metric(f'Minor Allele Frequency across ancestries:', "{:.3f}".format(across_ancestry_maf['maf'].values[0]))
+                #     st.markdown(f'Cluster plot for {st.session_state["snp_choice"]} written to {snp_metrics_bucket_name}/{file_name}')
 
-            with st.expander('**Control Genotype Distribution**'):
-                gt_counts = snp_df[snp_df['phenotype'] == 'Control']['gt'].value_counts().rename_axis('Genotype').reset_index(name='Counts')
-                gt_rel_counts = snp_df[snp_df['phenotype'] == 'Control']['gt'].value_counts(normalize=True).rename_axis('Genotype').reset_index(name='Frequency')
-                gt_counts = pd.concat([gt_counts, gt_rel_counts['Frequency']], axis=1)
-                st.table(gt_counts)
+            hide_table_row_index = """<style>thead tr th:first-child {display:none} tbody th {display:none}"""
+            st.markdown(hide_table_row_index, unsafe_allow_html=True)
 
-            with st.expander('**PD Genotype Distribution**'):
-                gt_counts = snp_df[snp_df['phenotype'] == 'PD']['gt'].value_counts().rename_axis('Genotype').reset_index(name='Counts')
-                gt_rel_counts = snp_df[snp_df['phenotype'] == 'PD']['gt'].value_counts(normalize=True).rename_axis('Genotype').reset_index(name='Frequency')
-                gt_counts = pd.concat([gt_counts, gt_rel_counts['Frequency']], axis=1)
-                st.table(gt_counts)
+            with col2:
+                st.metric(f'GenTrain Score:', "{:.3f}".format(snp_df['GenTrain_Score'][0]))
+
+                within_ancestry_maf = maf[maf['ID'] == snp_df['snpID'].values[0]]
+                across_ancestry_maf = full_maf[full_maf['ID'] == snp_df['snpID'].values[0]]
+
+                st.metric(f'Minor Allele Frequency within {ancestry_choice}:', "{:.3f}".format(within_ancestry_maf['ALT_FREQS'].values[0]))
+                st.metric(f'Minor Allele Frequency across ancestries:', "{:.3f}".format(across_ancestry_maf['ALT_FREQS'].values[0]))
+
+                with st.expander('**Control Genotype Distribution**'):
+                    gt_counts = snp_df[snp_df['phenotype'] == 'Control']['GT'].value_counts().rename_axis('Genotype').reset_index(name='Counts')
+                    gt_rel_counts = snp_df[snp_df['phenotype'] == 'Control']['GT'].value_counts(normalize=True).rename_axis('Genotype').reset_index(name='Frequency')
+                    gt_counts = pd.concat([gt_counts, gt_rel_counts['Frequency']], axis=1)
+                    st.table(gt_counts)
+
+                with st.expander('**PD Genotype Distribution**'):
+                    gt_counts = snp_df[snp_df['phenotype'] == 'PD']['GT'].value_counts().rename_axis('Genotype').reset_index(name='Counts')
+                    gt_rel_counts = snp_df[snp_df['phenotype'] == 'PD']['GT'].value_counts(normalize=True).rename_axis('Genotype').reset_index(name='Frequency')
+                    gt_counts = pd.concat([gt_counts, gt_rel_counts['Frequency']], axis=1)
+                    st.table(gt_counts)
