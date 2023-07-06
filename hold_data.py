@@ -138,6 +138,24 @@ def cohort_select(master_key):
     st.sidebar.markdown('---')
     place_logos()
 
+def meta_ancestry_callback():
+    st.session_state['old_meta_ancestry_choice'] = st.session_state['meta_ancestry_choice']
+    st.session_state['meta_ancestry_choice'] = st.session_state['new_meta_ancestry_choice']
+
+def meta_ancestry_select():
+    st.markdown('### **Choose an ancestry group!**')
+    master_key = st.session_state['master_key']
+
+    meta_ancestry_options = ['All'] + [label for label in master_key['label'].dropna().unique()]
+
+    if 'meta_ancestry_choice' not in st.session_state:
+        st.session_state['meta_ancestry_choice'] = meta_ancestry_options[0]
+    if 'old_meta_ancestry_choice' not in st.session_state:
+        st.session_state['old_chr_choice'] = ""
+    
+    st.session_state['meta_ancestry_choice'] = st.selectbox(label='Ancestry Selection', label_visibility = 'collapsed', options=meta_ancestry_options, index=meta_ancestry_options.index(st.session_state['meta_ancestry_choice']), key='new_meta_ancestry_choice', on_change=meta_ancestry_callback)
+
+
 def chr_callback():
     st.session_state['old_chr_choice'] = st.session_state['chr_choice']
     st.session_state['chr_choice'] = st.session_state['new_chr_choice']

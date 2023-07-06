@@ -98,9 +98,9 @@ cohort_select(master_key)
 pca_folder = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics'
 
 # Update when re-add Upload Data feature
-if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.session_state):
-    st.title(f'Cohort: {st.session_state["cohort_choice"]}')
-    master_key = st.session_state['master_key']
+# if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.session_state):
+#     st.title(f'Cohort: {st.session_state["cohort_choice"]}')
+#     master_key = st.session_state['master_key']
 # else:
 #     geno_path = st.session_state['upload_data_path']
 #     ref_labels = f'ref_panel_ancestry.txt'
@@ -111,6 +111,7 @@ if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.sessi
 #     st.error('Error: Please use the Upload Data page to either submit .bed/.bim/.fam files or choose a sample cohort!')
 
 # remove pruned samples
+master_key = st.session_state['master_key']
 master_key = master_key[master_key['pruned'] == 0]
 
 # Tab navigator for different parts of Ancestry Method
