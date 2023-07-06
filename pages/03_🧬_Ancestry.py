@@ -11,40 +11,6 @@ import plotly.express as px
 from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page
 
 
-config_page('Ancestry')
-
-release_select()
-
-# Pull data from different Google Cloud folders
-gp2_data_bucket = get_gcloud_bucket('redlat_gp2tier2')
-
-# Gets master key (full GP2 release or selected cohort)
-master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
-master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
-cohort_select(master_key)
-
-pca_folder = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics'
-
-# Update when re-add Upload Data feature
-if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.session_state):
-    st.title(f'Cohort: {st.session_state["cohort_choice"]}')
-    master_key = st.session_state['master_key']
-# else:
-#     geno_path = st.session_state['upload_data_path']
-#     ref_labels = f'ref_panel_ancestry.txt'
-#     out_path = st.session_state['upload_data_path']
-#     st.markdown(f'### **Cohort: {out_path}**')
-
-# if ('sample_data_path' not in st.session_state) and ('upload_data_path' not in st.session_state):
-#     st.error('Error: Please use the Upload Data page to either submit .bed/.bim/.fam files or choose a sample cohort!')
-
-# remove pruned samples
-master_key = master_key[master_key['pruned'] == 0]
-
-# Tab navigator for different parts of Ancestry Method
-tabPCA, tabPredStats, tabPie, tabAdmix, tabMethods = st.tabs(["Ancestry Prediction", "Model Performance", "Ancestry Distribution",\
-                                                    "Admixture Populations", "Method Description"])
-
 # Plots 3D PCA
 def plot_3d(labeled_df, color, symbol=None, x='PC1', y='PC2', z='PC3', title=None, x_range=None, y_range=None, z_range=None):
     '''
@@ -115,6 +81,41 @@ def plot_pie(df):
                                         'FIN':"#F0E442"})
     pie_chart.update_layout(showlegend = True, width=500,height=500)
     st.plotly_chart(pie_chart)
+
+
+config_page('Ancestry')
+
+release_select()
+
+# Pull data from different Google Cloud folders
+gp2_data_bucket = get_gcloud_bucket('redlat_gp2tier2')
+
+# Gets master key (full GP2 release or selected cohort)
+master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
+master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
+cohort_select(master_key)
+
+pca_folder = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics'
+
+# Update when re-add Upload Data feature
+# if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.session_state):
+#     st.title(f'Cohort: {st.session_state["cohort_choice"]}')
+#     master_key = st.session_state['master_key']
+# else:
+#     geno_path = st.session_state['upload_data_path']
+#     ref_labels = f'ref_panel_ancestry.txt'
+#     out_path = st.session_state['upload_data_path']
+#     st.markdown(f'### **Cohort: {out_path}**')
+
+# if ('sample_data_path' not in st.session_state) and ('upload_data_path' not in st.session_state):
+#     st.error('Error: Please use the Upload Data page to either submit .bed/.bim/.fam files or choose a sample cohort!')
+
+# remove pruned samples
+master_key = master_key[master_key['pruned'] == 0]
+
+# Tab navigator for different parts of Ancestry Method
+tabPCA, tabPredStats, tabPie, tabAdmix, tabMethods = st.tabs(["Ancestry Prediction", "Model Performance", "Ancestry Distribution",\
+                                                    "Admixture Populations", "Method Description"])
 
 if 'cohort_choice' not in st.session_state:
     st.error('Error: Please use the drop-down menu on the sidebar to choose a sample cohort!')
