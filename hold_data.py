@@ -4,17 +4,10 @@ import subprocess
 import numpy as np
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
-import plotly.express as px
-import plotly.io as pio
-import seaborn as sns
-from PIL import Image
-import datetime
 from io import StringIO
+from streamlit_option_menu import option_menu
 
 from google.cloud import storage
-
-from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
 
 # functions used on every pages
 
@@ -30,7 +23,7 @@ def blob_as_csv(bucket, path, sep='\s+', header='infer'):
 # gets folders from Google Cloud
 def get_gcloud_bucket(bucket_name): 
     storage_client = storage.Client(project='gp2-release-terra')
-    bucket = storage_client.get_bucket(bucket_name)
+    bucket = storage_client.bucket(bucket_name, user_project='gp2-release-terra')
     return bucket
 
 # config page with gp2 logo in browser tab

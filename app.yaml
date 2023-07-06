@@ -1,6 +1,7 @@
 service: gp2-cohort-browser
 runtime: custom
 env: flex
+instance_class: F2
 resources:
-  cpu: 2
-  memory_gb: 12
+ cpu: 2
+ memory_gb: 12

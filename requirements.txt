@@ -7,5 +7,6 @@ seaborn
 google-cloud-storage
 google-cloud-bigquery
 db-dtypes
-streamlit-aggrid
+streamlit-aggrid==0.3.4
 kaleido
+streamlit-option-menu
