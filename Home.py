@@ -46,31 +46,31 @@ with overview:
     st.markdown('Genotypes are pruned for call rate with maximum sample genotype missingness of 0.02 (--mind 0.02). Samples which pass\
             call rate pruning are then pruned for discordant sex where samples with 0.25 <= sex F <= 0.75 are pruned. Sex F < 0.25\
             are female and Sex F > 0.75 are male. Samples that pass sex pruning are then differentiated by ancestry (refer to\
-            ancestry method below). Per-ancestry genotypes are then pruned for genetic relatedness where genetic relatedness matrix (grm)\
-            cutoff 0.125 is used to determine second-degree relatedness and 0.95 is used to determine duplicates. For purposes of imputation,\
+            ancestry method below). Per-ancestry genotypes are then pruned for genetic relatedness using KING, where a  cutoff of 0.0884 \
+            was used to determine second degree relatedness and 0.354 is used to determine duplicates. For purposes of imputation,\
             related samples are left in and duplicated samples are pruned. Next, samples are pruned for heterozygosity where F <= -0.25 of\
             F>= 0.25.')
 
     st.markdown("## _Ancestry_")
     st.markdown('### _Reference Panel_')
-    st.markdown('The reference panel is composed of 2975 samples from 1000 Genomes Project and an Ashkenazi Jewish reference panel\
-                (Gene Expression Omnibus (GEO) database, www.ncbi.nlm.nih.gov/geo (accession no. GSE23636)) (REF) with the following\
-                ancestral makeup:')
+    st.markdown('The reference panel is composed of 4008 samples from 1000 Genomes Project, Human Genome Diversity Project (HGDP), \
+                 and an Ashkenazi Jewish reference panel (Gene Expression Omnibus (GEO) database, www.ncbi.nlm.nih.gov/geo \
+                (accession no. GSE23636)) (REF) with the following ancestral makeup:')
     st.markdown(
                 """
-                - African (AFR): 504
-                - African Admixed and Caribbean (AAC): 157
+                - African (AFR): 819
+                - African Admixed and Caribbean (AAC): 74
                 - Ashkenazi Jewish (AJ): 471
                 - Central Asian (CAS): 183
-                - East Asian (EAS): 504
-                - European (EUR): 404
+                - East Asian (EAS): 585
+                - European (EUR): 534
                 - Finnish (FIN): 99
-                - Latino/American Admixed (AMR): 347
+                - Latino/American Admixed (AMR): 490
                 - Middle Eastern (MDE): 152
-                - South Asian (SAS): 489
+                - South Asian (SAS): 601
                 """
                 )
-    st.markdown('Samples were chosen from 1000 Genomes to match the specific ancestries present in GP2. The reference panel was then\
+    st.markdown('Samples were chosen from 1000 Genomes and HGDP to match the specific ancestries present in GP2. The reference panel was then\
                 pruned for palindrome SNPs (A1A2= AT or TA or GC or CG). SNPs were then pruned for maf 0.05, geno 0.01, and hwe 0.0001.')
 
     st.markdown('### _Preprocessing_')
@@ -99,10 +99,12 @@ with overview:
 
     st.markdown('### _Prediction_')
     st.markdown('Scaled PCs for genotypes are transformed using UMAP trained fitted by the training set and then predicted by the classifier. \
-                Genotypes are split and output into individual ancestries. AAC and AFR labels are combined into a single category and \
-                ADMIXTURE 1 (v1.3.0- https://dalexander.github.io/admixture/binaries/admixture_linux-1.3.0.tar.gz) is run using the –supervised \
-                functionality to further divide these two categories where AFR is assigned if AFR admixture is >=90% and AAC is assigned if AFR \
-                admixture is <90%')
+                 Genotypes are split and output into individual ancestries. Prior to release 5, AAC and AFR labels were combined into a \
+                 single category and ADMIXTURE 1 (v1.3.0-https://dalexander.github.io/admixture/binaries/admixture_linux-1.3.0.tar.gz) \
+                was run using the --supervised functionality to further divide these two categories where AFR was assigned if AFR admixture \
+                was >=90% and AAC was assigned if AFR admixture was <90%. From release 5 on, the AFR and AAC sample labels in the reference panel \
+                 are adjusted using a perceptron model, and the predictions based on the updated reference panel labels effectively estimate the \
+                results from the ADMIXTURE step that was previously used.')
 
     st.caption('**_References_**')
     st.caption('_D.H. Alexander, J. Novembre, and K. Lange. Fast model-based estimation of ancestry in unrelated individuals. Genome Research, 19:1655–1664, 2009._')

@@ -8,7 +8,6 @@ import streamlit as st
 import plotly.graph_objects as go
 from functools import reduce
 from streamlit_option_menu import option_menu
-
 from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page
 
 config_page('Quality Control')
@@ -259,8 +258,9 @@ st.header('QC Step 2: Variant-Level Filtering')
 var_exp = st.expander("Description", expanded=False)
 with var_exp:
     st.markdown('Variants are pruned for missingness by case-control where P<=1e-4 to detect platform/batch differences in case-control status.\
-                Next, variants are pruned for missingness by haplotype for flanking variants where P<=1e-4. Lastly, controls are filtered for HWE\
-                at a threshold of 1e-4.')
+                Next, variants are pruned for missingness by haplotype for flanking variants where P<=1e-4. Lastly, controls are filtered for HWE \
+                at a threshold of 1e-4. Please note that for each release, variant pruning is performed in an ancestry-specific manner, and thus \
+                the numbers in the bar chart below will not change based on cohort selection within the same release.')
 
 st.header("**Variant Filtering per Ancestry**")
 st.plotly_chart(bar_6)

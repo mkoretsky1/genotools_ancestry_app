@@ -88,7 +88,7 @@ config_page('Ancestry')
 release_select()
 
 # Pull data from different Google Cloud folders
-gp2_data_bucket = get_gcloud_bucket('redlat_gp2tier2')
+gp2_data_bucket = get_gcloud_bucket('gp2tier2')
 
 # Gets master key (full GP2 release or selected cohort)
 master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
@@ -111,12 +111,12 @@ pca_folder = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics'
 #     st.error('Error: Please use the Upload Data page to either submit .bed/.bim/.fam files or choose a sample cohort!')
 
 # remove pruned samples
+master_key = st.session_state['master_key']
 master_key = master_key[master_key['pruned'] == 0]
 
 # Tab navigator for different parts of Ancestry Method
 tabPCA, tabPredStats, tabPie, tabAdmix, tabMethods = st.tabs(["Ancestry Prediction", "Model Performance", "Ancestry Distribution",\
                                                     "Admixture Populations", "Method Description"])
-
 
 with tabPCA:
     ref_pca = blob_as_csv(gp2_data_bucket, f'{pca_folder}/reference_pcs.csv', sep=',')
@@ -138,8 +138,8 @@ with tabPCA:
     col1, col2 = st.columns([1.5, 3])
 
     # Get actual ancestry labels of each sample in Projected PCAs instead of "Predicted" for all samples
-    combined = proj_pca_cohort[['study', 'label']]
-    combined_labelled = combined.rename(columns={'study':'Cohort','label': 'Predicted Ancestry'})
+    combined = proj_pca_cohort[['IID', 'label']]
+    combined_labelled = combined.rename(columns={'label': 'Predicted Ancestry'})
     holdValues = combined['label'].value_counts().rename_axis('Predicted Ancestry').reset_index(name='Counts')
 
     with pca_col1:
@@ -282,7 +282,7 @@ with tabPie:
         st.dataframe(pie_table[['Ancestry Category', 'Ref Panel Counts', 'Predicted Counts']])
 
 with tabAdmix:
-    frontend_bucket_name = 'redlat_gt_app_utils'
+    frontend_bucket_name = 'gt_app_utils'
     frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
 
     st.markdown('## **Reference Panel Admixture Populations**')
@@ -317,24 +317,24 @@ with tabAdmix:
 with tabMethods:
     st.markdown("## _Ancestry_")
     st.markdown('### _Reference Panel_')
-    st.markdown('The reference panel is composed of 2975 samples from 1000 Genomes Project and an Ashkenazi Jewish reference panel\
+    st.markdown('The reference panel is composed of 4008 samples from 1000 Genomes Project, Human Genome Diversity Project (HGDP), and an Ashkenazi Jewish reference panel\
                 (Gene Expression Omnibus (GEO) database, www.ncbi.nlm.nih.gov/geo (accession no. GSE23636)) (REF) with the following\
                 ancestral makeup:')
     st.markdown(
                 """
-                - African (AFR): 504
-                - African Admixed and Caribbean (AAC): 157
+                - African (AFR): 819
+                - African Admixed and Caribbean (AAC): 74
                 - Ashkenazi Jewish (AJ): 471
                 - Central Asian (CAS): 183
-                - East Asian (EAS): 504
-                - European (EUR): 404
+                - East Asian (EAS): 585
+                - European (EUR): 534
                 - Finnish (FIN): 99
-                - Latino/American Admixed (AMR): 347
+                - Latino/American Admixed (AMR): 490
                 - Middle Eastern (MDE): 152
-                - South Asian (SAS): 489
+                - South Asian (SAS): 601
                 """
                 )
-    st.markdown('Samples were chosen from 1000 Genomes to match the specific ancestries present in GP2. The reference panel was then\
+    st.markdown('Samples were chosen from 1000 Genomes and HGDP to match the specific ancestries present in GP2. The reference panel was then\
                 pruned for palindrome SNPs (A1A2= AT or TA or GC or CG). SNPs were then pruned for maf 0.05, geno 0.01, and hwe 0.0001.')
 
     st.markdown('### _Preprocessing_')
@@ -363,7 +363,8 @@ with tabMethods:
 
     st.markdown('### _Prediction_')
     st.markdown('Scaled PCs for genotypes are transformed using UMAP trained fitted by the training set and then predicted by the classifier. \
-                Genotypes are split and output into individual ancestries. AAC and AFR labels are combined into a single category and \
-                ADMIXTURE 1 (v1.3.0- https://dalexander.github.io/admixture/binaries/admixture_linux-1.3.0.tar.gz) is run using the –supervised \
-                functionality to further divide these two categories where AFR is assigned if AFR admixture is >=90% and AAC is assigned if AFR \
-                admixture is <90%')
+                    Genotypes are split and output into individual ancestries. Prior to release 5, AAC and AFR labels were combined into a single category \
+                    and ADMIXTURE 1 (v1.3.0-https://dalexander.github.io/admixture/binaries/admixture_linux-1.3.0.tar.gz) was run using the --supervised functionality \
+                    to further divide these two categories where AFR was assigned if AFR admixture was >=90% and AAC was assigned if AFR admixture was <90%. \
+                    From release 5 on, the AFR and AAC sample labels in the reference panel are adjusted using a perceptron model, and the predictions based \
+                    on the updated reference panel labels effectively estimate the results from the ADMIXTURE step that was previously used.')
