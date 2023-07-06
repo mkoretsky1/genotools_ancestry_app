@@ -88,7 +88,7 @@ config_page('Ancestry')
 release_select()
 
 # Pull data from different Google Cloud folders
-gp2_data_bucket = get_gcloud_bucket('gp2tier2')
+gp2_data_bucket = get_gcloud_bucket('redlat_gp2tier2')
 
 # Gets master key (full GP2 release or selected cohort)
 master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
