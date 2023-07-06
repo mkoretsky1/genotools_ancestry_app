@@ -5,14 +5,9 @@ import datetime
 import numpy as np
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
-import plotly.express as px
-import plotly.io as pio
-import seaborn as sns
-from PIL import Image
-from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
-from hold_data import blob_as_csv, get_gcloud_bucket, config_page, place_logos, rv_select, release_select
-from io import StringIO
+from streamlit_option_menu import option_menu
+from st_aggrid import GridOptionsBuilder, AgGrid
+from hold_data import blob_as_csv, get_gcloud_bucket, config_page, rv_select
 
 def gb_builder(dataframe):
     builder = GridOptionsBuilder.from_dataframe(dataframe)

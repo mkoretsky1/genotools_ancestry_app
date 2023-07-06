@@ -5,19 +5,9 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
-import matplotlib.pyplot as plt
-import plotly.express as px
-import plotly.io as pio
-import seaborn as sns
-from PIL import Image
-import datetime
-import hold_data
-from io import StringIO
+from streamlit_option_menu import option_menu
 
-from google.cloud import storage
-
-from QC.utils import shell_do, get_common_snps, rm_tmps, merge_genos
-from hold_data import blob_as_csv, get_gcloud_bucket, place_logos, config_page
+from hold_data import place_logos, config_page
 
 
 config_page('Home')

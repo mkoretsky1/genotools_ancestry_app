@@ -5,17 +5,8 @@ import datetime
 import numpy as np
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
 import plotly.express as px
-import plotly.io as pio
-import seaborn as sns
-from PIL import Image
-from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
-from hold_data import blob_as_csv, get_gcloud_bucket, chr_ancestry_select, config_page, place_logos
-from io import StringIO, BytesIO
-
-from google.cloud import bigquery
-from google.cloud import storage
+from hold_data import blob_as_csv, get_gcloud_bucket, chr_ancestry_select, config_page
 
 def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'):
     d3 = px.colors.qualitative.D3
