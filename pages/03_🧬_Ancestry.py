@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-from streamlit_option_menu import option_menu
-from st_aggrid import GridOptionsBuilder, AgGrid
 from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page, admix_ancestry_select
 
 

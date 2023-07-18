@@ -7,7 +7,6 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 from functools import reduce
-from streamlit_option_menu import option_menu
 from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page
 
 config_page('Quality Control')

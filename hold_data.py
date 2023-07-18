@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from io import StringIO
-from streamlit_option_menu import option_menu
 
 from google.cloud import storage
 
