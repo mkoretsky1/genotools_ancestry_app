@@ -232,8 +232,8 @@ with sample_exp:
     st.markdown('Genotypes are pruned for call rate with maximum sample genotype missingness of 0.02 (--mind 0.02). Samples which pass\
                 call rate pruning are then pruned for discordant sex where samples with 0.25 <= sex F <= 0.75 are pruned. Sex F < 0.25\
                 are female and Sex F > 0.75 are male. Samples that pass sex pruning are then differentiated by ancestry (refer to\
-                ancestry method below). Per-ancestry genotypes are then pruned for genetic relatedness where genetic relatedness matrix (grm)\
-                cutoff 0.125 is used to determine second-degree relatedness and 0.95 is used to determine duplicates. For purposes of imputation,\
+                ancestry method below). Per-ancestry genotypes are then pruned for genetic relatedness using KING, where a  cutoff of 0.0884 \
+            was used to determine second degree relatedness and 0.354 is used to determine duplicates. For purposes of imputation,\
                 related samples are left in and duplicated samples are pruned. Next, samples are pruned for heterozygosity where F <= -0.25 of\
                 F>= 0.25.')
 
@@ -272,6 +272,9 @@ if df_6.shape[0]>0:
     with failed_prune_exp:
         st.write('Prune step considered "failed" if there was an insufficient number of samples within an ancestry to complete the \
                 step, even if no samples were pruned.')
+        
+    hide_table_row_index = """<style>thead tr th:first-child {display:none} tbody th {display:none}"""
+    st.markdown(hide_table_row_index, unsafe_allow_html=True)
     st.table(df_6)
 
 
