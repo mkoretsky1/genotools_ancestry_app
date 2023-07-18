@@ -174,11 +174,6 @@ with tabPCA:
         gb.configure_pagination(paginationAutoPageSize=True)
         gb.configure_side_bar()
         gridOptions = gb.build()
-
-        # Non-selectable dataframe: lists all Predicted subjects and their respective ancestry predictions
-        # grid_response = AgGrid(combined_labelled, 
-        #                         gridOptions=gridOptions, 
-        #                         allow_unsafe_jscode=True)
         
         # Non-selectable dataframe: allows advanced filtering of subjects' admixture results
         grid_response = AgGrid(
