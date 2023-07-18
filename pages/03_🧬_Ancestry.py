@@ -250,7 +250,7 @@ with tabPie:
         st.dataframe(pie_table[['Ancestry Category', 'Ref Panel Counts', 'Predicted Counts']], hide_index=True, use_container_width=True)
 
 with tabAdmix:
-    frontend_bucket_name = 'gt_app_utils'
+    frontend_bucket_name = 'redlat_gt_app_utils'
     frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
 
     st.markdown('## **Reference Panel Admixture Populations**')
