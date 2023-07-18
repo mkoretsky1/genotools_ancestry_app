@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-from streamlit_option_menu import option_menu
 
 from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page, meta_ancestry_select
 
@@ -24,18 +23,18 @@ cohort_select(master_key)
 
 st.title(f'{st.session_state["cohort_choice"]} Metadata')
 
-plot1, plot2 = st.columns([1,1.75])
-
 master_key = st.session_state['master_key']
 # remove pruned samples
 master_key = master_key[master_key['pruned'] == 0]
 
-#### STARTER CODE FOR ANCESTRY SELECTION ON METADATA PAGE
-# meta_ancestry_select()
-# meta_ancestry_choice = st.session_state['meta_ancestry_choice']
+# metadata ancestry selection
+meta_ancestry_select()
+meta_ancestry_choice = st.session_state['meta_ancestry_choice']
 
-# if meta_ancestry_choice != 'All':
-#     master_key = master_key[master_key['label'] == meta_ancestry_choice]
+if meta_ancestry_choice != 'All':
+    master_key = master_key[master_key['label'] == meta_ancestry_choice]
+
+plot1, plot2 = st.columns([1,1.75])
 
 master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'phenotype':'Phenotype'}, inplace = True)
 master_key_age = master_key[master_key['Age'].notnull()]

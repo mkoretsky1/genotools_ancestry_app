@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
-from streamlit_option_menu import option_menu
 
 from hold_data import place_logos, config_page
 

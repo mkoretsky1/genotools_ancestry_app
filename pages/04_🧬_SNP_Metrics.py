@@ -7,7 +7,6 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 from hold_data import blob_as_csv, get_gcloud_bucket, chr_ancestry_select, config_page
-from streamlit_option_menu import option_menu
 
 def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'):
     d3 = px.colors.qualitative.D3

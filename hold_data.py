@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from io import StringIO
-from streamlit_option_menu import option_menu
 
 from google.cloud import storage
 
@@ -144,7 +143,7 @@ def meta_ancestry_callback():
     st.session_state['meta_ancestry_choice'] = st.session_state['new_meta_ancestry_choice']
 
 def meta_ancestry_select():
-    st.markdown('### **Choose an ancestry group!**')
+    st.markdown('### **Choose an ancestry!**')
     master_key = st.session_state['master_key']
 
     meta_ancestry_options = ['All'] + [label for label in master_key['label'].dropna().unique()]
@@ -156,6 +155,22 @@ def meta_ancestry_select():
     
     st.session_state['meta_ancestry_choice'] = st.selectbox(label='Ancestry Selection', label_visibility = 'collapsed', options=meta_ancestry_options, index=meta_ancestry_options.index(st.session_state['meta_ancestry_choice']), key='new_meta_ancestry_choice', on_change=meta_ancestry_callback)
 
+def admix_ancestry_callback():
+    st.session_state['old_admix_ancestry_choice'] = st.session_state['admix_ancestry_choice']
+    st.session_state['admix_ancestry_choice'] = st.session_state['new_admix_ancestry_choice']
+
+def admix_ancestry_select():
+    st.markdown('### **Choose an ancestry!**')
+    master_key = st.session_state['master_key']
+
+    admix_ancestry_options = ['All'] + [label for label in master_key['label'].dropna().unique()]
+
+    if 'admix_ancestry_choice' not in st.session_state:
+        st.session_state['admix_ancestry_choice'] = admix_ancestry_options[0]
+    if 'old_admix_ancestry_choice' not in st.session_state:
+        st.session_state['old_chr_choice'] = ""
+    
+    st.session_state['admix_ancestry_choice'] = st.selectbox(label='Ancestry Selection', label_visibility = 'collapsed', options=admix_ancestry_options, index=admix_ancestry_options.index(st.session_state['admix_ancestry_choice']), key='new_admix_ancestry_choice', on_change=admix_ancestry_callback)
 
 def chr_callback():
     st.session_state['old_chr_choice'] = st.session_state['chr_choice']
