@@ -1,5 +1,3 @@
-from streamlit_option_menu import option_menu
-from st_aggrid import GridOptionsBuilder, AgGrid
 import os
 import sys
 import subprocess
@@ -8,7 +6,9 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page
+from streamlit_option_menu import option_menu
+from st_aggrid import GridOptionsBuilder, AgGrid
+from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page, admix_ancestry_select
 
 
 # Plots 3D PCA
@@ -148,7 +148,7 @@ with tabPCA:
             st.write('Select an Ancestry Category below to display only the Predicted samples within that label.')
 
         holdValues['Select'] = False
-        select_ancestry = st.data_editor(holdValues)
+        select_ancestry = st.data_editor(holdValues, hide_index=True, use_container_width=True)
         selectionList = select_ancestry.loc[select_ancestry['Select'] == True]['Predicted Ancestry']
 
     with pca_col2:
@@ -168,25 +168,9 @@ with tabPCA:
     with col1:
         st.markdown(f'### {st.session_state["cohort_choice"]} PCA')
         with st.expander("Description"):
-            st.write('All Predicted samples and their respective labels are listed below.')
-
-        gb = GridOptionsBuilder.from_dataframe(combined_labelled)
-        gb.configure_pagination(paginationAutoPageSize=True)
-        gb.configure_side_bar()
-        gridOptions = gb.build()
-        
-        # Non-selectable dataframe: allows advanced filtering of subjects' admixture results
-        grid_response = AgGrid(
-                    combined_labelled,
-                    gridOptions=gridOptions,
-                    data_return_mode='AS_INPUT', 
-                    update_mode='MODEL_CHANGED', 
-                    fit_columns_on_grid_load=True,
-                    theme='streamlit',
-                    enable_enterprise_modules=True, 
-                    width='100%',
-                    height = 400
-                )
+            st.write('All Predicted samples and their respective labels are listed below. Click on the table and use ⌘ Cmd + F or Ctrl + F to search for specific samples.')
+        # combined_labelled = combined_labelled.set_index('IID')
+        st.dataframe(combined_labelled, hide_index=True, use_container_width=True)
         
     with col2: 
         plot_3d(proj_pca_cohort, 'label')  # only plots PCA of predicted samples
@@ -235,7 +219,7 @@ with tabPredStats:
 with tabPie:
     # Plots ancestry breakdowns of Predicted Samples vs. Reference Panel samples
     pie1, pie2, pie3 = st.columns([2,1,2])
-    p1, p2, p3 = st.columns([2,4,1])
+    p1, p2, p3 = st.columns([2,4,2])
 
     ref_pca = blob_as_csv(gp2_data_bucket, f'{pca_folder}/reference_pcs.csv', sep=',')
 
@@ -265,13 +249,18 @@ with tabPie:
 
     # Displays dataframe of Reference Panel Counts vs. Predicted Counts per Ancestry category
     with p2:
-        st.dataframe(pie_table[['Ancestry Category', 'Ref Panel Counts', 'Predicted Counts']])
+        st.dataframe(pie_table[['Ancestry Category', 'Ref Panel Counts', 'Predicted Counts']], hide_index=True, use_container_width=True)
 
 with tabAdmix:
     frontend_bucket_name = 'gt_app_utils'
     frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
 
     st.markdown('## **Reference Panel Admixture Populations**')
+
+    with st.expander("Description"):
+            st.write('Results of running ADMIXTURE on the reference panel with K=10. Use the selector to subset the admixture table \
+                     by ancestry. Clicking on a column once or twice will display the table in ascending or descending order, respectively, \
+                     in terms of that column.')
 
     ref_admix = blob_as_csv(frontend_bucket, 'ref_panel_admixture.txt')
 
@@ -283,23 +272,15 @@ with tabAdmix:
     admix_plot = admix_plot.download_as_bytes()
     st.image(admix_plot)
 
-    gb = GridOptionsBuilder.from_dataframe(ref_admix)
-    gb.configure_pagination(paginationAutoPageSize=True)
-    gb.configure_side_bar()
-    gridOptions = gb.build()
+    # metadata ancestry selection
+    admix_ancestry_select()
+    admix_ancestry_choice = st.session_state['admix_ancestry_choice']
 
-    # Non-selectable dataframe: allows advanced filtering of subjects' admixture results
-    grid_response = AgGrid(
-                    ref_admix,
-                    gridOptions=gridOptions,
-                    data_return_mode='AS_INPUT', 
-                    update_mode='MODEL_CHANGED', 
-                    fit_columns_on_grid_load=True,
-                    theme='streamlit',
-                    enable_enterprise_modules=True, 
-                    width='100%',
-                    height = 400
-                )
+    if admix_ancestry_choice != 'All':
+        ref_admix = ref_admix[ref_admix['ancestry'] == admix_ancestry_choice]
+
+    st.dataframe(ref_admix, hide_index=True, use_container_width=True)
+
 with tabMethods:
     st.markdown("## _Ancestry_")
     st.markdown('### _Reference Panel_')

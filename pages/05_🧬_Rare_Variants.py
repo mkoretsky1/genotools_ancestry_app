@@ -9,14 +9,6 @@ from streamlit_option_menu import option_menu
 from st_aggrid import GridOptionsBuilder, AgGrid
 from hold_data import blob_as_csv, get_gcloud_bucket, config_page, rv_select
 
-def gb_builder(dataframe):
-    builder = GridOptionsBuilder.from_dataframe(dataframe)
-    builder.configure_pagination(enabled=True, paginationAutoPageSize=False, paginationPageSize=15)
-    builder.configure_selection(selection_mode = 'multiple', rowMultiSelectWithClick = True, suppressRowDeselection = False, suppressRowClickSelection = False, groupSelectsChildren = True, groupSelectsFiltered = True)
-    builder.configure_default_column(min_column_width = 2)
-
-    return builder.build() 
-
 config_page('GP2 Rare Variant Browser')
 
 # release_select()
@@ -47,6 +39,5 @@ if len(st.session_state['rv_gene_choice'])>0:
 else:
     rv_data_selected = rv_data_selected
 
-go = gb_builder(rv_data_selected)
-user_response = AgGrid(rv_data_selected, gridOptions=go, allow_unsafe_jscode=True)
+st.dataframe(rv_data_selected, hide_index=True, use_container_width=True)
 
