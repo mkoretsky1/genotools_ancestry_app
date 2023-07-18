@@ -66,7 +66,7 @@ with sample_exp:
                 with a maximum variant genotype missingness of 0.01 (--geno 0.01), a minumum minor allele frequency of 0.01 (--maf 0.01) \
                 and HWE at a thresthold of 5e-6. LD pruning was performed to find and prune any pairs of variants with r\u00b2 > 0.02 \
                 in a sliding window of 1000 variants with a step size of 10 variants (--indep-pairwise 1000 10 0.02). The SNPs are on build hg38, \
-                and this is reflected in the chromosome:position labels that are available next to the SNP name in the selection box. \
+                and this is reflected in the chromosome\:position labels that are available next to the SNP name in the selection box. \
                 Please note that SNP Metrics are only available for the most recent GP2 release (GP2 Release 5).')
 
 # Pull data from different Google Cloud folders
