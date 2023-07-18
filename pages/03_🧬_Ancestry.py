@@ -147,37 +147,14 @@ with tabPCA:
         with st.expander("Description"):
             st.write('Select an Ancestry Category below to display only the Predicted samples within that label.')
 
-        gb = GridOptionsBuilder.from_dataframe(holdValues)
-        # gb.configure_pagination(paginationAutoPageSize=True)
-        # gb.configure_side_bar()
-        gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
-        gridOptions = gb.build()
-
-        # Selectable dataframe to plot specific ancestry categories of predicted samples
-        grid_response = AgGrid(
-                    holdValues,
-                    gridOptions=gridOptions,
-                    data_return_mode='AS_INPUT', 
-                    update_mode='MODEL_CHANGED', 
-                    fit_columns_on_grid_load=True,
-                    theme='streamlit',
-                    enable_enterprise_modules=True, 
-                    width = '100%' ,
-                    height = 350
-                )
-        
-        selected = grid_response['selected_rows'] 
-        selected_df = pd.DataFrame(selected)  # selected rows from AgGrid passed to new df
+        holdValues['Select'] = False
+        select_ancestry = st.data_editor(holdValues)
+        selectionList = select_ancestry.loc[select_ancestry['Select'] == True]['Predicted Ancestry']
 
     with pca_col2:
         # If category selected, plots Projected PCA samples in that category under label "Predicted"
-        if not selected_df.empty:
+        if not selectionList.empty:
             selected_pca = proj_pca_cohort.copy()
-            selectionList = []
-
-            for selections in selected_df['Predicted Ancestry']:
-                selectionList.append(selections)
-            
             selected_pca.drop(selected_pca[np.logical_not(selected_pca['label'].isin(selectionList))].index, inplace = True)
             
             for items in selectionList:  # subsets Projected PCA by selected categories
@@ -192,15 +169,29 @@ with tabPCA:
         st.markdown(f'### {st.session_state["cohort_choice"]} PCA')
         with st.expander("Description"):
             st.write('All Predicted samples and their respective labels are listed below.')
+
         gb = GridOptionsBuilder.from_dataframe(combined_labelled)
-        gb.configure_pagination(enabled=True, paginationAutoPageSize=False, paginationPageSize=10)
+        gb.configure_pagination(paginationAutoPageSize=True)
         gb.configure_side_bar()
         gridOptions = gb.build()
 
         # Non-selectable dataframe: lists all Predicted subjects and their respective ancestry predictions
-        grid_response = AgGrid(combined_labelled, 
-                                gridOptions=gridOptions, 
-                                allow_unsafe_jscode=True)
+        # grid_response = AgGrid(combined_labelled, 
+        #                         gridOptions=gridOptions, 
+        #                         allow_unsafe_jscode=True)
+        
+        # Non-selectable dataframe: allows advanced filtering of subjects' admixture results
+        grid_response = AgGrid(
+                    combined_labelled,
+                    gridOptions=gridOptions,
+                    data_return_mode='AS_INPUT', 
+                    update_mode='MODEL_CHANGED', 
+                    fit_columns_on_grid_load=True,
+                    theme='streamlit',
+                    enable_enterprise_modules=True, 
+                    width='100%',
+                    height = 400
+                )
         
     with col2: 
         plot_3d(proj_pca_cohort, 'label')  # only plots PCA of predicted samples
