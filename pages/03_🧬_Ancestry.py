@@ -136,7 +136,7 @@ with tabPCA:
     col1, col2 = st.columns([1.5, 3])
 
     # Get actual ancestry labels of each sample in Projected PCAs instead of "Predicted" for all samples
-    combined = proj_pca_cohort[['IID', 'label']]
+    combined = proj_pca_cohort[['study', 'label']]
     combined_labelled = combined.rename(columns={'label': 'Predicted Ancestry'})
     holdValues = combined['label'].value_counts().rename_axis('Predicted Ancestry').reset_index(name='Counts')
 
