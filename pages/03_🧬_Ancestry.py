@@ -51,7 +51,9 @@ def plot_3d(labeled_df, color, symbol=None, x='PC1', y='PC2', z='PC3', title=Non
                                     'AAC':"#999933",
                                     'CAS':"#882255",
                                     'MDE':"#661100",
-                                    'FIN': "#F0E442"}
+                                    'FIN':"#F0E442",
+                                    'CAH':"#40B0A6",
+                                    'Predicted':"#a6a6a6"}
             )
 
     fig.update_traces(marker={'size': 3})
@@ -180,6 +182,9 @@ with tabPredStats:
 
     if 'label' in confusion_matrix.columns:
         confusion_matrix.set_index('label', inplace=True)
+    elif 'Unnamed: 0' in confusion_matrix.columns:
+        confusion_matrix = confusion_matrix.rename({'Unnamed: 0':'label'}, axis=1)
+        confusion_matrix.set_index('label', inplace = True)
     else:
         confusion_matrix.set_index(confusion_matrix.columns, inplace = True)
 

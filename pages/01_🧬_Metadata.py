@@ -36,7 +36,10 @@ if meta_ancestry_choice != 'All':
 
 plot1, plot2 = st.columns([1,1.75])
 
-master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'phenotype':'Phenotype'}, inplace = True)
+if st.session_state['release_choice'] == 6:
+    master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'gp2_phenotype':'Phenotype'}, inplace = True)
+else:
+    master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'phenotype':'Phenotype'}, inplace = True)
 master_key_age = master_key[master_key['Age'].notnull()]
 
 master_key['Sex'].replace(1, 'Male', inplace = True)
