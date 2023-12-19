@@ -38,18 +38,17 @@ with overview:
 
     st.markdown("## _Quality Control_")
     st.markdown('### _Sample-Level Pruning:_')
-    st.markdown('Variants are pruned for missingness by case-control where P<=1e-4 to detect platform/batch differences in case-control status.\
-                Next, variants are pruned for missingness by haplotype for flanking variants where P<=1e-4. Lastly, controls are filtered for HWE\
-                at a threshold of 1e-4.')
-    st.markdown('### _Variant-Level Pruning_')
     st.markdown('Genotypes are pruned for call rate with maximum sample genotype missingness of 0.02 (--mind 0.02). Samples which pass\
-            call rate pruning are then pruned for discordant sex where samples with 0.25 <= sex F <= 0.75 are pruned. Sex F < 0.25\
-            are female and Sex F > 0.75 are male. Samples that pass sex pruning are then differentiated by ancestry (refer to\
-            ancestry method below). Per-ancestry genotypes are then pruned for genetic relatedness using KING, where a  cutoff of 0.0884 \
-            was used to determine second degree relatedness and 0.354 is used to determine duplicates. For purposes of imputation,\
-            related samples are left in and duplicated samples are pruned. Next, samples are pruned for heterozygosity where F <= -0.25 of\
-            F>= 0.25.')
-
+                 call rate pruning are then pruned for discordant sex where samples with 0.25 <= sex F <= 0.75 are pruned. Sex F < 0.25\
+                 are female and Sex F > 0.75 are male. Samples that pass sex pruning are then differentiated by ancestry (refer to\
+                 ancestry method below). Per-ancestry genotypes are then pruned for genetic relatedness using KING, where a  cutoff of 0.0884 \
+                 was used to determine second degree relatedness and 0.354 is used to determine duplicates. For purposes of imputation,\
+                 related samples are left in and duplicated samples are pruned. Next, samples are pruned for heterozygosity where F <= -0.25 of\
+                 F>= 0.25.')
+    st.markdown('### _Variant-Level Pruning_')
+    st.markdown('Variants are pruned for missingness by case-control where P<=1e-4 to detect platform/batch differences in case-control status.\
+                 Next, variants are pruned for missingness by haplotype for flanking variants where P<=1e-4. Lastly, controls are filtered for HWE\
+                 at a threshold of 1e-4.')
     st.markdown("## _Ancestry_")
     st.markdown('### _Reference Panel_')
     st.markdown('The reference panel is composed of 4008 samples from 1000 Genomes Project, Human Genome Diversity Project (HGDP), \

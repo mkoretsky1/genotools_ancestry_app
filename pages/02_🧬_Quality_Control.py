@@ -141,23 +141,23 @@ df_5 = df_5[['ancestry', 'pruned_count', 'metric']]
 # Counts per each variant filtering category in qc_metrics.csv
 df_5_geno = df_5.query("metric == 'geno_removed_count'").reset_index(drop=True)
 df_5_geno = df_5_geno.rename(columns={'pruned_count': 'geno_removed_count'})
-df_5_geno = df_5_geno.drop('metric', 1)
+df_5_geno = df_5_geno.drop(columns=['metric'], axis=1)
 
 df_5_mis = df_5.query("metric == 'mis_removed_count'").reset_index(drop=True)
 df_5_mis = df_5_mis.rename(columns={'pruned_count': 'mis_removed_count'})
-df_5_mis = df_5_mis.drop('metric', 1)
+df_5_mis = df_5_mis.drop(columns=['metric'], axis=1)
 
 df_5_haplo = df_5.query("metric == 'haplotype_removed_count'").reset_index(drop=True)
 df_5_haplo = df_5_haplo.rename(columns={'pruned_count': 'haplotype_removed_count'})
-df_5_haplo = df_5_haplo.drop('metric', 1)
+df_5_haplo = df_5_haplo.drop(columns=['metric'], axis=1)
 
 df_5_hwe = df_5.query("metric == 'hwe_removed_count'").reset_index(drop=True)
 df_5_hwe = df_5_hwe.rename(columns={'pruned_count': 'hwe_removed_count'})
-df_5_hwe = df_5_hwe.drop('metric', 1)
+df_5_hwe = df_5_hwe.drop(columns=['metric'], axis=1)
 
 df_5_total = df_5.query("metric == 'total_removed_count'").reset_index(drop=True)
 df_5_total = df_5_total.rename(columns={'pruned_count': 'total_removed_count'})
-df_5_total = df_5_total.drop('metric', 1)
+df_5_total = df_5_total.drop(columns=['metric'], axis=1)
 
 data = [df_5_geno, df_5_mis, df_5_haplo, df_5_hwe, df_5_total]
 df_merged = reduce(lambda left,right: pd.merge(left,right,on=['ancestry'], how='outer'), data)
