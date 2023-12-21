@@ -150,6 +150,12 @@ def meta_ancestry_select():
 
     if 'meta_ancestry_choice' not in st.session_state:
         st.session_state['meta_ancestry_choice'] = meta_ancestry_options[0]
+
+    if st.session_state['meta_ancestry_choice'] not in meta_ancestry_options:
+        st.error(f"No samples with {st.session_state['meta_ancestry_choice']} ancestry in {st.session_state['cohort_choice']}. \
+                 Displaying all ancestries instead!")
+        st.session_state['meta_ancestry_choice'] = meta_ancestry_options[0]
+
     if 'old_meta_ancestry_choice' not in st.session_state:
         st.session_state['old_chr_choice'] = ""
     
