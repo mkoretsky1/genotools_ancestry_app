@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page, admix_ancestry_select
+from hold_data import blob_as_csv, get_gcloud_bucket, config_page, admix_ancestry_select
 
 
 # Plots 3D PCA
@@ -86,17 +86,17 @@ def plot_pie(df):
 
 config_page('Ancestry')
 
-release_select()
+# release_select()
 
 # Pull data from different Google Cloud folders
-gp2_data_bucket = get_gcloud_bucket('gp2tier2')
+gp2_data_bucket = get_gcloud_bucket('adni_test_data')
 
 # Gets master key (full GP2 release or selected cohort)
-master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
+master_key_path = f'master_key.csv'
 master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
-cohort_select(master_key)
+# cohort_select(master_key)
 
-pca_folder = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics'
+# pca_folder = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics'
 
 # Update when re-add Upload Data feature
 # if ('cohort_choice' in st.session_state) and ('upload_data_path' not in st.session_state):
@@ -112,7 +112,7 @@ pca_folder = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics'
 #     st.error('Error: Please use the Upload Data page to either submit .bed/.bim/.fam files or choose a sample cohort!')
 
 # remove pruned samples
-master_key = st.session_state['master_key']
+# master_key = st.session_state['master_key']
 master_key = master_key[master_key['pruned'] == 0]
 
 # Tab navigator for different parts of Ancestry Method
@@ -120,14 +120,14 @@ tabPCA, tabPredStats, tabPie, tabAdmix, tabMethods = st.tabs(["Ancestry Predicti
                                                     "Admixture Populations", "Method Description"])
 
 with tabPCA:
-    ref_pca = blob_as_csv(gp2_data_bucket, f'{pca_folder}/reference_pcs.csv', sep=',')
-    proj_pca = blob_as_csv(gp2_data_bucket, f'{pca_folder}/projected_pcs.csv', sep=',')
+    ref_pca = blob_as_csv(gp2_data_bucket, f'reference_pcs.csv', sep=',')
+    proj_pca = blob_as_csv(gp2_data_bucket, f'projected_pcs.csv', sep=',')
 
     proj_pca = proj_pca.drop(columns=['label'], axis=1)
 
     # Projected PCAs will have label "Predicted", Reference panel is labeled by ancestry 
-    proj_pca_cohort = proj_pca.merge(master_key[['GP2sampleID','label','study']], how='inner', left_on=['IID'], right_on=['GP2sampleID'])
-    proj_pca_cohort = proj_pca_cohort.drop(columns=['GP2sampleID'], axis=1)
+    proj_pca_cohort = proj_pca.merge(master_key[['IID','label']], how='inner', left_on=['IID'], right_on=['IID'])
+    # proj_pca_cohort = proj_pca_cohort.drop(columns=[''], axis=1)
     proj_pca_cohort['plot_label'] = 'Predicted'
     ref_pca['plot_label'] = ref_pca['label']
 
@@ -144,7 +144,7 @@ with tabPCA:
     holdValues = combined['label'].value_counts().rename_axis('Predicted Ancestry').reset_index(name='Counts')
 
     with pca_col1:
-        st.markdown(f'### Reference Panel vs. {st.session_state["cohort_choice"]} PCA')
+        st.markdown(f'### Reference Panel vs. ADNI PCA')
         with st.expander("Description"):
             st.write('Select an Ancestry Category below to display only the Predicted samples within that label.')
 
@@ -167,7 +167,7 @@ with tabPCA:
             plot_3d(total_pca, 'plot_label')  # if no category selected, plots all samples of Projected PCA with "Predicted" label
 
     with col1:
-        st.markdown(f'### {st.session_state["cohort_choice"]} PCA')
+        st.markdown(f'### ADNI PCA')
         with st.expander("Description"):
             st.write('All Predicted samples and their respective labels are listed below. Click on the table and use ⌘ Cmd + F or Ctrl + F to search for specific samples.')
         # combined_labelled = combined_labelled.set_index('IID')
@@ -179,7 +179,7 @@ with tabPCA:
 
 with tabPredStats:
     st.markdown(f'## **Model Accuracy**')
-    confusion_matrix = blob_as_csv(gp2_data_bucket, f'{pca_folder}/confusion_matrix.csv', sep=',')
+    confusion_matrix = blob_as_csv(gp2_data_bucket, f'confusion_matrix.csv', sep=',')
 
     if 'label' in confusion_matrix.columns:
         confusion_matrix.set_index('label', inplace=True)
@@ -225,7 +225,7 @@ with tabPie:
     pie1, pie2, pie3 = st.columns([2,1,2])
     p1, p2, p3 = st.columns([2,4,2])
 
-    ref_pca = blob_as_csv(gp2_data_bucket, f'{pca_folder}/reference_pcs.csv', sep=',')
+    ref_pca = blob_as_csv(gp2_data_bucket, f'reference_pcs.csv', sep=',')
 
     # Get dataframe of counts per ancestry category for reference panel
     df_ancestry_counts = ref_pca['label'].value_counts(normalize = True).rename_axis('Ancestry Category').reset_index(name='Proportion')
@@ -251,7 +251,7 @@ with tabPie:
         # st.dataframe(ref_combo)
 
     with pie3:
-        st.markdown(f'### {st.session_state["cohort_choice"]} Predicted Ancestry')
+        st.markdown(f'### ADNI Predicted Ancestry')
         plot_pie(df_new_counts)
         # st.dataframe(new_combo)
 

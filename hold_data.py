@@ -21,8 +21,8 @@ def blob_as_csv(bucket, path, sep='\s+', header='infer'):
 
 # gets folders from Google Cloud
 def get_gcloud_bucket(bucket_name): 
-    storage_client = storage.Client(project='gp2-release-terra')
-    bucket = storage_client.bucket(bucket_name, user_project='gp2-release-terra')
+    storage_client = storage.Client(project='redlat-app')
+    bucket = storage_client.bucket(bucket_name, user_project='redlat-app')
     return bucket
 
 # config page with gp2 logo in browser tab
@@ -34,7 +34,7 @@ def config_page(title):
             layout="wide",
         )
     else: 
-        frontend_bucket_name = 'gt_app_utils'
+        frontend_bucket_name = 'redlat_gt_app_utils'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
         gp2_bg = frontend_bucket.get_blob('gp2_2.jpg')
         gp2_bg = gp2_bg.download_as_bytes()
@@ -53,7 +53,7 @@ def place_logos():
         sidebar2.image(st.session_state.gp2_removebg, use_column_width=True)
         st.sidebar.image(st.session_state.redlat, use_column_width=True)
     else:
-        frontend_bucket_name = 'gt_app_utils'
+        frontend_bucket_name = 'redlat_gt_app_utils'
         frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
         card_removebg = frontend_bucket.get_blob('card-removebg.png')
         card_removebg = card_removebg.download_as_bytes()
@@ -69,82 +69,81 @@ def place_logos():
         st.sidebar.image(redlat, use_column_width=True)
 
 # Sidebar selectors
-def release_callback():
-    st.session_state['old_release_choice'] = st.session_state['release_choice']
-    st.session_state['release_choice'] = st.session_state['new_release_choice']
+# def release_callback():
+#     st.session_state['old_release_choice'] = st.session_state['release_choice']
+#     st.session_state['release_choice'] = st.session_state['new_release_choice']
 
-def release_select():
-    st.sidebar.markdown('### **Choose a release!**')
-    options = [6, 5, 4, 3, 2, 1]
+# def release_select():
+#     st.sidebar.markdown('### **Choose a release!**')
+#     options = [6, 5, 4, 3, 2, 1]
 
-    if 'release_choice' not in st.session_state:
-        st.session_state['release_choice'] = options[0]
-    if 'old_release_choice' not in st.session_state:
-        st.session_state['old_release_choice'] = ""
+#     if 'release_choice' not in st.session_state:
+#         st.session_state['release_choice'] = options[0]
+#     if 'old_release_choice' not in st.session_state:
+#         st.session_state['old_release_choice'] = ""
     
-    st.session_state['release_choice'] = st.sidebar.selectbox(label='Release Selection', label_visibility='collapsed', options=options, index=options.index(st.session_state['release_choice']), key='new_release_choice', on_change=release_callback)
+#     st.session_state['release_choice'] = st.sidebar.selectbox(label='Release Selection', label_visibility='collapsed', options=options, index=options.index(st.session_state['release_choice']), key='new_release_choice', on_change=release_callback)
 
-    # folder name based on release selection
-    release_folder_dict = {1:'release1_29112021', 2:'release2_06052022', 3:'release3_31102022', 4:'release4_14022023', 
-                           5:'release5_11052023', 6:'release6_21122023'}
-    st.session_state['release_bucket'] = release_folder_dict[st.session_state['release_choice']]
+#     # folder name based on release selection
+#     release_folder_dict = {1:'release1_29112021', 2:'release2_06052022', 3:'release3_31102022', 4:'release4_14022023', 
+#                            5:'release5_11052023', 6:'release6_21122023'}
+#     st.session_state['release_bucket'] = release_folder_dict[st.session_state['release_choice']]
 
-def cohort_callback():
-    st.session_state['old_cohort_choice'] = st.session_state['cohort_choice']
-    st.session_state['cohort_choice'] = st.session_state['new_cohort_choice']
+# def cohort_callback():
+#     st.session_state['old_cohort_choice'] = st.session_state['cohort_choice']
+#     st.session_state['cohort_choice'] = st.session_state['new_cohort_choice']
 
-def cohort_select(master_key):
-    st.sidebar.markdown('### **Choose a cohort!**', unsafe_allow_html=True)
+# def cohort_select(master_key):
+#     st.sidebar.markdown('### **Choose a cohort!**', unsafe_allow_html=True)
 
-    options=[f'GP2 Release {st.session_state["release_choice"]} FULL']+[study for study in master_key['study'].unique()]
-    full_release_options=[f'GP2 Release {i} FULL' for i in range(1,7)] 
+#     options=[f'GP2 Release {st.session_state["release_choice"]} FULL']+[study for study in master_key['study'].unique()]
+#     full_release_options=[f'GP2 Release {i} FULL' for i in range(1,7)] 
 
-    if 'cohort_choice' not in st.session_state:
-        st.session_state['cohort_choice'] = options[0]
+#     if 'cohort_choice' not in st.session_state:
+#         st.session_state['cohort_choice'] = options[0]
 
-    # error message for when cohort is not available in a previous release
-    if st.session_state['cohort_choice'] not in options:
-        # exclude full releases
-        if (st.session_state['cohort_choice'] not in full_release_options):
-            st.error(f"Cohort: {st.session_state['cohort_choice']} not available for GP2 Release {st.session_state['release_choice']}. \
-                    Displaying GP2 Release {st.session_state['release_choice']} FULL instead!")
-        st.session_state['cohort_choice'] = options[0]
+#     # error message for when cohort is not available in a previous release
+#     if st.session_state['cohort_choice'] not in options:
+#         # exclude full releases
+#         if (st.session_state['cohort_choice'] not in full_release_options):
+#             st.error(f"Cohort: {st.session_state['cohort_choice']} not available for GP2 Release {st.session_state['release_choice']}. \
+#                     Displaying GP2 Release {st.session_state['release_choice']} FULL instead!")
+#         st.session_state['cohort_choice'] = options[0]
 
-    if 'old_cohort_choice' not in st.session_state:
-        st.session_state['old_cohort_choice'] = ""
+#     if 'old_cohort_choice' not in st.session_state:
+#         st.session_state['old_cohort_choice'] = ""
 
-    st.session_state['cohort_choice'] = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['cohort_choice']), key='new_cohort_choice', on_change=cohort_callback)
+#     st.session_state['cohort_choice'] = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=options, index=options.index(st.session_state['cohort_choice']), key='new_cohort_choice', on_change=cohort_callback)
 
-    if st.session_state['cohort_choice'] == f'GP2 Release {st.session_state["release_choice"]} FULL':
-        st.session_state['master_key'] = master_key
-    else:
-        master_key_cohort = master_key[master_key['study'] == st.session_state['cohort_choice']]
-        # subsets master key to only include selected cohort
-        st.session_state['master_key'] = master_key_cohort 
+#     if st.session_state['cohort_choice'] == f'GP2 Release {st.session_state["release_choice"]} FULL':
+#         st.session_state['master_key'] = master_key
+#     else:
+#         master_key_cohort = master_key[master_key['study'] == st.session_state['cohort_choice']]
+#         # subsets master key to only include selected cohort
+#         st.session_state['master_key'] = master_key_cohort 
 
     # check for pruned samples
-    if 1 in st.session_state.master_key['pruned'].value_counts():
-        pruned_samples = st.session_state.master_key['pruned'].value_counts()[1]
-    else:
-        pruned_samples = 0
+    # if 1 in st.session_state.master_key['pruned'].value_counts():
+    #     pruned_samples = st.session_state.master_key['pruned'].value_counts()[1]
+    # else:
+    #     pruned_samples = 0
     
-    total_count = st.session_state['master_key'].shape[0]
+    # total_count = st.session_state['master_key'].shape[0]
 
-    st.sidebar.metric("", st.session_state['cohort_choice'])
-    st.sidebar.metric("Number of Samples in Dataset:", f'{total_count:,}')
-    st.sidebar.metric("Number of Samples After Pruning:", f'{(total_count-pruned_samples):,}')
+    # st.sidebar.metric("", st.session_state['cohort_choice'])
+    # st.sidebar.metric("Number of Samples in Dataset:", f'{total_count:,}')
+    # st.sidebar.metric("Number of Samples After Pruning:", f'{(total_count-pruned_samples):,}')
 
-    # place logos in sidebar
-    st.sidebar.markdown('---')
-    place_logos()
+    # # place logos in sidebar
+    # st.sidebar.markdown('---')
+    # place_logos()
 
 def meta_ancestry_callback():
     st.session_state['old_meta_ancestry_choice'] = st.session_state['meta_ancestry_choice']
     st.session_state['meta_ancestry_choice'] = st.session_state['new_meta_ancestry_choice']
 
-def meta_ancestry_select():
+def meta_ancestry_select(master_key):
     st.markdown('### **Choose an ancestry!**')
-    master_key = st.session_state['master_key']
 
     meta_ancestry_options = ['All'] + [label for label in master_key['label'].dropna().unique()]
 
@@ -152,7 +151,7 @@ def meta_ancestry_select():
         st.session_state['meta_ancestry_choice'] = meta_ancestry_options[0]
 
     if st.session_state['meta_ancestry_choice'] not in meta_ancestry_options:
-        st.error(f"No samples with {st.session_state['meta_ancestry_choice']} ancestry in {st.session_state['cohort_choice']}. \
+        st.error(f"No samples with {st.session_state['meta_ancestry_choice']} ancestry in ADNI. \
                  Displaying all ancestries instead!")
         st.session_state['meta_ancestry_choice'] = meta_ancestry_options[0]
 

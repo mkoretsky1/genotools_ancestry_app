@@ -7,33 +7,33 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 from functools import reduce
-from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page
+from hold_data import blob_as_csv, get_gcloud_bucket, config_page
 
 config_page('Quality Control')
 
-release_select()
+# release_select()
 
 # Pull data from different Google Cloud folders
-gp2_data_bucket = get_gcloud_bucket('gp2tier2')
+gp2_data_bucket = get_gcloud_bucket('adni_test_data')
 
 # Get qc metrics
-qc_metrics_path = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics/qc_metrics.csv'
+qc_metrics_path = f'qc_metrics.csv'
 df_qc = blob_as_csv(gp2_data_bucket, qc_metrics_path, sep = ',')  # current version: cannot split by cohort
 
 # Gets master key (full GP2 release or selected cohort)
-master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
+master_key_path = f'master_key.csv'
 master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
-cohort_select(master_key)
+# cohort_select(master_key)
 
 # Necessary dataframes for QC Plots
 master_key = st.session_state['master_key']  # plots full GP2 release metrics by default
 st.session_state['df_qc'] = df_qc
-st.session_state['pre_sample_n'] = master_key['GP2sampleID'].count()
-st.session_state['remaining_n'] = master_key['GP2sampleID'].count()
+st.session_state['pre_sample_n'] = master_key['IID'].count()
+st.session_state['remaining_n'] = master_key['IID'].count()
 
 ###### All-sample pruning
 
-pre_QC_total = master_key['GP2sampleID'].count()
+pre_QC_total = master_key['IID'].count()
 funnel_df = pd.DataFrame(columns=['remaining_samples', 'step'])
 funnel_df.loc[0] = pd.Series({'remaining_samples':pre_QC_total, 'step':'pre_QC'})
 
@@ -98,10 +98,10 @@ ancestry_index = {
         }
 
 # remove CAS and MDE labels for releases 1 and 2
-if st.session_state['release_choice'] < 3:
-    for key in ['CAS','MDE']:
-        ancestry_dict.pop(key)
-        ancestry_index.pop(key)
+# if st.session_state['release_choice'] < 3:
+#     for key in ['CAS','MDE']:
+#         ancestry_dict.pop(key)
+#         ancestry_index.pop(key)
 
 # Prepares dataframe for Relatedness Per Ancestry Plot
 df_3 = master_key[(master_key['related'] == 1) | (master_key['pruned_reason'] == 'duplicated_prune')]
@@ -137,10 +137,10 @@ df_4.set_index('ancestry', inplace=True)
 ###### Variant pruning
 
 # Same variant pruning counts for all cohorts
-if st.session_state['release_choice'] == 6:
-    df_5 = df_qc
-else:
-    df_5 = df_qc.query("step == 'variant_prune'")
+# if st.session_state['release_choice'] == 6:
+df_5 = df_qc
+# else:
+#     df_5 = df_qc.query("step == 'variant_prune'")
 df_5 = df_5[['ancestry', 'pruned_count', 'metric']]
 
 # Counts per each variant filtering category in qc_metrics.csv
@@ -228,7 +228,7 @@ bar_6.update_layout(
 
 ###### Create App
 
-st.title(f'{st.session_state["cohort_choice"]} Metrics')
+st.title(f'ADNI QC Metrics')
 
 st.header('QC Step 1: Sample-Level Filtering')
 sample_exp = st.expander("Description", expanded=False)

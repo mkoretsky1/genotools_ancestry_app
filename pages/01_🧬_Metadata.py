@@ -7,28 +7,25 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 
-from hold_data import blob_as_csv, get_gcloud_bucket, cohort_select, release_select, config_page, meta_ancestry_select
+from hold_data import blob_as_csv, get_gcloud_bucket, config_page, meta_ancestry_select
 
 config_page('Metadata')
 
-release_select()
-
 # pull data from different Google Cloud folders
-gp2_data_bucket = get_gcloud_bucket('gp2tier2')
+gp2_data_bucket = get_gcloud_bucket('adni_test_data')
 
 # gets master key (full GP2 release or selected cohort)
-master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
+master_key_path = f'master_key.csv'
 master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
-cohort_select(master_key)
 
-st.title(f'{st.session_state["cohort_choice"]} Metadata')
+st.title(f'ADNI Metadata')
 
-master_key = st.session_state['master_key']
+# master_key = st.session_state['master_key']
 # remove pruned samples
 master_key = master_key[master_key['pruned'] == 0]
 
 # metadata ancestry selection
-meta_ancestry_select()
+meta_ancestry_select(master_key)
 meta_ancestry_choice = st.session_state['meta_ancestry_choice']
 
 if meta_ancestry_choice != 'All':
@@ -36,10 +33,10 @@ if meta_ancestry_choice != 'All':
 
 plot1, plot2 = st.columns([1,1.75])
 
-if st.session_state['release_choice'] == 6:
-    master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'gp2_phenotype':'Phenotype'}, inplace = True)
-else:
-    master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'phenotype':'Phenotype'}, inplace = True)
+# if st.session_state['release_choice'] == 6:
+#     master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'gp2_phenotype':'Phenotype'}, inplace = True)
+# else:
+master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'phenotype':'Phenotype'}, inplace = True)
 master_key_age = master_key[master_key['Age'].notnull()]
 
 master_key['Sex'].replace(1, 'Male', inplace = True)
