@@ -113,7 +113,7 @@ master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
 
 # remove pruned samples
 # master_key = st.session_state['master_key']
-master_key = master_key[master_key['pruned'] == 0]
+# master_key = master_key[master_key['pruned'] == 0]
 
 # Tab navigator for different parts of Ancestry Method
 tabPCA, tabPredStats, tabPie, tabAdmix, tabMethods = st.tabs(["Ancestry Prediction", "Model Performance", "Ancestry Distribution",\
@@ -281,7 +281,7 @@ with tabAdmix:
     st.image(admix_plot)
 
     # metadata ancestry selection
-    admix_ancestry_select()
+    admix_ancestry_select(master_key)
     admix_ancestry_choice = st.session_state['admix_ancestry_choice']
 
     if admix_ancestry_choice != 'All':

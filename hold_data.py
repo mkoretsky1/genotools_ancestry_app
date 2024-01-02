@@ -164,9 +164,9 @@ def admix_ancestry_callback():
     st.session_state['old_admix_ancestry_choice'] = st.session_state['admix_ancestry_choice']
     st.session_state['admix_ancestry_choice'] = st.session_state['new_admix_ancestry_choice']
 
-def admix_ancestry_select():
+def admix_ancestry_select(master_key):
     st.markdown('### **Choose an ancestry!**')
-    master_key = st.session_state['master_key']
+    # master_key = st.session_state['master_key']
 
     admix_ancestry_options = ['All'] + [label for label in master_key['label'].dropna().unique()]
 
