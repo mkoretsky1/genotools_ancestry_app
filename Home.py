@@ -37,7 +37,7 @@ with overview:
             ''', unsafe_allow_html=True)
 
     st.markdown("## _Quality Control_")
-    st.markdown('### _Sample-Level Pruning:_')
+    st.markdown('### _Sample-Level Pruning_')
     st.markdown('Genotypes are pruned for call rate with maximum sample genotype missingness of 0.02 (--mind 0.02). Samples which pass\
                  call rate pruning are then pruned for discordant sex where samples with 0.25 <= sex F <= 0.75 are pruned. Sex F < 0.25\
                  are female and Sex F > 0.75 are male. Samples that pass sex pruning are then differentiated by ancestry (refer to\

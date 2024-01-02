@@ -79,7 +79,8 @@ ancestry_dict = {
             'AAC': 'African American/Afro-Caribbean',
             'CAS': 'Central Asian',
             'MDE': 'Middle Eastern',
-            'FIN': 'Finnish'
+            'FIN': 'Finnish',
+            'CAH': 'Complex Admixture History'
         }
 
 ancestry_index = {
@@ -92,7 +93,8 @@ ancestry_index = {
             'AAC':4,
             'CAS':5,
             'MDE':6,
-            'FIN':9
+            'FIN':9,
+            'CAH':10
         }
 
 # remove CAS and MDE labels for releases 1 and 2
