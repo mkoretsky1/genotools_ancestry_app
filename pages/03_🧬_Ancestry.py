@@ -51,7 +51,9 @@ def plot_3d(labeled_df, color, symbol=None, x='PC1', y='PC2', z='PC3', title=Non
                                     'AAC':"#999933",
                                     'CAS':"#882255",
                                     'MDE':"#661100",
-                                    'FIN': "#F0E442"}
+                                    'FIN':"#F0E442",
+                                    'CAH':"#40B0A6",
+                                    'Predicted':"#ababab"}
             )
 
     fig.update_traces(marker={'size': 3})
@@ -76,7 +78,8 @@ def plot_pie(df):
                                         'AAC':"#999933",
                                         'CAS':"#882255",
                                         'MDE':"#661100",
-                                        'FIN':"#F0E442"})
+                                        'FIN':"#F0E442",
+                                        'CAH':"#40B0A6"})
     pie_chart.update_layout(showlegend = True, width=500,height=500)
     st.plotly_chart(pie_chart)
 
@@ -180,6 +183,9 @@ with tabPredStats:
 
     if 'label' in confusion_matrix.columns:
         confusion_matrix.set_index('label', inplace=True)
+    elif 'Unnamed: 0' in confusion_matrix.columns:
+        confusion_matrix = confusion_matrix.rename({'Unnamed: 0':'label'}, axis=1)
+        confusion_matrix.set_index('label', inplace = True)
     else:
         confusion_matrix.set_index(confusion_matrix.columns, inplace = True)
 
@@ -232,6 +238,10 @@ with tabPie:
     new_counts = master_key['label'].value_counts().rename_axis('Ancestry Category').reset_index(name='Counts')
     new_combo = pd.merge(df_new_counts, new_counts, on='Ancestry Category')
     new_combo.rename(columns = {'Proportion': 'Predicted Proportion', 'Counts': 'Predicted Counts'}, inplace = True)
+
+    ref_combo = ref_combo[['Ancestry Category', 'Ref Panel Counts']]
+    ref_combo_cah = pd.DataFrame([['CAH', 'NA']], columns=['Ancestry Category', 'Ref Panel Counts'])
+    ref_combo = pd.concat([ref_combo, ref_combo_cah], axis=0)
 
     pie_table = pd.merge(ref_combo, new_combo, on='Ancestry Category')
 

@@ -79,7 +79,8 @@ ancestry_dict = {
             'AAC': 'African American/Afro-Caribbean',
             'CAS': 'Central Asian',
             'MDE': 'Middle Eastern',
-            'FIN': 'Finnish'
+            'FIN': 'Finnish',
+            'CAH': 'Complex Admixture History'
         }
 
 ancestry_index = {
@@ -92,7 +93,8 @@ ancestry_index = {
             'AAC':4,
             'CAS':5,
             'MDE':6,
-            'FIN':9
+            'FIN':9,
+            'CAH':10
         }
 
 # remove CAS and MDE labels for releases 1 and 2
@@ -134,8 +136,11 @@ df_4.set_index('ancestry', inplace=True)
 
 ###### Variant pruning
 
-# Same variant pruning counts for all cohorts 
-df_5 = df_qc.query("step == 'variant_prune'")
+# Same variant pruning counts for all cohorts
+if st.session_state['release_choice'] == 6:
+    df_5 = df_qc
+else:
+    df_5 = df_qc.query("step == 'variant_prune'")
 df_5 = df_5[['ancestry', 'pruned_count', 'metric']]
 
 # Counts per each variant filtering category in qc_metrics.csv
