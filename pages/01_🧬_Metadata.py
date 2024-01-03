@@ -7,9 +7,10 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 
-from hold_data import blob_as_csv, get_gcloud_bucket, config_page, meta_ancestry_select
+from hold_data import blob_as_csv, get_gcloud_bucket, config_page, meta_ancestry_select, place_logos
 
 config_page('Metadata')
+place_logos()
 
 # pull data from different Google Cloud folders
 gp2_data_bucket = get_gcloud_bucket('adni_test_data')

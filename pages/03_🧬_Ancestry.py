@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-from hold_data import blob_as_csv, get_gcloud_bucket, config_page, admix_ancestry_select
+from hold_data import blob_as_csv, get_gcloud_bucket, config_page, admix_ancestry_select, place_logos
 
 
 # Plots 3D PCA
@@ -85,6 +85,7 @@ def plot_pie(df):
 
 
 config_page('Ancestry')
+place_logos()
 
 # release_select()
 
@@ -260,7 +261,7 @@ with tabPie:
         st.dataframe(pie_table[['Ancestry Category', 'Ref Panel Counts', 'Predicted Counts']], hide_index=True, use_container_width=True)
 
 with tabAdmix:
-    frontend_bucket_name = 'gt_app_utils'
+    frontend_bucket_name = 'redlat_gt_app_utils'
     frontend_bucket = get_gcloud_bucket(frontend_bucket_name)
 
     st.markdown('## **Reference Panel Admixture Populations**')

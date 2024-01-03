@@ -7,9 +7,10 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 from functools import reduce
-from hold_data import blob_as_csv, get_gcloud_bucket, config_page
+from hold_data import blob_as_csv, get_gcloud_bucket, config_page, place_logos
 
 config_page('Quality Control')
+place_logos()
 
 # release_select()
 
@@ -26,7 +27,7 @@ master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
 # cohort_select(master_key)
 
 # Necessary dataframes for QC Plots
-# master_key = st.session_state['master_key']  # plots full GP2 release metrics by default
+# master_key = st.session_state['master_key']  # plots full P2 release metrics by default
 st.session_state['df_qc'] = df_qc
 st.session_state['pre_sample_n'] = master_key['IID'].count()
 st.session_state['remaining_n'] = master_key['IID'].count()
