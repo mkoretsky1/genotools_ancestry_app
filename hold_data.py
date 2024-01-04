@@ -200,7 +200,7 @@ def chr_ancestry_select():
 
     st.sidebar.markdown('### **Choose an Ancestry!**', unsafe_allow_html=True)
 
-    ancestry_options=['AAC','AFR','AJ','AMR','CAS','EAS','EUR','FIN','MDE','SAS']
+    ancestry_options=['AAC','AFR','AJ','AMR','CAH','CAS','EAS','EUR','FIN','MDE','SAS']
 
     if 'ancestry_choice' not in st.session_state:
         st.session_state['ancestry_choice'] = ancestry_options[0]
