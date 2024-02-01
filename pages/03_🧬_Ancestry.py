@@ -208,6 +208,9 @@ with tabPredStats:
     with heatmap1:
         st.markdown('### Confusion Matrix')
         fig = px.imshow(confusion_matrix, labels=dict(x="Predicted Ancestry", y="Reference Panel Ancestry", color="Count"), text_auto=True, color_continuous_scale='plasma')
+        fig.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)','paper_bgcolor': 'rgba(0, 0, 0, 0)',})
+        fig.update_yaxes(title_font_color="black", tickfont=dict(color='black'))
+        fig.update_xaxes(title_font_color="black", tickfont=dict(color='black'))
         st.plotly_chart(fig)
 
     # Plots heatmap of confusion matrix from Testing
