@@ -73,11 +73,12 @@ with sample_exp:
 snp_metrics_bucket_name = 'gt_app_utils'
 snp_metrics_bucket = get_gcloud_bucket(snp_metrics_bucket_name)
 
-chr_ancestry_select()
+gene_check, chr_check, gene_df = chr_ancestry_select()
 
 chr_choice = st.session_state['chr_choice']
 ancestry_choice = st.session_state['ancestry_choice']
-selection = f'{ancestry_choice}_{chr_choice}'
+ndd_gene_choice = st.session_state['ndd_gene_choice']
+# selection = f'{ancestry_choice}_{chr_choice}'
 
 # FIN doesn't have SNP metrics yet (> 50 samples)
 # if ancestry_choice ==  'FIN':
@@ -85,15 +86,23 @@ selection = f'{ancestry_choice}_{chr_choice}'
 #              select a different ancestry!")
 
 # else:
-metrics_blob_name = f'gp2_snp_metrics/{ancestry_choice}/chr{chr_choice}_metrics.csv'
+
+## NEW ADJUSTMENTS
+if gene_check and not chr_check:
+    # adjust for same gene with multiple chromosomes
+    selection = f'{ancestry_choice}_{gene_df.CHR.values[0]}'
+    metrics_blob_name = f'gp2_snp_metrics/{ancestry_choice}/chr{gene_df.CHR.values[0]}_metrics.csv'
+else:
+    selection = f'{ancestry_choice}_{chr_choice}'
+    metrics_blob_name = f'gp2_snp_metrics/{ancestry_choice}/chr{chr_choice}_metrics.csv'
 maf_blob_name = f'gp2_snp_metrics/{ancestry_choice}/{ancestry_choice}_maf.afreq'
 full_maf_blob_name = f'gp2_snp_metrics/full_maf.afreq'
 
 if selection not in st.session_state:
-    metrics = blob_as_csv(snp_metrics_bucket, metrics_blob_name, sep=',')
-    st.session_state[selection] = metrics
+    full_metrics = blob_as_csv(snp_metrics_bucket, metrics_blob_name, sep=',')
+    st.session_state[selection] = full_metrics
 else:
-    metrics = st.session_state[selection]
+    full_metrics = st.session_state[selection]
 
 if f'{ancestry_choice}_maf' not in st.session_state:
     maf = blob_as_csv(snp_metrics_bucket, maf_blob_name, sep='\t')
@@ -107,6 +116,27 @@ if 'full_maf' not in st.session_state:
 else:
     full_maf = st.session_state['full_maf']
 
+## NEW
+if gene_check:
+    # check if some have multiple locations within same Chr?
+    if chr_check:
+        chr_gene_df = gene_df[gene_df['CHR']==chr_choice] # some NDD genes have multiple chr locations
+        metrics = full_metrics[(full_metrics['position'] >= chr_gene_df.START.values[0]) 
+                        & (full_metrics['position'] <= chr_gene_df.STOP.values[0])]
+        # st.dataframe(gene_df)
+        # st.dataframe(chr_gene_df)
+        # st.dataframe(metrics)
+    else:
+        # will need to fix this so that it takes all positions into account
+        metrics = full_metrics[(full_metrics['position'] >= gene_df.START.values[0]) 
+                        & (full_metrics['position'] <= gene_df.STOP.values[0])]
+        # st.dataframe(full_metrics)
+        # st.dataframe(gene_df)
+        # st.dataframe(metrics)
+else:
+    metrics = full_metrics
+    # st.dataframe(metrics)
+    # st.dataframe(gene_df)
 
 # metrics.columns = ['snpid','r','theta','gentrainscore','gt','chromosome','position','iid','phenotype']
 
@@ -116,7 +146,12 @@ num_snps = len(metrics['snpID'].unique())
 num_sample_metrics = len(metrics['Sample_ID'].unique())
 
 with metric1:
-    st.metric(f'Number of available SNPs on Chromosome {chr_choice} for {ancestry_choice}:', "{:.0f}".format(num_snps))
+    if chr_check and not gene_check:
+        st.metric(f'Number of available SNPs on Chromosome {chr_choice} for {ancestry_choice}:', "{:.0f}".format(num_snps))
+    elif gene_check and not chr_check:
+        st.metric(f'Number of available SNPs in the {ndd_gene_choice} Gene Interval for {ancestry_choice}:', "{:.0f}".format(num_snps))
+    elif chr_check and gene_check:
+        st.metric(f'Number of available SNPs on Chromosome {chr_choice} for {ancestry_choice} in the {ndd_gene_choice} Gene Interval:', "{:.0f}".format(num_snps))
 
 with metric2:
     st.metric(f'Number of {ancestry_choice} samples with SNP metrics available:',"{:.0f}".format(num_sample_metrics))

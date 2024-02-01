@@ -182,21 +182,55 @@ def chr_callback():
     st.session_state['old_chr_choice'] = st.session_state['chr_choice']
     st.session_state['chr_choice'] = st.session_state['new_chr_choice']
 
+def ndd_gene_callback():
+    st.session_state['old_ndd_gene_choice'] = st.session_state['ndd_gene_choice']
+    st.session_state['ndd_gene_choice'] = st.session_state['new_ndd_gene_choice']
+
 def ancestry_callback():
     st.session_state['old_ancestry_choice'] = st.session_state['ancestry_choice']
     st.session_state['ancestry_choice'] = st.session_state['new_ancestry_choice']
 
 def chr_ancestry_select():
-    st.sidebar.markdown('### **Choose a chromosome!**', unsafe_allow_html=True)
+    st.sidebar.markdown('### **Select SNPs By:**', unsafe_allow_html=True)
 
     chr_options=[i for i in range(1,23)]
+    ndd_genes = pd.read_csv('data/NDD_gene_regions.csv') # will need to change out for Google Cloud
 
-    if 'chr_choice' not in st.session_state:
-        st.session_state['chr_choice'] = chr_options[0]
-    if 'old_chr_choice' not in st.session_state:
-        st.session_state['old_chr_choice'] = ""
+    # select_options = ['Chromosome', 'NDD-Related Gene Interval', 'Chromosome + NDD Gene']
+    # st.session_state['snp_select_choice'] = st.sidebar.selectbox(label = 'SNP Selection Method', label_visibility = 'collapsed', options=select_options, key='snp_selection_method')
+    chr_choice = st.sidebar.checkbox('Chromosome', value = True)
+    gene_choice = st.sidebar.checkbox('NDD-Related Gene Interval')
 
-    st.session_state['chr_choice'] = st.sidebar.selectbox(label = 'Chromosome Selection', label_visibility = 'collapsed', options=chr_options, index=chr_options.index(st.session_state['chr_choice']), key='new_chr_choice', on_change=chr_callback)
+    if chr_choice:
+        if 'chr_choice' not in st.session_state:
+            st.session_state['chr_choice'] = chr_options[0]
+        if 'old_chr_choice' not in st.session_state:
+            st.session_state['old_chr_choice'] = ""
+
+        if 'ndd_gene_choice' not in st.session_state:
+            st.session_state['ndd_gene_choice'] = ""
+
+        st.sidebar.markdown('### **Choose a chromosome!**', unsafe_allow_html=True)
+        st.session_state['chr_choice'] = st.sidebar.selectbox(label = 'Chromosome Selection', label_visibility = 'collapsed', options=chr_options, index=chr_options.index(st.session_state['chr_choice']), key='new_chr_choice', on_change=chr_callback)
+    if gene_choice:
+        if chr_choice:
+            gene_options = ndd_genes.NAME[ndd_genes.CHR == st.session_state['chr_choice']].unique()
+            st.sidebar.markdown(f"### **Choose an NDD-related gene in chromosome {st.session_state['chr_choice']}!**", unsafe_allow_html=True)
+        else:
+            gene_options = ndd_genes.NAME.unique()
+            st.sidebar.markdown('### **Choose an NDD-related gene!**', unsafe_allow_html=True)
+
+        if 'ndd_gene_choice' not in st.session_state:
+            st.session_state['ndd_gene_choice'] = gene_options[0]
+        if 'old_ndd_gene_choice' not in st.session_state:
+            st.session_state['old_ndd_gene_choice'] = ""
+
+        st.session_state['ndd_gene_choice'] = st.sidebar.selectbox(label = 'NDD-Related Gene Selection', label_visibility = 'collapsed', options=gene_options, key='new_ndd_gene_choice', on_change=ndd_gene_callback)
+        # review where to put the CHR and positions for the chosen gene
+        position_df = ndd_genes[ndd_genes.NAME == st.session_state['ndd_gene_choice']]
+        st.sidebar.markdown('_**Gene Location:**_')
+        for row in range(len(position_df)):
+            st.sidebar.markdown(f'_CHR {position_df.CHR.values[row]}:{position_df.START.values[row]}-{position_df.STOP.values[row]}_')
 
     st.sidebar.markdown('### **Choose an Ancestry!**', unsafe_allow_html=True)
 
@@ -212,6 +246,10 @@ def chr_ancestry_select():
     # Place logos in sidebar
     st.sidebar.markdown('---')
     place_logos()
+
+    # can change to session states
+    return gene_choice, chr_choice, ndd_genes[(ndd_genes['NAME']==st.session_state['ndd_gene_choice'])]
+    
 
 def rv_cohort_callback():
     st.session_state['old_rv_cohort_choice'] = st.session_state['rv_cohort_choice']
