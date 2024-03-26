@@ -25,7 +25,7 @@ exp1, exp2, exp3 = st.columns([1, 2, 1])  # holds expander for full description
 sent2.markdown("<h5 style='text-align: center; '>Interactive tool to visualize quality control and ancestry prediction summary statistics\
              across all GP2 cohorts. Please select a page marked with \U0001F9EC in the sidebar to begin.</h1>", unsafe_allow_html=True)
 
-# # Display expander with full project description
+# Display expander with full project description
 overview = exp2.expander("Full Description", expanded=False)
 with overview:
     st.markdown('''

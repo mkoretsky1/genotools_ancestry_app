@@ -44,6 +44,7 @@ remaining_samples = pre_QC_total
 ordered_prune = ['insufficient_ancestry_sample_n','phenotype_not_reported', 'missing_idat', 'missing_bed', 'callrate_prune', 'sex_prune', 
                 'het_prune', 'duplicated_prune']
 
+# Get number of samples pruned at each step
 for prunes in ordered_prune:
     step_name = prunes
     obs_pruned = hold_prunes['pruned_reason'].tolist()
@@ -69,6 +70,7 @@ steps_dict = {
 
 funnel_df.loc[:,'step_name'] = funnel_df.loc[:,'step'].map(steps_dict)  # prepares dataframe for funnel chart
 
+# ancestry abbreviations and index encodings
 ancestry_dict = {
             'AFR':'African',
             'SAS':'South Asian',
@@ -116,6 +118,7 @@ df_4 = pd.DataFrame()
 # if len(df_3) > 0:
 df_4_dicts = [] 
 
+# Get related and duplicated counts by ancestry
 for label in ancestry_dict:
     ancestry_df_dict = {}
     if label in df_3['label'].unique():

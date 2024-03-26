@@ -8,6 +8,7 @@ import streamlit as st
 import plotly.express as px
 from hold_data import blob_as_csv, get_gcloud_bucket, chr_ancestry_select, config_page
 
+# cluster plot code
 def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'):
     d3 = px.colors.qualitative.D3
 
@@ -50,6 +51,7 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     
     return out_dict
 
+# snp callback for session state
 def snp_callback():
     st.session_state['old_snp_choice'] = st.session_state['snp_choice']
     st.session_state['snp_choice'] = st.session_state['new_snp_choice']
@@ -75,6 +77,7 @@ snp_metrics_bucket = get_gcloud_bucket(snp_metrics_bucket_name)
 
 chr_ancestry_select()
 
+# get chromosome and ancestry selection
 chr_choice = st.session_state['chr_choice']
 ancestry_choice = st.session_state['ancestry_choice']
 selection = f'{ancestry_choice}_{chr_choice}'
@@ -89,18 +92,21 @@ metrics_blob_name = f'gp2_snp_metrics/{ancestry_choice}/chr{chr_choice}_metrics.
 maf_blob_name = f'gp2_snp_metrics/{ancestry_choice}/{ancestry_choice}_maf.afreq'
 full_maf_blob_name = f'gp2_snp_metrics/full_maf.afreq'
 
+# put metrics in session state
 if selection not in st.session_state:
     metrics = blob_as_csv(snp_metrics_bucket, metrics_blob_name, sep=',')
     st.session_state[selection] = metrics
 else:
     metrics = st.session_state[selection]
 
+# put maf data in session state
 if f'{ancestry_choice}_maf' not in st.session_state:
     maf = blob_as_csv(snp_metrics_bucket, maf_blob_name, sep='\t')
     st.session_state[f'{ancestry_choice}_maf'] = maf
 else:
     maf = st.session_state[f'{ancestry_choice}_maf']
 
+# put cross-ancestry maf data in session state
 if 'full_maf' not in st.session_state:
     full_maf = blob_as_csv(snp_metrics_bucket, full_maf_blob_name, sep='\t')
     st.session_state[f'full_maf'] = full_maf
@@ -115,6 +121,7 @@ metric1,metric2 = st.columns([1,1])
 num_snps = len(metrics['snpID'].unique())
 num_sample_metrics = len(metrics['Sample_ID'].unique())
 
+# number of available SNPs/samples with metrics available
 with metric1:
     st.metric(f'Number of available SNPs on Chromosome {chr_choice} for {ancestry_choice}:', "{:.0f}".format(num_snps))
 
@@ -124,9 +131,12 @@ with metric2:
 metrics_copy = metrics.copy(deep=True)
 metrics_copy['snp_label'] = metrics_copy['snpID'] + ' (' + metrics_copy['chromosome'].astype(str) + ':' + metrics_copy['position'].astype(str) + ')'
 
+# if there are SNP metrics available
 if num_sample_metrics > 0:
+    # get SNP options
     snp_options = ['Select SNP!']+[snp for snp in metrics_copy['snp_label'].unique()]
 
+    # set default SNPs
     if 'snp_choice' not in st.session_state:
         st.session_state['snp_choice'] = snp_options[0]
     if 'old_snp_choice' not in st.session_state:
@@ -150,6 +160,7 @@ if num_sample_metrics > 0:
         snp_df = metrics_copy[metrics_copy['snp_label'] == st.session_state['snp_choice']]
         snp_df = snp_df.reset_index(drop=True)
 
+        # cluster plot
         fig = plot_clusters(snp_df, x_col='Theta', y_col='R', gtype_col='GT', title=st.session_state['snp_choice'])['fig']
 
         col1, col2 = st.columns([2.5,1])
@@ -172,6 +183,7 @@ if num_sample_metrics > 0:
         hide_table_row_index = """<style>thead tr th:first-child {display:none} tbody th {display:none}"""
         st.markdown(hide_table_row_index, unsafe_allow_html=True)
 
+        # SNP statistics, controls and PD genotype distributions
         with col2:
             st.metric(f'GenTrain Score:', "{:.3f}".format(snp_df['GenTrain_Score'][0]))
 

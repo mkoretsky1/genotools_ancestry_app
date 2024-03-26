@@ -181,6 +181,7 @@ with tabPredStats:
     st.markdown(f'## **Model Accuracy**')
     confusion_matrix = blob_as_csv(gp2_data_bucket, f'{pca_folder}/confusion_matrix.csv', sep=',')
 
+    # set up confusion matrix labels
     if 'label' in confusion_matrix.columns:
         confusion_matrix.set_index('label', inplace=True)
     elif 'Unnamed: 0' in confusion_matrix.columns:
@@ -189,6 +190,7 @@ with tabPredStats:
     else:
         confusion_matrix.set_index(confusion_matrix.columns, inplace = True)
 
+    # accuracy stats
     tp = np.diag(confusion_matrix)
     col_sum = confusion_matrix.sum(axis=0)
     row_sum = confusion_matrix.sum(axis=1)
@@ -205,6 +207,7 @@ with tabPredStats:
 
     heatmap1, heatmap2 = st.columns([2, 1])
 
+    # Plots heatmap of confusion matrix from Testing
     with heatmap1:
         st.markdown('### Confusion Matrix')
         fig = px.imshow(confusion_matrix, labels=dict(x="Predicted Ancestry", y="Reference Panel Ancestry", color="Count"), text_auto=True, color_continuous_scale='plasma')
@@ -213,7 +216,7 @@ with tabPredStats:
         fig.update_xaxes(title_font_color="black", tickfont=dict(color='black'))
         st.plotly_chart(fig)
 
-    # Plots heatmap of confusion matrix from Testing
+    # put statistics next to heatmap
     with heatmap2:
         st.markdown('### Test Set Performance')
         st.markdown('#')
@@ -248,6 +251,7 @@ with tabPie:
 
     pie_table = pd.merge(ref_combo, new_combo, on='Ancestry Category')
 
+    # plot pie charts for ref panel and predicted ancestry counts
     with pie1:
         st.markdown('### **Reference Panel Ancestry**')
         plot_pie(df_ancestry_counts)
