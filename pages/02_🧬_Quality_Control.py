@@ -144,7 +144,7 @@ df_4.set_index('ancestry', inplace=True)
 ###### Variant pruning
 
 # Same variant pruning counts for all cohorts
-if st.session_state['release_choice'] == 6:
+if st.session_state['release_choice'] >= 6:
     df_5 = df_qc
 else:
     df_5 = df_qc.query("step == 'variant_prune'")

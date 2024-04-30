@@ -37,7 +37,10 @@ if meta_ancestry_choice != 'All':
 
 plot1, plot2 = st.columns([1,1.75])
 
-# change column names for r6 on
+# change column names for r6 on (check for r7: age will with age_at_baseline and sex will also be different)
+if st.session_state['release_choice'] == 7:
+    master_key.rename(columns = {'age_at_sample_collection': 'Age', 'biological_sex_for_qc': 'Sex', 'baseline_GP2_phenotype_for_qc': 'Phenotype'}, inplace=True)
+ 
 if st.session_state['release_choice'] == 6:
     master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'gp2_phenotype':'Phenotype'}, inplace = True)
 else:
