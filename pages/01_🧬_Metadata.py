@@ -31,17 +31,23 @@ master_key = master_key[master_key['pruned'] == 0]
 meta_ancestry_select()
 meta_ancestry_choice = st.session_state['meta_ancestry_choice']
 
+# subset master key based on ancestry selection
 if meta_ancestry_choice != 'All':
     master_key = master_key[master_key['label'] == meta_ancestry_choice]
 
 plot1, plot2 = st.columns([1,1.75])
 
+# change column names for r6 on (check for r7: age will with age_at_baseline and sex will also be different)
+if st.session_state['release_choice'] == 7:
+    master_key.rename(columns = {'age_at_sample_collection': 'Age', 'biological_sex_for_qc': 'Sex', 'baseline_GP2_phenotype_for_qc': 'Phenotype'}, inplace=True)
+ 
 if st.session_state['release_choice'] == 6:
     master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'gp2_phenotype':'Phenotype'}, inplace = True)
 else:
     master_key.rename(columns = {'age': 'Age', 'sex_for_qc': 'Sex', 'phenotype':'Phenotype'}, inplace = True)
 master_key_age = master_key[master_key['Age'].notnull()]
 
+# verbose sex encodings
 master_key['Sex'].replace(1, 'Male', inplace = True)
 master_key['Sex'].replace(2, 'Female', inplace = True)
 master_key['Sex'].replace(0, 'Unknown', inplace = True)
@@ -52,6 +58,7 @@ master_key['Sex'].replace(0, 'Unknown', inplace = True)
 # sex = plot1.checkbox('Sex')
 # phenotype= plot1.checkbox('Phenotype')
 
+# if age is availble, plot and give options for stratification
 if master_key_age.shape[0] != 0:
     plot1.markdown('#### Stratify Age by:')
     stratify = plot1.radio(
@@ -73,6 +80,7 @@ if master_key_age.shape[0] != 0:
     
     plot1.markdown('---')
 
+# get phenotype counts by sex and display
 male_pheno = master_key.loc[master_key['Sex'] == 'Male', 'Phenotype']
 female_pheno = master_key.loc[master_key['Sex'] == 'Female', 'Phenotype']
 

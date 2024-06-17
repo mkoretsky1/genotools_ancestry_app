@@ -8,6 +8,7 @@ import streamlit as st
 import plotly.express as px
 from hold_data import blob_as_csv, get_gcloud_bucket, chr_ancestry_select, config_page
 
+# cluster plot code
 def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'):
     d3 = px.colors.qualitative.D3
 
@@ -50,6 +51,7 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     
     return out_dict
 
+# snp callback for session state
 def snp_callback():
     st.session_state['old_snp_choice'] = st.session_state['snp_choice']
     st.session_state['snp_choice'] = st.session_state['new_snp_choice']
@@ -67,7 +69,7 @@ with sample_exp:
                 and HWE at a thresthold of 5e-6. LD pruning was performed to find and prune any pairs of variants with r\u00b2 > 0.02 \
                 in a sliding window of 1000 variants with a step size of 10 variants (--indep-pairwise 1000 10 0.02). The SNPs are on build hg38, \
                 and this is reflected in the chromosome\:position labels that are available next to the SNP name in the selection box. \
-                Please note that SNP Metrics are only available for the most recent GP2 release (GP2 Release 6).')
+                Please note that SNP Metrics are only available for the most recent GP2 release (GP2 Release 7).')
 
 # Pull data from different Google Cloud folders
 snp_metrics_bucket_name = 'gt_app_utils'
@@ -75,6 +77,7 @@ snp_metrics_bucket = get_gcloud_bucket(snp_metrics_bucket_name)
 
 gene_check, chr_check, gene_df = chr_ancestry_select()
 
+# get chromosome and ancestry selection
 chr_choice = st.session_state['chr_choice']
 ancestry_choice = st.session_state['ancestry_choice']
 ndd_gene_choice = st.session_state['ndd_gene_choice']
@@ -98,18 +101,21 @@ else:
 maf_blob_name = f'gp2_snp_metrics/{ancestry_choice}/{ancestry_choice}_maf.afreq'
 full_maf_blob_name = f'gp2_snp_metrics/full_maf.afreq'
 
+# put metrics in session state
 if selection not in st.session_state:
     full_metrics = blob_as_csv(snp_metrics_bucket, metrics_blob_name, sep=',')
     st.session_state[selection] = full_metrics
 else:
     full_metrics = st.session_state[selection]
 
+# put maf data in session state
 if f'{ancestry_choice}_maf' not in st.session_state:
     maf = blob_as_csv(snp_metrics_bucket, maf_blob_name, sep='\t')
     st.session_state[f'{ancestry_choice}_maf'] = maf
 else:
     maf = st.session_state[f'{ancestry_choice}_maf']
 
+# put cross-ancestry maf data in session state
 if 'full_maf' not in st.session_state:
     full_maf = blob_as_csv(snp_metrics_bucket, full_maf_blob_name, sep='\t')
     st.session_state[f'full_maf'] = full_maf
@@ -145,6 +151,7 @@ metric1,metric2 = st.columns([1,1])
 num_snps = len(metrics['snpID'].unique())
 num_sample_metrics = len(metrics['Sample_ID'].unique())
 
+# number of available SNPs/samples with metrics available
 with metric1:
     if chr_check and not gene_check:
         st.metric(f'Number of available SNPs on Chromosome {chr_choice} for {ancestry_choice}:', "{:.0f}".format(num_snps))
@@ -159,9 +166,12 @@ with metric2:
 metrics_copy = metrics.copy(deep=True)
 metrics_copy['snp_label'] = metrics_copy['snpID'] + ' (' + metrics_copy['chromosome'].astype(str) + ':' + metrics_copy['position'].astype(str) + ')'
 
+# if there are SNP metrics available
 if num_sample_metrics > 0:
+    # get SNP options
     snp_options = ['Select SNP!']+[snp for snp in metrics_copy['snp_label'].unique()]
 
+    # set default SNPs
     if 'snp_choice' not in st.session_state:
         st.session_state['snp_choice'] = snp_options[0]
     if 'old_snp_choice' not in st.session_state:
@@ -185,6 +195,7 @@ if num_sample_metrics > 0:
         snp_df = metrics_copy[metrics_copy['snp_label'] == st.session_state['snp_choice']]
         snp_df = snp_df.reset_index(drop=True)
 
+        # cluster plot
         fig = plot_clusters(snp_df, x_col='Theta', y_col='R', gtype_col='GT', title=st.session_state['snp_choice'])['fig']
 
         col1, col2 = st.columns([2.5,1])
@@ -207,6 +218,7 @@ if num_sample_metrics > 0:
         hide_table_row_index = """<style>thead tr th:first-child {display:none} tbody th {display:none}"""
         st.markdown(hide_table_row_index, unsafe_allow_html=True)
 
+        # SNP statistics, controls and PD genotype distributions
         with col2:
             st.metric(f'GenTrain Score:', "{:.3f}".format(snp_df['GenTrain_Score'][0]))
 

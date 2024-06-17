@@ -181,6 +181,7 @@ with tabPredStats:
     st.markdown(f'## **Model Accuracy**')
     confusion_matrix = blob_as_csv(gp2_data_bucket, f'{pca_folder}/confusion_matrix.csv', sep=',')
 
+    # set up confusion matrix labels
     if 'label' in confusion_matrix.columns:
         confusion_matrix.set_index('label', inplace=True)
     elif 'Unnamed: 0' in confusion_matrix.columns:
@@ -189,6 +190,7 @@ with tabPredStats:
     else:
         confusion_matrix.set_index(confusion_matrix.columns, inplace = True)
 
+    # accuracy stats
     tp = np.diag(confusion_matrix)
     col_sum = confusion_matrix.sum(axis=0)
     row_sum = confusion_matrix.sum(axis=1)
@@ -205,12 +207,16 @@ with tabPredStats:
 
     heatmap1, heatmap2 = st.columns([2, 1])
 
+    # Plots heatmap of confusion matrix from Testing
     with heatmap1:
         st.markdown('### Confusion Matrix')
         fig = px.imshow(confusion_matrix, labels=dict(x="Predicted Ancestry", y="Reference Panel Ancestry", color="Count"), text_auto=True, color_continuous_scale='plasma')
+        fig.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)','paper_bgcolor': 'rgba(0, 0, 0, 0)',})
+        fig.update_yaxes(title_font_color="black", tickfont=dict(color='black'))
+        fig.update_xaxes(title_font_color="black", tickfont=dict(color='black'))
         st.plotly_chart(fig)
 
-    # Plots heatmap of confusion matrix from Testing
+    # put statistics next to heatmap
     with heatmap2:
         st.markdown('### Test Set Performance')
         st.markdown('#')
@@ -245,6 +251,7 @@ with tabPie:
 
     pie_table = pd.merge(ref_combo, new_combo, on='Ancestry Category')
 
+    # plot pie charts for ref panel and predicted ancestry counts
     with pie1:
         st.markdown('### **Reference Panel Ancestry**')
         plot_pie(df_ancestry_counts)
@@ -323,7 +330,7 @@ with tabMethods:
                 the test set for prediction after model training.')
 
     st.markdown('### _UMAP + Classifier Training_')
-    st.markdown('A classifier was then trained using UMAP transformations of the PCs and a linear support vector classifier using a 5-fold\
+    st.markdown('A classifier was then trained using UMAP transformations of the PCs and a linear XGBoost classifier using a 5-fold\
                 cross-validation using an sklearn pipeline and scored for balanced accuracy with a gridsearch over the following parameters:')
     st.markdown(
                 """
@@ -331,7 +338,7 @@ with tabMethods:
                 - “umap__n_components”: [15,25]
                 - “umap__a”: [0.75, 1.0, 1.5]
                 - “umap__b”: [0.25, 0.5, 0.75]
-                - “svc__C”: [0.001, 0.01, 0.1, 1, 10, 100]
+                - “xgboost__lambda”: [0.001, 0.01, 0.1, 1, 10, 100]
                 """
                 )
     st.markdown('Performance varies from 95-98% balanced accuracy on the test set depending on overlapping genotypes.')
@@ -343,3 +350,12 @@ with tabMethods:
                     to further divide these two categories where AFR was assigned if AFR admixture was >=90% and AAC was assigned if AFR admixture was <90%. \
                     From release 5 on, the AFR and AAC sample labels in the reference panel are adjusted using a perceptron model, and the predictions based \
                     on the updated reference panel labels effectively estimate the results from the ADMIXTURE step that was previously used.')
+
+    st.markdown('### _Complex Admixture History_')
+    st.markdown('Certain highly admixed ancestry groups are not well-represented by the constructed reference panel used by GenoTools. Due a lack of publicly available \
+                 reference samples for highly admixed groups, GenoTools employs a method to identify samples of this nature and place them in an ancestry  \
+                 group that is not present in the reference panel, named “Complex Admixture History” (CAH). Highly admixed samples of this nature should be analyzed \
+                 independently. Since there are no reference samples to base the prediction of CAH ancestry on, a PC-based approach is used instead. Using the training \
+                 data, the PC centroid of each reference panel ancestry group is calculated, along with the overall PC centroid. For each new sample, the PC distance from \
+                 each centroid is then calculated. Any sample whose PC distance is closer to the overall PC centroid of the training data than to any reference panel \
+                 ancestry group centroid is labeled as CAH.')

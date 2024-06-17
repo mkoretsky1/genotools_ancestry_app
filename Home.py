@@ -25,7 +25,7 @@ exp1, exp2, exp3 = st.columns([1, 2, 1])  # holds expander for full description
 sent2.markdown("<h5 style='text-align: center; '>Interactive tool to visualize quality control and ancestry prediction summary statistics\
              across all GP2 cohorts. Please select a page marked with \U0001F9EC in the sidebar to begin.</h1>", unsafe_allow_html=True)
 
-# # Display expander with full project description
+# Display expander with full project description
 overview = exp2.expander("Full Description", expanded=False)
 with overview:
     st.markdown('''
@@ -35,6 +35,10 @@ with overview:
             }
             </style>
             ''', unsafe_allow_html=True)
+    
+    st.markdown("## _GenoTools Preprint Out Now!_")
+    st.markdown('For a more in-depth description of the methods used to process the GP2 releases, please see the GenoTools preprint: \
+                 https://www.biorxiv.org/content/10.1101/2024.03.26.586362v1')
 
     st.markdown("## _Quality Control_")
     st.markdown('### _Sample-Level Pruning_')
@@ -82,7 +86,7 @@ with overview:
                 the test set for prediction after model training.')
 
     st.markdown('### _UMAP + Classifier Training_')
-    st.markdown('A classifier was then trained using UMAP transformations of the PCs and a linear support vector classifier using a 5-fold\
+    st.markdown('A classifier was then trained using UMAP transformations of the PCs and a linear XGBoost classifier using a 5-fold\
                 cross-validation using an sklearn pipeline and scored for balanced accuracy with a gridsearch over the following parameters:')
     st.markdown(
                 """
@@ -90,7 +94,7 @@ with overview:
                 - “umap__n_components”: [15,25]
                 - “umap__a”: [0.75, 1.0, 1.5]
                 - “umap__b”: [0.25, 0.5, 0.75]
-                - “svc__C”: [0.001, 0.01, 0.1, 1, 10, 100]
+                - “xgboost__lambda”: [0.001, 0.01, 0.1, 1, 10, 100]
                 """
                 )
     st.markdown('Performance varies from 95-98% balanced accuracy on the test set depending on overlapping genotypes.')
@@ -103,6 +107,15 @@ with overview:
                 was >=90% and AAC was assigned if AFR admixture was <90%. From release 5 on, the AFR and AAC sample labels in the reference panel \
                  are adjusted using a perceptron model, and the predictions based on the updated reference panel labels effectively estimate the \
                 results from the ADMIXTURE step that was previously used.')
+    
+    st.markdown('### _Complex Admixture History_')
+    st.markdown('Certain highly admixed ancestry groups are not well-represented by the constructed reference panel used by GenoTools. Due a lack of publicly available \
+                 reference samples for highly admixed groups, GenoTools employs a method to identify samples of this nature and place them in an ancestry  \
+                 group that is not present in the reference panel, named “Complex Admixture History” (CAH). Highly admixed samples of this nature should be analyzed \
+                 independently. Since there are no reference samples to base the prediction of CAH ancestry on, a PC-based approach is used instead. Using the training \
+                 data, the PC centroid of each reference panel ancestry group is calculated, along with the overall PC centroid. For each new sample, the PC distance from \
+                 each centroid is then calculated. Any sample whose PC distance is closer to the overall PC centroid of the training data than to any reference panel \
+                 ancestry group centroid is labeled as CAH.')
 
     st.caption('**_References_**')
     st.caption('_D.H. Alexander, J. Novembre, and K. Lange. Fast model-based estimation of ancestry in unrelated individuals. Genome Research, 19:1655–1664, 2009._')
