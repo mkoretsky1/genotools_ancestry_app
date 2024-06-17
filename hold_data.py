@@ -210,6 +210,10 @@ def ancestry_callback():
     st.session_state['old_ancestry_choice'] = st.session_state['ancestry_choice']
     st.session_state['ancestry_choice'] = st.session_state['new_ancestry_choice']
 
+def ndd_gene_callback():
+    st.session_state['old_ndd_gene_choice'] = st.session_state['ndd_gene_choice']
+    st.session_state['ndd_gene_choice'] = st.session_state['new_ndd_gene_choice']
+
 # snp metrics chromosome/ancestry selector
 def chr_ancestry_select():
     st.sidebar.markdown('### **Select SNPs By:**', unsafe_allow_html=True)
