@@ -17,7 +17,10 @@ release_select()
 gp2_data_bucket = get_gcloud_bucket('gp2tier2')
 
 # gets master key (full GP2 release or selected cohort)
-master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
+if st.session_state['release_choice'] == 8:
+    master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release7_final.csv'
+else:
+    master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
 master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
 cohort_select(master_key)
 
@@ -37,8 +40,8 @@ if meta_ancestry_choice != 'All':
 
 plot1, plot2 = st.columns([1,1.75])
 
-# change column names for r6 on (check for r7: age will with age_at_baseline and sex will also be different)
-if st.session_state['release_choice'] == 7:
+# change column names for r6 and r7
+if st.session_state['release_choice'] in [7,8]:
     master_key.rename(columns = {'age_at_sample_collection': 'Age', 'biological_sex_for_qc': 'Sex', 'baseline_GP2_phenotype_for_qc': 'Phenotype'}, inplace=True)
  
 if st.session_state['release_choice'] == 6:

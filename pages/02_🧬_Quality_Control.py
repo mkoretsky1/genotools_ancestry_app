@@ -21,7 +21,11 @@ qc_metrics_path = f'{st.session_state["release_bucket"]}/meta_data/qc_metrics/qc
 df_qc = blob_as_csv(gp2_data_bucket, qc_metrics_path, sep = ',')  # current version: cannot split by cohort
 
 # Gets master key (full GP2 release or selected cohort)
-master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
+# gets master key (full GP2 release or selected cohort)
+if st.session_state['release_choice'] == 8:
+    master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release7_final.csv'
+else:
+    master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
 master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
 cohort_select(master_key)
 
@@ -190,7 +194,7 @@ funnel_counts = go.Figure(go.Funnelarea(
     customdata=funnel_df['remaining_samples'],
     hovertemplate = 'Remaining Samples:' + '<br>%{customdata[0]:.f}'+'<extra></extra>'))
 
-funnel_counts.update_layout(showlegend = False, margin=dict(l=0, r=300, t=10, b=10))
+funnel_counts.update_layout(showlegend=False, margin=dict(l=0, r=40, t=0, b=0))
 
 # Relatedness Per Anceestry Plot
 if len(df_4) > 0:

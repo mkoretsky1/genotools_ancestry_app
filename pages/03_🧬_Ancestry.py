@@ -91,8 +91,11 @@ release_select()
 # Pull data from different Google Cloud folders
 gp2_data_bucket = get_gcloud_bucket('gp2tier2')
 
-# Gets master key (full GP2 release or selected cohort)
-master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
+# gets master key (full GP2 release or selected cohort)
+if st.session_state['release_choice'] == 8:
+    master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release7_final.csv'
+else:
+    master_key_path = f'{st.session_state["release_bucket"]}/clinical_data/master_key_release{st.session_state["release_choice"]}_final.csv'
 master_key = blob_as_csv(gp2_data_bucket, master_key_path, sep=',')
 cohort_select(master_key)
 
