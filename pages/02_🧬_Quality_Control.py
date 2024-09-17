@@ -194,7 +194,7 @@ funnel_counts = go.Figure(go.Funnelarea(
     customdata=funnel_df['remaining_samples'],
     hovertemplate = 'Remaining Samples:' + '<br>%{customdata[0]:.f}'+'<extra></extra>'))
 
-funnel_counts.update_layout(showlegend=False, margin=dict(l=0, r=40, t=0, b=0))
+funnel_counts.update_layout(showlegend=False, margin=dict(l=0, r=300, t=10, b=0))
 
 # Relatedness Per Anceestry Plot
 if len(df_4) > 0:
