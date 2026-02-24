@@ -97,7 +97,26 @@ def release_callback():
 
 def release_select():
     st.sidebar.markdown("### **Choose a release!**")
-    release_options = [10] # can replace with master key reference
+
+    # Get available releases from GCS bucket
+    bucket = get_gcloud_bucket("genotools-server")
+    prefix = "cohort_browser/nba/"
+    blobs = bucket.list_blobs(prefix=prefix, delimiter="/")
+
+    # Iterate through folders
+    list(blobs)
+    release_options = []
+    for prefix_path in blobs.prefixes:
+        folder_name = prefix_path.rstrip("/").split("/")[-1]
+        if folder_name.startswith("release"):
+            try:
+                release_num = int(folder_name.replace("release", ""))
+                release_options.append(release_num)
+            except ValueError:
+                continue
+            
+    # Sort in descending order
+    release_options = sorted(release_options, reverse=True)
 
     if "release_choice" not in st.session_state:
         st.session_state["release_choice"] = release_options[0]
